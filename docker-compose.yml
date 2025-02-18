@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  telegram_psy_mongo:
+    image: "mongo:7.0"
+    restart: on-failure
+    ports:
+      - "27017:27017"
+    volumes:
+      - "telegram_psy_mongo:/data/db"
+
+  telegram_bot:
+    container_name: tg_bot
+    image: ghcr.io/arcadiyyyyyyyy/psy_telegram_bot:refs_heads_main
+    restart: unless-stopped
+    environment:
+      env-file: .env
+    volumes:
+      - "telegram_bot:/home/app/telegram_bot_persistance.pc"
+      - "telegram_bot:/home/app/telegram_bot.log"
+      - "telegram_bot:/home/app/backup"
+
+  admin_bot:
+    container_name: admin_bot
+    image: ghcr.io/arcadiyyyyyyyy/psy_telegram_admin_bot:refs_heads_main
+    restart: unless-stopped
+    environment:
+      env-file: .env
+    volumes:
+      - "admin_bot:/home/app/admin_bot.log"
+
+volumes:
+  telegram_psy_mongo:
+  telegram_bot:
+  admin_bot:
