@@ -8,28 +8,41 @@ services:
       - "27017:27017"
     volumes:
       - "telegram_psy_mongo:/data/db"
+    networks:
+      - my_network
 
   telegram_bot:
     container_name: tg_bot
-    image: ghcr.io/arcadiyyyyyyyy/psy_telegram_bot:refs_heads_main
+    image: ghcr.io/arcadiyyyyyyyy/telegram_psy/psy_telegram_bot:refs_heads_main
+    pull_policy: always
     restart: unless-stopped
-    environment:
-      env-file: .env
+    env_file: .env
     volumes:
       - "telegram_bot:/home/app/telegram_bot_persistance.pc"
       - "telegram_bot:/home/app/telegram_bot.log"
       - "telegram_bot:/home/app/backup"
+    depends_on:
+      - telegram_psy_mongo
+    networks:
+      - my_network
 
   admin_bot:
     container_name: admin_bot
-    image: ghcr.io/arcadiyyyyyyyy/psy_telegram_admin_bot:refs_heads_main
+    image: ghcr.io/arcadiyyyyyyyy/telegram_psy/psy_telegram_admin_bot:refs_heads_main
+    pull_policy: always
     restart: unless-stopped
-    environment:
-      env-file: .env
+    env_file: .env
     volumes:
       - "admin_bot:/home/app/admin_bot.log"
+    depends_on:
+      - telegram_psy_mongo
+    networks:
+      - my_network
 
 volumes:
   telegram_psy_mongo:
   telegram_bot:
   admin_bot:
+
+networks:
+  my_network:

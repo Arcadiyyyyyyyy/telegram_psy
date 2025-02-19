@@ -42,7 +42,7 @@ jobs:
           echo TAG=$TAG
 
           # Build the Docker image
-          docker build . -t $TAG
+          docker build . -f admin_bot.dockerfile -t $TAG 
 
           # Docker Push
           docker push $TAG

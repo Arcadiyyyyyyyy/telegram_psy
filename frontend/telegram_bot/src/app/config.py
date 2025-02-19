@@ -1,5 +1,5 @@
 import datetime
-from typing import Any
+from typing import Any, Optional
 
 from telegram.ext import (
     Application,
@@ -21,90 +21,113 @@ import frontend.telegram_bot.src.app.commands.test_atq
 import frontend.telegram_bot.src.app.commands.test_iq
 import frontend.telegram_bot.src.app.utils
 
-conversation_handlers = (
-    frontend.shared.src.config.ConversationHandlerConfig(
-        (
-            x
-            := frontend.telegram_bot.src.app.commands.test_atq.Conversation().conversation_name  # noqa
-        ),
-        "Take ATQ test",
-        (
-            CommandHandler(
-                x,
-                frontend.telegram_bot.src.app.commands.test_atq.Conversation().command,  # noqa
-            ),
-        ),
-        {
-            k: (
-                CallbackQueryHandler(
-                    frontend.telegram_bot.src.app.commands.test_atq.Conversation().callback_handler,  # noqa
-                    pattern=rf"a\+{frontend.telegram_bot.src.app.commands.test_atq.Conversation().conversation_name}\+[a-zA-Z0-9+]+",  # noqa
-                ),
-            )
-            for k, v in frontend.telegram_bot.src.app.commands.test_atq.Conversation().commands  # noqa
-        },
-        [
-            CommandHandler(
-                "cancel",
-                frontend.telegram_bot.src.app.commands.test_atq.Conversation().cancel,
-            ),
-            CallbackQueryHandler(
-                frontend.telegram_bot.src.app.commands.test_atq.Conversation().callback_cancel,  # noqa
-            ),
-            MessageHandler(
-                filters.TEXT & filters.COMMAND,
-                frontend.telegram_bot.src.app.commands.test_atq.Conversation().cancel,
-            ),
-        ],
-        2,
-    ),
-    frontend.shared.src.config.ConversationHandlerConfig(
-        (
-            x
-            := frontend.telegram_bot.src.app.commands.test_iq.Conversation().conversation_name  # noqa
-        ),
-        "Take IQ test",
-        (
-            CommandHandler(
-                x,
-                frontend.telegram_bot.src.app.commands.test_iq.Conversation().command,  # noqa
-            ),
-        ),
-        {
-            k: (
-                CallbackQueryHandler(
-                    frontend.telegram_bot.src.app.commands.test_iq.Conversation().callback_handler,  # noqa
-                    pattern=rf"a\+{frontend.telegram_bot.src.app.commands.test_iq.Conversation().conversation_name}\+[a-zA-Z0-9+]+",  # noqa
-                ),
-            )
-            for k, v in frontend.telegram_bot.src.app.commands.test_iq.Conversation().commands  # noqa
-        },
-        [
-            CommandHandler(
-                "cancel",
-                frontend.telegram_bot.src.app.commands.test_iq.Conversation().cancel,
-            ),
-            CallbackQueryHandler(
-                frontend.telegram_bot.src.app.commands.test_iq.Conversation().callback_cancel,  # noqa
-            ),
-            MessageHandler(
-                filters.TEXT & filters.COMMAND,
-                frontend.telegram_bot.src.app.commands.test_iq.Conversation().cancel,
-            ),
-        ],
-        3,
-    ),
-)
 
-commands = (
-    frontend.shared.src.config.Command(
-        "start", "Start the bot", frontend.telegram_bot.src.app.commands.start.command
-    ),
-    frontend.shared.src.config.Command(
-        "help", "Get help", frontend.telegram_bot.src.app.commands.help.command
-    ),
-    frontend.shared.src.config.Command("cancel", "Cancel the current test", None),
-)
+class Commands:
+    _instance: Optional["Commands"] = None
+    __initialized: bool
+
+    conversation_handlers: Any
+    commands: Any
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(Commands, cls).__new__(cls)
+            cls._instance.__initialized = False
+        return cls._instance
+
+    def __init__(self):
+        if self.__initialized:
+            return
+        self.__initialized = True
+
+        self.conversation_handlers = (
+            frontend.shared.src.config.ConversationHandlerConfig(
+                (
+                    x
+                    := frontend.telegram_bot.src.app.commands.test_atq.Conversation().conversation_name  # noqa
+                ),
+                "Take ATQ test",
+                (
+                    CommandHandler(
+                        x,
+                        frontend.telegram_bot.src.app.commands.test_atq.Conversation().command,  # noqa
+                    ),
+                ),
+                {
+                    k: (
+                        CallbackQueryHandler(
+                            frontend.telegram_bot.src.app.commands.test_atq.Conversation().callback_handler,  # noqa
+                            pattern=rf"a\+{frontend.telegram_bot.src.app.commands.test_atq.Conversation().conversation_name}\+[a-zA-Z0-9+]+",  # noqa
+                        ),
+                    )
+                    for k, v in frontend.telegram_bot.src.app.commands.test_atq.Conversation().commands  # noqa
+                },
+                [
+                    CommandHandler(
+                        "cancel",
+                        frontend.telegram_bot.src.app.commands.test_atq.Conversation().cancel,
+                    ),
+                    CallbackQueryHandler(
+                        frontend.telegram_bot.src.app.commands.test_atq.Conversation().callback_cancel,  # noqa
+                    ),
+                    MessageHandler(
+                        filters.TEXT & filters.COMMAND,
+                        frontend.telegram_bot.src.app.commands.test_atq.Conversation().cancel,
+                    ),
+                ],
+                2,
+            ),
+            frontend.shared.src.config.ConversationHandlerConfig(
+                (
+                    x
+                    := frontend.telegram_bot.src.app.commands.test_iq.Conversation().conversation_name  # noqa
+                ),
+                "Take IQ test",
+                (
+                    CommandHandler(
+                        x,
+                        frontend.telegram_bot.src.app.commands.test_iq.Conversation().command,  # noqa
+                    ),
+                ),
+                {
+                    k: (
+                        CallbackQueryHandler(
+                            frontend.telegram_bot.src.app.commands.test_iq.Conversation().callback_handler,  # noqa
+                            pattern=rf"a\+{frontend.telegram_bot.src.app.commands.test_iq.Conversation().conversation_name}\+[a-zA-Z0-9+]+",  # noqa
+                        ),
+                    )
+                    for k, v in frontend.telegram_bot.src.app.commands.test_iq.Conversation().commands  # noqa
+                },
+                [
+                    CommandHandler(
+                        "cancel",
+                        frontend.telegram_bot.src.app.commands.test_iq.Conversation().cancel,
+                    ),
+                    CallbackQueryHandler(
+                        frontend.telegram_bot.src.app.commands.test_iq.Conversation().callback_cancel,  # noqa
+                    ),
+                    MessageHandler(
+                        filters.TEXT & filters.COMMAND,
+                        frontend.telegram_bot.src.app.commands.test_iq.Conversation().cancel,
+                    ),
+                ],
+                3,
+            ),
+        )
+
+        self.commands = (
+            frontend.shared.src.config.Command(
+                "start",
+                "Start the bot",
+                frontend.telegram_bot.src.app.commands.start.command,
+            ),
+            frontend.shared.src.config.Command(
+                "help", "Get help", frontend.telegram_bot.src.app.commands.help.command
+            ),
+            frontend.shared.src.config.Command(
+                "cancel", "Cancel the current test", None
+            ),
+        )
 
 
 async def set_up_commands(
@@ -118,7 +141,10 @@ async def set_up_commands(
     ],
 ):
     await bot.bot.set_my_commands(
-        [(x.command, x.description) for x in commands + conversation_handlers]
+        [
+            (x.command, x.description)
+            for x in Commands().commands + Commands().conversation_handlers
+        ]
     )
 
 
@@ -132,7 +158,7 @@ def bot_setup(
         Any,
     ],
 ):
-    for conversation_handler in conversation_handlers:
+    for conversation_handler in Commands().conversation_handlers:
         bot.add_handler(
             ConversationHandler(
                 conversation_handler.entrypoint,  # type: ignore
@@ -144,7 +170,7 @@ def bot_setup(
             group=conversation_handler.group,
         )
 
-    for command in commands:
+    for command in Commands().commands:
         if command.callback is None:
             continue
         bot.add_handler(
