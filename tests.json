@@ -1,0 +1,1427 @@
+[
+  {
+    "test_name": "atq",
+    "test_step": 1,
+    "text": "Я часто чего-нибудь пугаюсь"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 2,
+    "text": "Обычно я люблю проводить свободное время в компании"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 3,
+    "text": "Я редко грущу, посмотрев грустный фильм"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 4,
+    "text": "Я редко чувствую себя счастливым"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 5,
+    "text": "Как правило, я не замечаю, когда мои мускулы слегка напрягаются"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 6,
+    "text": "Когда я пытаюсь сосредоточиться, я часто отвлекаюсь"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 7,
+    "text": "Я замечаю эмоциональный настрой рисунков и картин"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 8,
+    "text": "Бывали дни, когда я чувствовал себя настолько подавленным, что мне даже говорить было тяжело"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 9,
+    "text": "Я не люблю орать во всю глотку – от этого возникает очень неприятное ощущение"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 10,
+    "text": "Меня нельзя назвать терпеливым"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 11,
+    "text": "Если бы я занимался чем-то творческим, мой ум без труда генерировал бы новые идеи"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 12,
+    "text": "Обычно я обращаю внимание на детали формы и цвета того, что меня окружает"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 13,
+    "text": "Если я хочу, я могу хорошо хранить секреты"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 14,
+    "text": "Я редко предаюсь грезам наяву"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 15,
+    "text": "Когда я взволнован, жду какого-то радостного события, мне очень трудно сосредоточиться на каких-то делах, требующих внимания"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 16,
+    "text": "Я гораздо более чувствителен к мерзким запахам, чем другие люди"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 17,
+    "text": "Мне нравится разговаривать с незнакомыми людьми"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 18,
+    "text": "Я редко обращаю внимание на то, какого цвета у людей глаза"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 19,
+    "text": "В моей жизни было множество моментов, когда я был настолько счастлив, что мне казалось, что лучше уже и быть не может"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 20,
+    "text": "Если что-то у меня не ладится, я обычно остаюсь спокойным"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 21,
+    "text": "Я неуютно чувствую себя, когда смотрю вниз с большой высоты"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 22,
+    "text": "Мне нравится быть в компании"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 23,
+    "text": "Иногда я грущу дольше, чем час подряд"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 24,
+    "text": "Когда я пытаюсь сосредоточиться на чем-либо, мне бывает трудно отрешиться от отвлекающих мыслей"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 25,
+    "text": "Когда я пытаюсь кому-нибудь дозвониться, а там «занято», я часто раздражаюсь"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 26,
+    "text": "Я редко понимаю, какое настроение у окружающих меня людей"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 27,
+    "text": "Переживание счастья у меня обычно длится недолго"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 28,
+    "text": "Я могу легко сдержать смех в неуместной ситуации"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 29,
+    "text": "Мне нравится распевать песни, когда я хожу пешком или веду машину"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 30,
+    "text": "Мне неприятна громкая музыка"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 31,
+    "text": "Я обычно обращаю внимание на пение птиц неподалеку"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 32,
+    "text": "Обычно я делаю важные дела (оплачиваю счета, выполняю задания и пр.) даже раньше, чем требуется"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 33,
+    "text": "Мне не трудно выдумать что-то оригинальное или творческое"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 34,
+    "text": "Иногда какие-то простые мелочи, события или занятия вызывают у меня массу удовольствия"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 35,
+    "text": "Если меня прервали или отвлекли, мне обычно легко вернуться и вновь сосредоточиться на том, чем я занимался"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 36,
+    "text": "Слушая музыку, я обычно обращаю внимание на тонкие звуковые и мелодические нюансы"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 37,
+    "text": "Мне не особо нравится дурачиться"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 38,
+    "text": "Существует очень много кулинарных блюд, которые мне не нравятся"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 39,
+    "text": "Как правило, мне не нравится находиться в больших компаниях"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 40,
+    "text": "Иногда я замечаю, что у другого человека, несмотря на улыбку, грустный взгляд"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 41,
+    "text": "Если мне что-то приглянулось в магазине, мне очень трудно удержаться и не купить это"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 42,
+    "text": "Меня часто раздражает слишком яркий свет"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 43,
+    "text": "Когда я чем-то опечален, мне трудно сосредоточиться на делах"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 44,
+    "text": "Я часто обращаю внимание, гладко или шероховато то, к чему я прикасаюсь"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 45,
+    "text": "Когда я слышу рассказ о печальном событии, я, как правило, не начинаю от этого грустить"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 46,
+    "text": "Мне бы понравилась работа, требующая постоянного общения с людьми"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 47,
+    "text": "Я, как правило, не начинаю злиться, когда приходится стоять в длинной, медленно продвигающейся очереди"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 48,
+    "text": "Мне иногда снятся сны со сложным сюжетом и массой подробностей"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 49,
+    "text": "Мне редко бывает грустно после того, как я попрощаюсь с друзьями или родственниками"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 50,
+    "text": "Я часто опаздываю на встречи"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 51,
+    "text": "Мне бы не понравилось слушать громкую музыку в сопровождении лазерного шоу"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 52,
+    "text": "Мои фантазии не отличаются богатством и разработанностью деталей"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 53,
+    "text": "Когда я пытаюсь что-то изучать, мне бывает трудно отрешиться от окружающих звуков и сосредоточиться"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 54,
+    "text": "Некоторые запахи иногда вызывают у меня эмоционально нагруженные воспоминания"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 55,
+    "text": "Я всегда могу дождаться своей очереди говорить, даже когда я возбужден, взволнован и мне очень хочется поскорее высказать свою мысль"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 56,
+    "text": "Я могу заметить малейшие изменения запаха и вкуса пищи"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 57,
+    "text": "Меня ужасно раздражают скрежет и шуршание"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 58,
+    "text": "Иногда, когда я вдруг слышу песню, которую не слышал давно, меня охватывают эмоционально нагруженные воспоминания"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 59,
+    "text": "Мне не нравится быть в компании"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 60,
+    "text": "Я часто беспокоюсь о чем-то, что оказывается не важным"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 61,
+    "text": "Мне не нравится танцевать спонтанно, импровизируя, «как Бог на душу положит»"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 62,
+    "text": "Я часто строю планы, которым потом не следую"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 63,
+    "text": "Иногда у меня не получается радоваться тому, что, казалось бы, должно доставить мне удовольствие"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 64,
+    "text": "Когда я решаю избавиться от нежелательной привычки, мне это, как правило, удается"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 65,
+    "text": "Мне становится грустно, когда я прощаюсь с друзьями и родственниками, которых еще долго не увижу"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 66,
+    "text": "Когда я рассматриваю рисунки или картины, иногда я замечаю, как именно художник использует свет и цвет, чтобы передать настроение"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 67,
+    "text": "Мне бы не понравилась работа, требующая постоянного взаимодействия с людьми"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 68,
+    "text": "Обычно мне удается обращать внимание на несколько вещей или процессов одновременно"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 69,
+    "text": "Когда я босиком, я обычно обращаю внимание на свойства той поверхности, которой касаются мои ступни"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 70,
+    "text": "Мне редко снятся сны"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 71,
+    "text": "Когда я беспокоюсь о результатах какого-то мероприятия, мне трудно сосредоточиться на других делах, пока эти результаты не станут известны"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 72,
+    "text": "Если мне приходится где-то сидеть и ждать (например, в приемной), это меня ужасно нервирует"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 73,
+    "text": "Когда я смотрю кинофильм, я часто обращаю внимание на то, как именно дождь, ветер, ясная погода и пр. используются для того, чтобы передать настроение персонажей"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 74,
+    "text": "Иногда я начинаю сильно грустить из-за пустяков"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 75,
+    "text": "Мое сознание порой бывает переполнено мыслями, идеями или образами"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 76,
+    "text": "Я часто бываю печален"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 77,
+    "text": "Когда у меня есть свободное время, я часто обнаруживаю, что делаю совсем не то, что планировал"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 78,
+    "text": "Я осознаю, как именно погода влияет на мое настроение"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 79,
+    "text": "Когда я веду машину и мне приходится несколько раз подряд останавливаться перед красным светом светофора, это меня практически не раздражает"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 80,
+    "text": "Я редко получаю удовольствие от разговоров"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 81,
+    "text": "Перед засыпанием мне в голову иногда сами собой приходят какие-то мысли или звуки"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 82,
+    "text": "Я неуютно себя чувствую в тесном замкнутом пространстве, например, в лифте"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 83,
+    "text": "Обычно я не замечаю, когда мое сердце начинает биться чаще"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 84,
+    "text": "Составив план осуществления трудного и важного дела, я тут же приступаю к его выполнению"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 85,
+    "text": "Прикосновение грубой ткани (например, шерстяной) к коже обычно не вызывает у меня неприятных эмоций"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 86,
+    "text": "Когда мне в голову приходит какая-то захватывающая идея, мне очень трудно удержаться от того, чтобы не начать реализовывать ее прямо тут же"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 87,
+    "text": "Похоже, иногда я понимаю что-то интуитивно"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 88,
+    "text": "Я редко чувствую себя подавленным дольше часа или двух"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 89,
+    "text": "Когда я очень счастлив, мне трудно заниматься делами, требующими распределения и удержания внимания на нескольких разных вещах"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 90,
+    "text": "У меня не бывает «нейтральных состояний», я либо несчастен, либо счастлив"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 91,
+    "text": "Когда мои планы куда-нибудь сходить или съездить срываются из-за плохой погоды, это сильно портит мне настроение"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 92,
+    "text": "Мой разум очень активен даже тогда, когда я уже улегся и жду, когда придет сон"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 93,
+    "text": "Если на мне одежда с тугим воротничком, галстук или «водолазка», я чувствую дискомфорт"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 94,
+    "text": "Я редко обращаю внимание на то, как интерьер помещения (цветовая гамма, количество и расположение окон и пр.) влияет на мое настроение"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 95,
+    "text": "Неприятные запахи не вызывают у меня резкого отвращения"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 96,
+    "text": "Как правило, когда я вспоминаю о чем-то, что необходимо сделать, я приступаю к этому тут же"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 97,
+    "text": "Обычно, посмотрев в глаза человеку, я отлично понимаю, говорит он мне правду или лжет"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 98,
+    "text": "Яркие цветные вспышки вызывают у меня неприятные ощущения"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 99,
+    "text": "Я редко о чем-либо беспокоюсь"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 100,
+    "text": "Иногда я обращаю внимание на узор, в который складываются прожилки древесины на поверхности мебели"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 101,
+    "text": "Я часто получаю удовольствие от долгих (по несколько часов) разговоров"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 102,
+    "text": "Я обычно не обращаю внимания на едва заметные детали внешнего вида предметов"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 103,
+    "text": "Когда у меня всё не ладится, я обычно не досадую, а пытаюсь что-то исправить"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 104,
+    "text": "Меня легко обрадовать, осчастливить"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 105,
+    "text": "Я люблю рассказывать анекдоты, смешить людей"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 106,
+    "text": "Когда я слышу о каком-то несчастье, мне тут же становится грустно"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 107,
+    "text": "Когда требуется, я могу без особого труда сидеть спокойно, даже когда меня переполняет энергия"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 108,
+    "text": "Я обычно не обращаю внимания на то, когда включается или выключается холодильник"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 109,
+    "text": "Я могу заставить себя взяться за трудное дело, даже когда мне не хочется"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 110,
+    "text": "Меня обычно не раздражает, когда люди опаздывают"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 111,
+    "text": "Я обычно замечаю, когда кругом тихо"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 112,
+    "text": "Когда я расстроен, мне трудно сосредоточиться"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 113,
+    "text": "Иногда мое сознание полно мало связанных друг с другом мыслей и образов"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 114,
+    "text": "Я обычно не обращаю внимания на детали одежды другого человека"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 115,
+    "text": "Иногда я пугаюсь громких звуков"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 116,
+    "text": "Когда я смотрю на луну или узор облаков, я редко вижу какие-то цельные образы (например, лицо и пр.)"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 117,
+    "text": "Даже когда у меня сегодня еще есть время, чтобы завершить какое-то дело, я часто говорю себе, что займусь этим завтра"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 118,
+    "text": "Иногда мне снятся в мельчайших подробностях места, подобных которым я никогда не видел наяву"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 119,
+    "text": "По сравнению с другими людьми, периоды подавленности и грусти у меня длятся дольше"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 120,
+    "text": "Иногда я практически весь день чувствую себя хорошо"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 121,
+    "text": "Мне редко снится несколько снов в течение одной ночи"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 122,
+    "text": "Очень яркие цвета иногда вызывают у меня неприятные ощущения"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 123,
+    "text": "Я редко обращаю внимание на свойства поверхности тех предметов, которые я держу в руках"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 124,
+    "text": "Иногда я чувствую себя ужасно подавленным"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 125,
+    "text": "Я люблю быть рядом с друзьями, даже если то, чем мы заняты, не дает возможности пообщаться"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 126,
+    "text": "Я редко осознаю разные ощущения внутри моего тела"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 127,
+    "text": "Слушая музыку, я обычно люблю включать ее громче, чем делают другие люди"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 128,
+    "text": "Я часто уклоняюсь от исполнения своих обязанностей, занимаясь чем-нибудь приятным"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 129,
+    "text": "Я редко обращаю внимание на то, как мое физическое окружение влияет на мое настроение"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 130,
+    "text": "Я часто думаю о возможных неудачах, даже если они маловероятны"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 131,
+    "text": "Когда я получаю хорошие известия, я теряю способность сосредоточиться и исполнять свои обязанности"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 132,
+    "text": "Мне нравится участвовать в беседах с несколькими людьми одновременно"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 133,
+    "text": "Я редко замечаю, когда интонация говорящего не соответствует смыслу его слов"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 134,
+    "text": "Меня страшно раздражает громкий шум"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 135,
+    "text": "Иногда творческие идеи сами, без усилий с моей стороны, приходят мне в голову"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 136,
+    "text": "Я замечаю слабые запахи и ароматы"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 137,
+    "text": "Если я считаю, что один, и вдруг обнаруживаю, что рядом кто-то есть, это меня не пугает"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 138,
+    "text": "Если я замечаю, что мне следует что-то убрать, вымыть или выстирать, я часто оставляю это на завтра"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 139,
+    "text": "Меня очень раздражает, если в магазине я не обнаруживаю того, что хотел бы купить"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 140,
+    "text": "Иногда бывает так, что чем сильнее я удерживаю себя от того, что доставляет мне удовольствие (покушать сладенького, например), тем больше вероятность, что именно это я и сделаю"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 141,
+    "text": "Я, как правило, осознаю, как именно цветовая гамма и освещенность комнаты влияет на мое настроение"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 142,
+    "text": "Иногда, читая печальное место в книге, я начинаю плакать"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 143,
+    "text": "Иногда мне в голову приходят интуитивные догадки еще до того, как я как следует обдумаю проблему"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 144,
+    "text": "Особенно мне нравятся те разговоры, где я могу говорить то, что приходит мне в голову, не продумывая"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 145,
+    "text": "Когда я отдыхаю, закрыв глаза, перед моим взором иногда проходят разные образы"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 146,
+    "text": "Когда что-то касается моей кожи, меня это обычно не раздражает"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 147,
+    "text": "Мне трудно удержаться, когда меня тянет что-нибудь этакое съесть или выпить и пр"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 148,
+    "text": "Я люблю поговорить"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 149,
+    "text": "Я, как правило, не справляюсь с делами в срок"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 150,
+    "text": "Я всё время о чем-нибудь беспокоюсь"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 151,
+    "text": "У меня легко портится настроение"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 152,
+    "text": "Были случаи, когда я безо всяких веществ, влияющих на сознание, ощущал ни с чем не сравнимое блаженство"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 153,
+    "text": "Я всегда стараюсь как можно быстрее разобраться со своими обязательствами"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 154,
+    "text": "Мне бы не понравилось участвовать в стремительном, диком карнавальном шествии"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 155,
+    "text": "Обычно я не замечаю слабые запахи и ароматы"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 156,
+    "text": "Когда я боюсь, что что-то может не получиться, я вообще стараюсь не браться за это дело"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 157,
+    "text": "Обычно я замечаю, когда люди стараются показать, что им не страшно"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 158,
+    "text": "Мне бы понравилось играть в сложную, стремительную компьютерную игру, которая сопровождается громким шумом и яркими вспышками"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 159,
+    "text": "Когда я смотрю кинофильм, я обычно не обращаю внимания на то, как пейзаж используется для того, чтобы передать настроение персонажей"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 160,
+    "text": "По сравнению с другими людьми, общение доставляет мне меньше удовольствия"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 161,
+    "text": "Когда я впервые пробую что-то делать, я не озабочен тем, что у меня может не получиться"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 162,
+    "text": "Когда мое тело расслаблено, разум всё равно достаточно активен"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 163,
+    "text": "Обычно я терпелив"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 164,
+    "text": "Иногда относительно мелкие неприятности портят мне настроение на несколько часов"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 165,
+    "text": "У меня практически не бывает дней, когда бы я не испытывал хотя бы краткие мгновения полного счастья"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 166,
+    "text": "Иногда я испытываю панику или ужас без очевидных причин"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 167,
+    "text": "Обычно я осознаю, какие чувства выражаются посредством искусства (например, на картине, на фотографии, в музыке, в танце и пр.)"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 168,
+    "text": "Мне нравится быть среди людей, которые много разговаривают"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 169,
+    "text": "Я обычно понимаю, когда кто-то скрывает за приятной улыбкой совсем другие чувства"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 170,
+    "text": "Если мне приходится несколько минут ждать у телефона, это меня очень раздражает"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 171,
+    "text": "Непросто сделать меня по-настоящему счастливым"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 172,
+    "text": "Я могу не забавляться в ситуации, когда это неуместно; мне это совсем не сложно"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 173,
+    "text": "Многие резкие запахи (и ароматы) мне неприятны"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 174,
+    "text": "Мне бы понравилось лазерное шоу со множеством ярких цветных вспышек"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 175,
+    "text": "Мне трудно переключаться между двумя разными делами"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 176,
+    "text": "У меня очень заразительный, громкий смех"
+  },
+  {
+    "test_name": "atq",
+    "test_step": 177,
+    "text": "Я могу продолжать делать какое-то дело, даже если мне не хочется"
+  },
+  {
+    "text": "Перед вами четыре теста, которые похожи на четыре различные игры-головоломки. В них нет слов, только рисунки. В каждом тесте есть примеры, которые нужны для того, чтобы понять, как выполнять задания. Сначала ознакомьтесь с примерами, а затем асессор попросит вас продолжить самостоятельно. Некоторые задания в конце тестов могут быть очень сложными, однако попробуйте решить как можно больше заданий. Даже если вы не уверены – отметьте вариант ответа, который по вашему мнению может быть правильным. Если вы не уверены какой ответ правильный – можно попытаться угадать, так как за неправильные ответы вы не теряете баллы.\nПосмотрите на первый пример. Слева есть четыре квадрата с изображениями. Последний из них пустой. Справа вы видите ещё шесть изображений (a, b, c, d, e, f). Из этих шести вариантов, выберите тот, который продолжит логику ряда изображений слева.\n\nВ первых трех изображениях деревце наклоняется всё больше и больше вправо. Выберите правильное изображение справа (a-f), чтобы подставить его в пустое поле.\nПравильный ответ – дерево в третьем квадрате (с), потому что оно наклонилось вправо больше, чем последнее на изображениях слева.\n\nПосмотрите на второй пример. В каждом последующем квадрате синяя часть опускается всё ниже и ниже. Таким образом, на следующем шаге она пройдет более половины пути вниз. Выберите ответ, который вы считаете правильным, и заполните поле для ответа в вашем листе ответов. Какой ответ правильный?\n(e) – правильный ответ\n\nТеперь взгляните на третий пример. Фигуры по одной добавляются к имеющимся по часовой стрелке с каждым следующим изображением. На третьем изображении три фигуры, сколько их будет в пустом поле слева? \nВерный ответ – четыре. Выберите квадрат справа, в котором четыре фигуры находятся в нужном положении, и отметьте правильный ответ в своем листе ответов. Правильный ответ – (e). \n\nВам может не хватить времени, чтобы выполнить все задания на двух листах. Работайте так быстро и внимательно, как сможете.",
+    "test_name": "iq",
+    "test_step": 1,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase1/1_main.png",
+    "is_main_phase_message": true,
+    "phase": 1,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": 90
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 2,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase1/question_1.png",
+    "is_main_phase_message": false,
+    "phase": 1,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 3,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase1/question_2.png",
+    "is_main_phase_message": false,
+    "phase": 1,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 4,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase1/question_3.png",
+    "is_main_phase_message": false,
+    "phase": 1,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 5,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase1/question_4.png",
+    "is_main_phase_message": false,
+    "phase": 1,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 6,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase1/question_5.png",
+    "is_main_phase_message": false,
+    "phase": 1,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 7,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase1/question_6.png",
+    "is_main_phase_message": false,
+    "phase": 1,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 8,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase1/question_7.png",
+    "is_main_phase_message": false,
+    "phase": 1,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 9,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase1/question_8.png",
+    "is_main_phase_message": false,
+    "phase": 1,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 10,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase1/question_9.png",
+    "is_main_phase_message": false,
+    "phase": 1,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 11,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase1/question_10.png",
+    "is_main_phase_message": false,
+    "phase": 1,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 12,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase1/question_11.png",
+    "is_main_phase_message": false,
+    "phase": 1,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 13,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase1/question_12.png",
+    "is_main_phase_message": false,
+    "phase": 1,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 14,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase1/question_13.png",
+    "is_main_phase_message": false,
+    "phase": 1,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "Посмотрите на примеры ниже. Три фигуры в каждом ряду чем-то похожи, но две других отличаются от этих трёх. В каждом ряду вы должны найти две фигуры, которые отличаются от других. Когда вы их найдете, заполните в своем бланке ответов два поля, под которыми расположены те же варианты, что и в выбранных вами ответах.\n\nВ первом примере три фигуры имеют три стороны, а две другие фигуры четырехсторонние. Это фигуры (b) и (d). Они помечены для вас как правильные ответы, потому что они отличаются от других вариантов в этом ряду. \n\n\nПосмотрите на второй пример. Найдите две фигуры, которые отличаются от остальных трех. Заполненные пунктиром круги отличаются от других трех фигур, и поэтому (c) и (e) – это ответы, которые нужно отметить в вашем бланке ответов. Отметьте их.\n\nТеперь, когда асессор скажет: «Приступайте!», выберите две фигуры в каждом ряду, которые отличаются от других трех. Затем отметьте два поля, в которых есть те же варианты ответов, что и в выбранных вами. Работайте быстро и внимательно,  закончите столько, сколько успеете. \n\nГотовы?",
+    "test_name": "iq",
+    "test_step": 15,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase2/2_main.png",
+    "is_main_phase_message": true,
+    "phase": 2,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": 90
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 16,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase2/question_1.png",
+    "is_main_phase_message": false,
+    "phase": 2,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 17,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase2/question_2.png",
+    "is_main_phase_message": false,
+    "phase": 2,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 18,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase2/question_3.png",
+    "is_main_phase_message": false,
+    "phase": 2,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 19,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase2/question_4.png",
+    "is_main_phase_message": false,
+    "phase": 2,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 20,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase2/question_5.png",
+    "is_main_phase_message": false,
+    "phase": 2,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 21,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase2/question_6.png",
+    "is_main_phase_message": false,
+    "phase": 2,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 22,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase2/question_7.png",
+    "is_main_phase_message": false,
+    "phase": 2,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 23,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase2/question_8.png",
+    "is_main_phase_message": false,
+    "phase": 2,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 24,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase2/question_9.png",
+    "is_main_phase_message": false,
+    "phase": 2,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 25,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase2/question_10.png",
+    "is_main_phase_message": false,
+    "phase": 2,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 26,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase2/question_11.png",
+    "is_main_phase_message": false,
+    "phase": 2,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 27,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase2/question_12.png",
+    "is_main_phase_message": false,
+    "phase": 2,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 28,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase2/question_13.png",
+    "is_main_phase_message": false,
+    "phase": 2,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 29,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase2/question_14.png",
+    "is_main_phase_message": false,
+    "phase": 2,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "Посмотрите на примеры ниже. В большом квадрате есть четыре маленьких квадрата. В трёх из них есть рисунки, но в четвёрном квадрате рисунок отсутствует. Один из вариантов в строке справа логично вписывается в пустое поле. Вы должны выбрать правильный вариант и отметить его в своём бланке ответов.\n\nВ первом примере правильный ответ – (b), потому что он лучше всего вписывается в пустое поле. \n\nТеперь посмотрите на второй пример. Какой ответ правильный? Правильный ответ – (c), маленькая пунктирная фигура, смотрящая вправо, логичнее всего дополняет изображения слева. Отметьте правильный ответ в своем бланке ответов. \n\nПосмотрите на третий пример. Нам необходимо найти рисунок, который содержит один круг или два? Один. Круг должен быть прозрачным или пунктирным? Он должен быть прозрачным. Поэтому в данном примере (f) – правильный ответ. Отметьте его.\nКогда асессор скажет: «Приступайте!» начните с первого ряда, и найдите рисунок, который лучше всего заполнит пустое поле. Затем в вашем бланке ответов обведите букву, которая соответствует вашему ответу.\n\nГотовы?",
+    "test_name": "iq",
+    "test_step": 30,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase3/3_main.png",
+    "is_main_phase_message": true,
+    "phase": 3,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": 90
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 31,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase3/question_1.png",
+    "is_main_phase_message": false,
+    "phase": 3,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 32,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase3/question_2.png",
+    "is_main_phase_message": false,
+    "phase": 3,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 33,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase3/question_3.png",
+    "is_main_phase_message": false,
+    "phase": 3,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 34,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase3/question_4.png",
+    "is_main_phase_message": false,
+    "phase": 3,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 35,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase3/question_5.png",
+    "is_main_phase_message": false,
+    "phase": 3,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 36,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase3/question_6.png",
+    "is_main_phase_message": false,
+    "phase": 3,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 37,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase3/question_7.png",
+    "is_main_phase_message": false,
+    "phase": 3,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 38,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase3/question_8.png",
+    "is_main_phase_message": false,
+    "phase": 3,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 39,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase3/question_9.png",
+    "is_main_phase_message": false,
+    "phase": 3,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 40,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase3/question_10.png",
+    "is_main_phase_message": false,
+    "phase": 3,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 41,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase3/question_11.png",
+    "is_main_phase_message": false,
+    "phase": 3,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 42,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase3/question_12.png",
+    "is_main_phase_message": false,
+    "phase": 3,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 43,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase3/question_13.png",
+    "is_main_phase_message": false,
+    "phase": 3,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "Слева есть квадрат, в котором нарисованы фигуры. В квадрате в первом примере есть точка, которая находится одновременно и в круге, и в квадрате. Теперь посмотрите на ряд из пяти возможных ответов. Сможете ли вы найти рисунок, на котором можно было бы нарисовать точку, которая находилась бы как внутри круга, так и внутри квадрата. Ни в одном из ответов это не получится, кроме третьего (с).  Вариант (с) отмечен как правильный в вашем бланке ответов.\n\nПосмотрите на второй пример. На рисунке точка находится внутри треугольника, но снаружи прямоугольника. В ряду справа есть только одна фигура, где вы могли бы поставить точку на треугольнике и не поставить её на прямоугольнике. Посмотрите внимательно, и вы увидите, что правильный ответ – (d). Отметьте его в своём листе ответов.\n\nВ третьем примере точка находится внутри треугольника и над изогнутой линией. В каком единственном варианте справа можно поставить точку таким же образом? В варианте (b). Отметьте его в своем листе ответов.\n\nКогда асессор скажет: «Приступайте!», начинайте с первого ряда. Посмотрите внимательно, где находится точка. Найдите рисунок, на котором вы могли бы поставить точку таким же образом, и отметьте нужную букву в вашем бланке. \n\nПожалуйста, не делайте никаких пометок на буклете.\n\nГотовы?",
+    "test_name": "iq",
+    "test_step": 44,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase4/4_main.png",
+    "is_main_phase_message": true,
+    "phase": 4,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": 90
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 45,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase4/question_1.png",
+    "is_main_phase_message": false,
+    "phase": 4,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 46,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase4/question_2.png",
+    "is_main_phase_message": false,
+    "phase": 4,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 47,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase4/question_3.png",
+    "is_main_phase_message": false,
+    "phase": 4,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 48,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase4/question_4.png",
+    "is_main_phase_message": false,
+    "phase": 4,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 49,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase4/question_5.png",
+    "is_main_phase_message": false,
+    "phase": 4,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 50,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase4/question_6.png",
+    "is_main_phase_message": false,
+    "phase": 4,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 51,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase4/question_7.png",
+    "is_main_phase_message": false,
+    "phase": 4,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 52,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase4/question_8.png",
+    "is_main_phase_message": false,
+    "phase": 4,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 53,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase4/question_9.png",
+    "is_main_phase_message": false,
+    "phase": 4,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  },
+  {
+    "text": "",
+    "test_name": "iq",
+    "test_step": 54,
+    "media_location": "./frontend/telegram_bot/src/content/images/iq/phase4/question_10.png",
+    "is_main_phase_message": false,
+    "phase": 4,
+    "correct_answer": null,
+    "seconds_to_pass_the_phase": null
+  }
+]

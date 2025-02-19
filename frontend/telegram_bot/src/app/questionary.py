@@ -130,10 +130,6 @@ class Conversation:
             chat_id, self.conversation_name, context.user_data
         )
 
-        test_summary = frontend.shared.src.utils.generate_test_answers_info(
-            chat_id, self.conversation_name
-        )
-
         await self.finish_extension(update, context)
 
         text = frontend.shared.src.utils.generate_test_answers_info(
@@ -183,13 +179,7 @@ class Conversation:
             )
             return ConversationHandler.END
 
-        split = callback.split("+")
-        current_step = int(split[2][4:])
-        answer_text = split[3][6:]
-
-        if answer_text == "Ready":
-            # TODO: start the timer, create a queue of finishing the test
-            pass
+        await self.callback_handler_extension(update, context)
 
         next_step = frontend.telegram_bot.src.app.utils.handle_test_answer(
             question_texts=self.question_texts,

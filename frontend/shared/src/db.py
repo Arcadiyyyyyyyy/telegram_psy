@@ -142,6 +142,16 @@ class TestsCollection(Collection):
             for x in self.read({"test_name": "atq"}, {"test_step": 1})
         )
 
+    def populate_tests_from_json(self):
+        path = Path("tests.json")
+        if not path.exists():
+            raise EnvironmentError
+        with path.open() as file:
+            info = json.loads(file.read())
+        self.delete({})
+        for test in info:
+            self.insert_one(test)
+
 
 class TestAnswersCollection(Collection):
     def __init__(self):

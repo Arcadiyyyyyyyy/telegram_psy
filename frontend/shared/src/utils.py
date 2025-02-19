@@ -49,7 +49,10 @@ async def handle_callback(query: CallbackQuery | None) -> tuple[int, str]:
     chat_id = query.from_user.id
     callback = query.data
     logger.trace(f"Got {callback} callback from user {chat_id}")
-    await query.answer()
+    try:
+        await query.answer()
+    except Exception:
+        pass
 
     data = query.data
     if data is None:

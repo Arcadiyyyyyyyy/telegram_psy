@@ -18,7 +18,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
     def __init__(self):
         super().__init__()
         # TODO: У глеба нужно уточнить что делать с юзерами, кто дропает тест в процессе.
-        # TODO: нужно наполнить контентом, нужно реализовать таймер рестрикта, нужно отфильтровать реди ответы из саммари
+        # TODO: нужно реализовать таймер рестрикта, нужно отфильтровать реди ответы из саммари
         self.commands_distributes_by_phases: dict[
             int,
             dict[
@@ -35,11 +35,26 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
     async def callback_handler_extension(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ):
-        pass
+        chat_id, callback = await frontend.shared.src.utils.handle_callback(
+            update.callback_query
+        )
+        if callback == "":
+            await context.bot.send_message(
+                chat_id,
+                self.error_text,
+            )
+            return
+
+        split = callback.split("+")
+        current_step = int(split[2][4:])
+        answer_text = split[3][6:]
+
+        if answer_text == "Ready":
+            # TODO: start the timer, create a queue of finishing the test
+            pass
 
     def _generate_function(
         self,
-        question_text: str,
         current_step: int,
         total_amount_of_steps: int,
         media_path: str,
@@ -90,7 +105,6 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
 
         for test in test_stages:
             function = self._generate_function(
-                question_text=test.text,
                 current_step=test.test_step,
                 total_amount_of_steps=total_amount_of_steps,
                 media_path=test.media_location,

@@ -31,6 +31,7 @@ class IQTestModel:
     media_location: str
     is_main_phase_message: bool
     phase: int
+    seconds_to_pass_the_phase: int | None
     created_at: datetime.datetime = arrow.utcnow().datetime
     updated_at: datetime.datetime = arrow.utcnow().datetime
 

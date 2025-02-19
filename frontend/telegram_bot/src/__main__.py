@@ -21,6 +21,7 @@ def main():
         diagnose=True,
     )
     persistence = PicklePersistence(filepath="telegram_bot_persistance.pc")
+    frontend.shared.src.db.TestsCollection().populate_tests_from_json()
     bot = (
         Application.builder()  # type: ignore
         .token(os.environ["USER_FACING_TELEGRAM_TOKEN"])

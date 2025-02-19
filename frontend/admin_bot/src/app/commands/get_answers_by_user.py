@@ -36,7 +36,7 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 for text in user_data
             ]
         ),
-    )  # TODO: change text
+    )
 
 
 async def select_the_test(update: Update, context: ContextTypes.DEFAULT_TYPE):
