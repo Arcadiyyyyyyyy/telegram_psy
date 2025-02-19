@@ -10,5 +10,5 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await frontend.shared.src.middleware.main_handler(update, context)
 
     await context.bot.send_message(
-        update.message.chat.id, "Привет! \n\n/atq для прототипа"
+        update.message.chat.id, "Привет! \n\n/atq или /iq для прототипа"
     )  # TODO: change text
