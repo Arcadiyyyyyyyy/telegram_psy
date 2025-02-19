@@ -33,7 +33,7 @@ services:
     restart: unless-stopped
     env_file: .env
     volumes:
-      - "admin_bot.pc:/home/app/persistance"
+      - "admin_bot:/home/app/persistance"
       - "admin_bot:/home/app/logs"
     depends_on:
       - telegram_psy_mongo
