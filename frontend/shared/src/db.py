@@ -2,7 +2,7 @@ import json
 import os
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any, Generator, Optional
+from typing import Any, Generator, Iterable, Optional
 
 import arrow
 from loguru import logger
@@ -60,7 +60,27 @@ class Collection:
         result = self.db[self.collection].insert_one(document)
         logger.debug(
             f"Inserted document with id {result.inserted_id} "
-            f"from {self.__class__.__name__}"
+            f"to {self.__class__.__name__}"
+        )
+        return result
+
+    def insert_many(self, documents_to_insert: Iterable[dict[str, Any]]):
+        docs_to_input: list[dict[str, Any]] = []
+        for document in documents_to_insert:
+            if document.get("created_at") is not None:
+                del document["created_at"]
+            if document.get("updated_at") is not None:
+                del document["updated_at"]
+            document_to_insert = document | {
+                "created_at": arrow.utcnow().datetime,
+                "updated_at": arrow.utcnow().datetime,
+            }
+            docs_to_input.append(document_to_insert)
+
+        result = self.db[self.collection].insert_many(docs_to_input)
+        logger.debug(
+            f"Inserted documents with ids {result.inserted_ids} "
+            f"to {self.__class__.__name__}"
         )
         return result
 
@@ -148,9 +168,10 @@ class TestsCollection(Collection):
             raise EnvironmentError
         with path.open() as file:
             info = json.loads(file.read())
+        logger.info("Started updating tests in the database")
         self.delete({})
-        for test in info:
-            self.insert_one(test)
+        self.insert_many(info)
+        logger.info("Finished updating tests in the database")
 
 
 class TestAnswersCollection(Collection):

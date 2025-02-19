@@ -18,7 +18,6 @@ class AccessDeclined(Exception):
 
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Log the error and send a telegram message to notify the developer."""
-    logger.error("Exception while handling an update:", exc_info=context.error)
 
     tb_list = traceback.format_exception(
         None,
@@ -27,6 +26,9 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
     )
     tb_string = "".join(tb_list)
 
+    logger.error(
+        f"Exception while handling an update: {tb_string}", exc_info=context.error
+    )
     update_str = update.to_dict() if isinstance(update, Update) else str(update)
 
     message = (

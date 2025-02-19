@@ -65,14 +65,14 @@ class Commands:
                 [
                     CommandHandler(
                         "cancel",
-                        frontend.telegram_bot.src.app.commands.test_atq.Conversation().cancel,
+                        frontend.telegram_bot.src.app.commands.test_atq.Conversation().cancel,  # noqa
                     ),
                     CallbackQueryHandler(
                         frontend.telegram_bot.src.app.commands.test_atq.Conversation().callback_cancel,  # noqa
                     ),
                     MessageHandler(
                         filters.TEXT & filters.COMMAND,
-                        frontend.telegram_bot.src.app.commands.test_atq.Conversation().cancel,
+                        frontend.telegram_bot.src.app.commands.test_atq.Conversation().cancel,  # noqa
                     ),
                 ],
                 2,
@@ -101,14 +101,14 @@ class Commands:
                 [
                     CommandHandler(
                         "cancel",
-                        frontend.telegram_bot.src.app.commands.test_iq.Conversation().cancel,
+                        frontend.telegram_bot.src.app.commands.test_iq.Conversation().cancel,  # noqa
                     ),
                     CallbackQueryHandler(
                         frontend.telegram_bot.src.app.commands.test_iq.Conversation().callback_cancel,  # noqa
                     ),
                     MessageHandler(
                         filters.TEXT & filters.COMMAND,
-                        frontend.telegram_bot.src.app.commands.test_iq.Conversation().cancel,
+                        frontend.telegram_bot.src.app.commands.test_iq.Conversation().cancel,  # noqa
                     ),
                 ],
                 3,

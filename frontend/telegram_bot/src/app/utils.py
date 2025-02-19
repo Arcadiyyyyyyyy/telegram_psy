@@ -39,7 +39,7 @@ def generate_question_answer_keyboard(
             "e",
         ]
         if test_phase == 1 or test_phase == 3:
-            answers += ["f"]
+            answers.append("f")
         result = InlineKeyboardMarkup(
             [
                 [

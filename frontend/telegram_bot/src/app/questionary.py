@@ -71,6 +71,12 @@ class Conversation:
         pass
 
     @abstractmethod
+    async def cancel_extension(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ):
+        pass
+
+    @abstractmethod
     def generate_command_list(
         self,
     ) -> Generator[tuple[int, Callable[..., Any]], Any, None]:
@@ -94,6 +100,8 @@ class Conversation:
 
         context.user_data["answers"] = []
         context.user_data["questions"] = []
+        context.user_data["is_failed_to_pass_test_on_time"] = False
+        context.user_data["explainer_message_ids"] = []
 
         test_answers_collection = frontend.shared.src.db.TestAnswersCollection()
         if test_answers_collection.read_one(
@@ -147,13 +155,14 @@ class Conversation:
         await frontend.shared.src.middleware.main_handler(update, context)
         if update.callback_query is not None:
             await frontend.shared.src.utils.handle_callback(update.callback_query)
-
+        await self.cancel_extension(update, context)
         return await frontend.telegram_bot.src.app.utils.abort_test(
             update, context, self.conversation_name
         )
 
     async def cancel(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         await frontend.shared.src.middleware.main_handler(update, context)
+        await self.cancel_extension(update, context)
         return await frontend.telegram_bot.src.app.utils.abort_test(
             update, context, self.conversation_name
         )

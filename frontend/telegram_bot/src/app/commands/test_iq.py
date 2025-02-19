@@ -1,8 +1,11 @@
 import types
+from datetime import timedelta
 from typing import Any, Callable, Generator
 
+import arrow
+from loguru import logger
 from telegram import Update
-from telegram.ext import ContextTypes
+from telegram.ext import ContextTypes, ConversationHandler
 
 import frontend.shared.src.db
 import frontend.shared.src.middleware
@@ -17,8 +20,9 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
 
     def __init__(self):
         super().__init__()
-        # TODO: У глеба нужно уточнить что делать с юзерами, кто дропает тест в процессе.
-        # TODO: нужно реализовать таймер рестрикта, нужно отфильтровать реди ответы из саммари
+        # TODO: У глеба нужно уточнить что делать с юзерами, кто дропает тест в процессе.  # noqa
+        # TODO: нужно отфильтровать реди ответы из саммари  # noqa
+        # TODO: нужно изменить логику проверки наличия ответов от пользователя перед началом теста  # noqa
         self.commands_distributes_by_phases: dict[
             int,
             dict[
@@ -35,6 +39,9 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
     async def callback_handler_extension(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ):
+        if context.user_data is None or update.effective_chat is None:
+            raise ValueError
+
         chat_id, callback = await frontend.shared.src.utils.handle_callback(
             update.callback_query
         )
@@ -50,8 +57,76 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         answer_text = split[3][6:]
 
         if answer_text == "Ready":
-            # TODO: start the timer, create a queue of finishing the test
-            pass
+            phase_starter_question = frontend.shared.src.db.TestsCollection().read_one(
+                {"test_step": current_step, "test_name": "iq"}
+            )
+            if phase_starter_question is None:
+                raise ValueError("Tests misconfig")
+            question = frontend.shared.src.models.IQTestModel(**phase_starter_question)
+            if question.seconds_to_pass_the_phase is None:
+                logger.error(f"Full question: {phase_starter_question}")
+                raise ValueError("Tests misconfig")
+
+            time_of_starting_the_phase = arrow.utcnow()
+            expected_to_finish_test_before = time_of_starting_the_phase + timedelta(
+                seconds=question.seconds_to_pass_the_phase
+            )
+
+            context.job_queue.run_once(  # type: ignore
+                callback=self._handle_time_restrictions,
+                when=expected_to_finish_test_before.datetime,
+                name=f"Time restriction for {question.phase} phase of IQ test for user {chat_id}",  # noqa
+                chat_id=chat_id,
+                user_id=chat_id,
+            )
+            logger.info(f"Created a time restriction job for chat id {chat_id}")
+
+        for message_id in context.user_data["explainer_message_ids"]:
+            try:
+                await context.bot.delete_message(chat_id=chat_id, message_id=message_id)
+            except Exception:
+                pass
+            context.user_data["explainer_message_ids"].remove(message_id)
+
+    async def finish_extension(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ):
+        if update.effective_chat is None:
+            raise ValueError
+        self._remove_time_restriction_jobs(context, update.effective_chat.id)
+
+    async def cancel_extension(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ):
+        if update.effective_chat is None:
+            raise ValueError
+        self._remove_time_restriction_jobs(context, update.effective_chat.id)
+
+    async def _handle_time_restrictions(self, context: ContextTypes.DEFAULT_TYPE):
+        if context.user_data is None:
+            raise ValueError
+        context.user_data["is_failed_to_pass_test_on_time"] = True
+
+    async def _out_of_time_error(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ):
+        if update.effective_chat is None or context.user_data is None:
+            raise ValueError
+        chat_id = update.effective_chat.id
+
+        context.user_data["finished_at"] = arrow.utcnow().datetime
+        chat_id = update.effective_chat.id
+
+        frontend.telegram_bot.src.app.utils.save_test_answers(
+            chat_id, self.conversation_name, context.user_data
+        )
+
+        await context.bot.send_message(
+            chat_id,
+            "К сожалению, вы не успели пройти тест целиком за выделенное время. \n\nВаши результаты сохранены.",
+        )
+
+        # TODO: тут возможно текст изменить, и саммари прислать
 
     def _generate_function(
         self,
@@ -68,12 +143,28 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                     "template_func function must only be provided "
                     + "with updates that have effective chat and effective message"
                 )
+            if context.user_data["is_failed_to_pass_test_on_time"] is True:
+                await self._out_of_time_error(update, context)
+                return ConversationHandler.END
+
             next_test = frontend.shared.src.db.TestsCollection().read_one(
-                {"test_step": current_step + 1}
+                {"test_step": current_step + 1, "test_name": "iq"}
             )
-            is_main_phase_message = False
-            if next_test is not None:
-                is_main_phase_message = next_test.get("is_main_phase_message", False)
+            if next_test is None:
+                raise ValueError
+            next_test = frontend.shared.src.models.IQTestModel(**next_test)
+            phase = (
+                next_test.phase
+                if not next_test.is_main_phase_message
+                else next_test.phase - 1
+            )
+            current_test = self.commands_distributes_by_phases[phase][current_step][1]
+
+            if (
+                current_test.phase == next_test.phase
+                and current_test.is_main_phase_message is True
+            ):
+                return await self.start_phase(update, context, next_test.phase)
 
             with open(media_path, "rb") as file:
                 media = file.read()
@@ -86,8 +177,9 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                     question_text="",
                 ),
                 reply_markup=frontend.telegram_bot.src.app.utils.generate_question_answer_keyboard(  # noqa
-                    "iq" if is_main_phase_message is not True else "continue",
+                    "iq",
                     current_step,
+                    test_phase=phase,
                 ),
             )
             return current_step + 1
@@ -128,9 +220,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 + "with updates that have effective chat and effective message"
             )
 
-        # TODO: в модель теста нужно поле количества времени на фазу, и джоб при нажатии на кнопку продолжения на такое количество секунд.
-        # При переходе на следующую фазу джоба удаляется. Если исполняется - дёргает флаг в контексте, который проверяется при обработке
-        # результатов, и кидает на финиш
+        self._remove_time_restriction_jobs(context, update.effective_chat.id)
 
         selected_phase = self.commands_distributes_by_phases[phase]
         main_info = list(selected_phase.items())[0]
@@ -138,16 +228,34 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         information = main_info[1][1]
         with open(information.media_location, "rb") as file:
             media = file.read()
-        await context.bot.send_message(
-            update.effective_chat.id, information.text.replace("-", "\\-")
+
+        explainer_message = await context.bot.send_message(
+            update.effective_chat.id, information.text
         )
+        context.user_data["explainer_message_ids"].append(explainer_message.id)
+
         await context.bot.send_photo(
             update.effective_chat.id,
             media,
             reply_markup=frontend.telegram_bot.src.app.utils.generate_question_answer_keyboard(  # noqa
-                "continue", main_info[0]
+                "continue",
+                main_info[0],
+                test_phase=phase,
             ),
             parse_mode="HTML",
         )
 
         return main_info[0]
+
+    def _remove_time_restriction_jobs(
+        self, context: ContextTypes.DEFAULT_TYPE, chat_id: int
+    ):
+        for phase_number in self.commands_distributes_by_phases.keys():
+            name = f"Time restriction for {phase_number} phase of IQ test for user {chat_id}"  # noqa
+
+            jobs = context.job_queue.get_jobs_by_name(  # type: ignore
+                name
+            )  # noqa
+            for job in jobs:  # type: ignore
+                job.schedule_removal()
+        logger.info(f"Removed jobs for chat_id {chat_id}")
