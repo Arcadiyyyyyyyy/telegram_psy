@@ -7,6 +7,10 @@ on:
 
   workflow_dispatch:
 
+defaults:
+  run:
+    working-directory: ./
+
 env:
   IMAGE_NAME: psy_telegram_admin_bot
   REGISTRY: ghcr.io
