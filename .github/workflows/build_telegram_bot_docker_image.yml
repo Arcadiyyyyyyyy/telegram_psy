@@ -41,8 +41,6 @@ jobs:
 
           echo TAG=$TAG
 
-          cd frontend/telegram_bot
-
           # Build the Docker image
           docker build . -t $TAG
 
