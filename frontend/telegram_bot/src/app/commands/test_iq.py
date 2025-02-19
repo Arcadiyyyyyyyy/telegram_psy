@@ -150,21 +150,24 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             next_test = frontend.shared.src.db.TestsCollection().read_one(
                 {"test_step": current_step + 1, "test_name": "iq"}
             )
-            if next_test is None:
-                raise ValueError
-            next_test = frontend.shared.src.models.IQTestModel(**next_test)
-            phase = (
-                next_test.phase
-                if not next_test.is_main_phase_message
-                else next_test.phase - 1
-            )
-            current_test = self.commands_distributes_by_phases[phase][current_step][1]
+            if next_test is not None:
+                next_test = frontend.shared.src.models.IQTestModel(**next_test)
+                phase = (
+                    next_test.phase
+                    if not next_test.is_main_phase_message
+                    else next_test.phase - 1
+                )
+                current_test = self.commands_distributes_by_phases[phase][current_step][
+                    1
+                ]
 
-            if (
-                current_test.phase == next_test.phase
-                and current_test.is_main_phase_message is True
-            ):
-                return await self.start_phase(update, context, next_test.phase)
+                if (
+                    current_test.phase == next_test.phase
+                    and current_test.is_main_phase_message is True
+                ):
+                    return await self.start_phase(update, context, next_test.phase)
+            else:
+                phase = 4
 
             with open(media_path, "rb") as file:
                 media = file.read()
