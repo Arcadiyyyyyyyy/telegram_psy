@@ -13,18 +13,17 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check out the repo
-      uses: actions/checkout@v2
+      - name: Check out the repo
+        uses: actions/checkout@v2
 
-    - name: Log into registry
-      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+      - name: Log into registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
 
-    - name: Build and push the image
-      run: |
+      - name: Build and push the image
+        run: |
           IMAGE_ID=${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}
 
           # Strip git ref prefix from version
@@ -41,7 +40,7 @@ jobs:
           cd frontend/admin_bot
 
           # Build the Docker image
-          docker build . -f Dockerfile -t $TAG
-        
+          docker build . -t $TAG
+
           # Docker Push
           docker push $TAG

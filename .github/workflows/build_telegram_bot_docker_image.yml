@@ -40,7 +40,7 @@ jobs:
           cd frontend/telegram_bot
 
           # Build the Docker image
-          docker build . -f Dockerfile -t $TAG
+          docker build . -t $TAG
 
           # Docker Push
           docker push $TAG
