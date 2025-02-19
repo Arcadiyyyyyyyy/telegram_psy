@@ -1,5 +1,5 @@
 import datetime
-from typing import Any
+from typing import Any, Literal
 
 from loguru import logger
 from telegram import CallbackQuery
@@ -15,18 +15,33 @@ async def backup_db(*args: Any, **kwargs: Any) -> None:
     )
 
 
-def generate_test_answers_info(chat_id: int, conversation_name: str):
-    test_answers_collection = frontend.shared.src.db.TestAnswersCollection()
-    answer = test_answers_collection.read_one(
+def generate_test_answers_info(
+    chat_id: int, conversation_name: str
+):
+    answer = frontend.shared.src.db.TestAnswersCollection().read_one(
         {"chat_id": chat_id, "test_name": conversation_name},
     )
     if answer is None:
         raise ValueError
 
     question_answer: list[str] = []
-    for question, _answer in zip(answer["questions"], answer["answers"]):
-        question_answer.append(f"{question}: {_answer}")
-    test_of_question_answer = "- " + "\n- ".join(question_answer)
+
+    if conversation_name == "atq":
+        for question, _answer in zip(answer["questions"], answer["answers"]):
+            question_answer.append(f"{question}: {_answer}")
+        test_of_question_answer = "- " + "\n- ".join(question_answer)
+    elif conversation_name == "iq":
+        answers = answer.get("answers", [])
+        for i, question in enumerate(answer.get("questions", [])):
+            _answer = answers[i]
+
+            if question != "" and _answer == "Ready":
+                pass
+            else:
+                question_answer.append(f"- {i + 1}: {_answer}")
+        test_of_question_answer = "\n".join(question_answer)
+    else:
+        test_of_question_answer = "Error"
 
     started_at: datetime.datetime = answer["started_at"]
     finished_at: datetime.datetime = answer["finished_at"]

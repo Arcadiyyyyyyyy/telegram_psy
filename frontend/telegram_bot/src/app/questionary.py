@@ -195,6 +195,9 @@ class Conversation:
             context=context,
             callback=callback,
         )
-        await context.bot.delete_message(chat_id, update.effective_message.id)
+        try:
+            await context.bot.delete_message(chat_id, update.effective_message.id)
+        except Exception:
+            pass
 
         return await self.commands[next_step][1](update, context)
