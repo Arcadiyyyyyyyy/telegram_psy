@@ -13,13 +13,13 @@ import frontend.shared.src.db
 def main():
     warnings.filterwarnings("ignore", category=PTBUserWarning)
     logger.add(
-        "admin_bot.log",
+        "logs/admin_bot.log",
         level=5,
         colorize=False,
         backtrace=True,
         diagnose=True,
     )
-    persistence = PicklePersistence(filepath="admin_bot_persistance.pc")
+    persistence = PicklePersistence(filepath="persistance/admin_bot_persistance.pc")
     bot = (
         Application.builder()  # type: ignore
         .token(os.environ["ADMIN_FACING_TELEGRAM_TOKEN"])

@@ -14,14 +14,14 @@ import frontend.telegram_bot.src.app.config
 def main():
     warnings.filterwarnings("ignore", category=PTBUserWarning)
     logger.add(
-        "telegram_bot.log",
+        "logs/telegram_bot.log",
         level=5,
         colorize=False,
         backtrace=True,
         diagnose=True,
     )
     frontend.shared.src.db.TestsCollection().populate_tests_from_json()
-    persistence = PicklePersistence(filepath="telegram_bot_persistance.pc")
+    persistence = PicklePersistence(filepath="persistance/telegram_bot_persistance.pc")
     bot = (
         Application.builder()  # type: ignore
         .token(os.environ["USER_FACING_TELEGRAM_TOKEN"])
