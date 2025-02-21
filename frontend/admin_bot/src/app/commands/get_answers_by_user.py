@@ -11,6 +11,8 @@ import frontend.shared.src.utils
 
 
 async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not await frontend.admin_bot.src.app.middleware.is_admin(update, context):
+        return
     await frontend.shared.src.middleware.main_handler(update, context)
     if not await frontend.admin_bot.src.app.middleware.is_admin(update, context):
         return
@@ -29,7 +31,7 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await context.bot.send_message(
         chat_id,
-        "Тут можно получить информацию о прохождении теста конкретным пользователем \n\nСписок пользователей бота:",
+        "Тут можно получить информацию о прохождении теста конкретным пользователем \n\nСписок пользователей бота:",  # noqa
         reply_markup=InlineKeyboardMarkup(
             [
                 [InlineKeyboardButton(text[0], callback_data=f"s+ans_by_u+{text[1]}")]
@@ -40,22 +42,13 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def select_the_test(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await frontend.shared.src.middleware.main_handler(update, context)
-    if update.effective_chat is None or update.effective_message is None:
-        raise ValueError(
-            "template_func function must only be provided "
-            + "with updates that have effective chat and effective message"
-        )
-    chat_id = update.effective_chat.id
-
-    query = update.callback_query
-
-    if query is None:
-        raise ValueError("Callback distributor must only receive updates with query")
-
-    callback = query.data
-    if callback is None:
+    if not await frontend.admin_bot.src.app.middleware.is_admin(update, context):
+        return
+    if update.effective_chat is None or update.callback_query is None:
         raise ValueError
+    chat_id, callback = await frontend.shared.src.utils.handle_callback(
+        update.callback_query
+    )
 
     split_callback = callback.split("+")
     userid_to_check = split_callback[2]
@@ -85,7 +78,7 @@ async def select_the_test(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     [
                         InlineKeyboardButton(
                             test["test_name"],
-                            callback_data=f"s+ans_by_uid_and_test+{userid_to_check}+{test['test_name']}",
+                            callback_data=f"s+ans_by_uid_and_test+{userid_to_check}+{test['test_name']}",  # noqa
                         )
                     ]
                     for test in get_tests_that_were_passed_by_the_user
@@ -95,22 +88,13 @@ async def select_the_test(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def show_the_test(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await frontend.shared.src.middleware.main_handler(update, context)
-    if update.effective_chat is None or update.effective_message is None:
-        raise ValueError(
-            "template_func function must only be provided "
-            + "with updates that have effective chat and effective message"
-        )
-    chat_id = update.effective_chat.id
-
-    query = update.callback_query
-
-    if query is None:
-        raise ValueError("Callback distributor must only receive updates with query")
-
-    callback = query.data
-    if callback is None:
+    if not await frontend.admin_bot.src.app.middleware.is_admin(update, context):
+        return
+    if update.effective_chat is None or update.callback_query is None:
         raise ValueError
+    chat_id, callback = await frontend.shared.src.utils.handle_callback(
+        update.callback_query
+    )
 
     split_callback = callback.split("+")
     userid_to_check = split_callback[2]
@@ -122,4 +106,37 @@ async def show_the_test(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     texts_to_send = frontend.shared.src.utils.split_string(text)
     for t in texts_to_send:
-        await context.bot.send_message(chat_id, t)
+        await context.bot.send_message(
+            chat_id,
+            t,
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            "Delete test answer",
+                            callback_data=f"d+ans_by_uid_and_test+{userid_to_check}+{test_to_check}",  # noqa
+                        )
+                    ]
+                ]
+            ),
+        )
+
+
+async def delete_test_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not await frontend.admin_bot.src.app.middleware.is_admin(update, context):
+        return
+    if update.effective_chat is None or update.callback_query is None:
+        raise ValueError
+    chat_id, callback = await frontend.shared.src.utils.handle_callback(
+        update.callback_query
+    )
+
+    split_callback = callback.split("+")
+    userid_to_check = split_callback[2]
+    test_to_delete = split_callback[3]
+
+    frontend.shared.src.db.TestAnswersCollection().delete(
+        {"test_name": test_to_delete, "chat_id": int(userid_to_check)}
+    )
+
+    await context.bot.send_message(chat_id, "Deleted")

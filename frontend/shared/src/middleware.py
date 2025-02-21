@@ -88,10 +88,16 @@ async def main_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 async def callback_distributor(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> None:
-    # await main_handler(update, context)
-    _, callback = await frontend.shared.src.utils.handle_callback(update.callback_query)
-    if callback == "":
-        return
+    if update.effective_chat is None or update.effective_message is None:
+        raise ValueError
+    chat_id = update.effective_chat.id
+
+    query = update.callback_query
+    if query is None:
+        raise ValueError("Callback distributor must only receive updates with query")
+    callback = query.data
+    if callback is None:
+        raise ValueError
 
     callback_arguments = callback.split("+")
     callback_group = callback_arguments[0]
@@ -112,6 +118,20 @@ async def callback_distributor(
             await frontend.admin_bot.src.app.commands.get_answers_by_user.show_the_test(
                 update, context
             )
+    elif callback_group == "d":
+        if callback_file == "ans_by_uid_and_test" and callback_arguments[-1] == "y":
+            await frontend.admin_bot.src.app.commands.get_answers_by_user.delete_test_answer(  # noqa
+                update, context
+            )
+        elif callback_file == "ans_by_uid_and_test":
+            await frontend.shared.src.utils.confirm_callback(  # noqa
+                update, context
+            )
+        elif callback_file == "message":
+            try:
+                await context.bot.delete_message(chat_id, update.effective_message.id)
+            except Exception:
+                pass
 
 
 async def test_message_handler(

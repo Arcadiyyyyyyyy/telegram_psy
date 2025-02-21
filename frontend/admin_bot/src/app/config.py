@@ -1,11 +1,11 @@
 from typing import Any
 
-from telegram.ext import Application, CommandHandler
+from telegram.ext import Application, CallbackQueryHandler, CommandHandler
 
-import frontend.shared.src.middleware
 import frontend.admin_bot.src.app.commands.get_answers_by_user
 import frontend.admin_bot.src.app.commands.start
 import frontend.shared.src.config
+import frontend.shared.src.middleware
 import frontend.shared.src.utils
 
 commands = (
@@ -52,3 +52,7 @@ def bot_setup(
                 command.callback,
             )
         )
+
+    bot.add_handler(
+        CallbackQueryHandler(frontend.shared.src.middleware.callback_distributor)
+    )

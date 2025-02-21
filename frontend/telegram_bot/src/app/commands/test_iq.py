@@ -21,8 +21,6 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
     def __init__(self):
         super().__init__()
         # TODO: У глеба нужно уточнить что делать с юзерами, кто дропает тест в процессе.  # noqa
-        # TODO: нужно отфильтровать реди ответы из саммари  # noqa
-        # TODO: нужно изменить логику проверки наличия ответов от пользователя перед началом теста  # noqa
         self.commands_distributes_by_phases: dict[
             int,
             dict[

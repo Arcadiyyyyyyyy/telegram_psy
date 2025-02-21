@@ -1,10 +1,12 @@
 import datetime
-from typing import Any, Literal
+from typing import Any
 
 from loguru import logger
-from telegram import CallbackQuery
+from telegram import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import ContextTypes
 
 import frontend.shared.src.db
+import frontend.shared.src.utils
 
 
 async def backup_db(*args: Any, **kwargs: Any) -> None:
@@ -15,9 +17,7 @@ async def backup_db(*args: Any, **kwargs: Any) -> None:
     )
 
 
-def generate_test_answers_info(
-    chat_id: int, conversation_name: str
-):
+def generate_test_answers_info(chat_id: int, conversation_name: str):
     answer = frontend.shared.src.db.TestAnswersCollection().read_one(
         {"chat_id": chat_id, "test_name": conversation_name},
     )
@@ -77,4 +77,33 @@ async def handle_callback(query: CallbackQuery | None) -> tuple[int, str]:
 
 
 def split_string(s: str, chunk_size: int = 4000):
-    return [s[i : i + chunk_size] for i in range(0, len(s), chunk_size)]
+    return [s[i : i + chunk_size] for i in range(0, len(s), chunk_size)]  # noqa
+
+
+async def confirm_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.effective_chat is None or update.callback_query is None:
+        raise ValueError
+    chat_id, callback = await frontend.shared.src.utils.handle_callback(
+        update.callback_query
+    )
+
+    await context.bot.send_message(
+        chat_id,
+        "Уверен?",
+        reply_markup=InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton(
+                        "Yes",
+                        callback_data=f"{callback}+y",
+                    )
+                ],
+                [
+                    InlineKeyboardButton(
+                        "No",
+                        callback_data="d+message",
+                    )
+                ],
+            ]
+        ),
+    )
