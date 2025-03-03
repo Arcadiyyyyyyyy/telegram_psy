@@ -1,9 +1,6 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
-import frontend.admin_bot
-import frontend.admin_bot.src
-import frontend.admin_bot.src.app
 import frontend.admin_bot.src.app.middleware
 import frontend.shared.src.db
 import frontend.shared.src.middleware
@@ -14,11 +11,8 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not await frontend.admin_bot.src.app.middleware.is_admin(update, context):
         return
     await frontend.shared.src.middleware.main_handler(update, context)
-    if not await frontend.admin_bot.src.app.middleware.is_admin(update, context):
-        return
     if update.effective_chat is None:
         return
-
     chat_id = update.effective_chat.id
 
     user_data = [
@@ -104,22 +98,24 @@ async def show_the_test(update: Update, context: ContextTypes.DEFAULT_TYPE):
         int(userid_to_check), test_to_check
     )
 
-    texts_to_send = frontend.shared.src.utils.split_string(text)
-    for t in texts_to_send:
-        await context.bot.send_message(
-            chat_id,
-            t,
-            reply_markup=InlineKeyboardMarkup(
+    text_to_send = text[0]
+    file_to_send = text[1]
+    # TODO: check if works
+    await context.bot.send_document(
+        chat_id,
+        file_to_send,
+        caption=text_to_send,
+        reply_markup=InlineKeyboardMarkup(
+            [
                 [
-                    [
-                        InlineKeyboardButton(
-                            "Delete test answer",
-                            callback_data=f"d+ans_by_uid_and_test+{userid_to_check}+{test_to_check}",  # noqa
-                        )
-                    ]
+                    InlineKeyboardButton(
+                        "Delete test answer",
+                        callback_data=f"d+ans_by_uid_and_test+{userid_to_check}+{test_to_check}",  # noqa
+                    )
                 ]
-            ),
-        )
+            ]
+        ),
+    )
 
 
 async def delete_test_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):

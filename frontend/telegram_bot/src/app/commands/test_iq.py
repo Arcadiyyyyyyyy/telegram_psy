@@ -5,7 +5,7 @@ from typing import Any, Callable, Generator
 import arrow
 from loguru import logger
 from telegram import Update
-from telegram.ext import ContextTypes, ConversationHandler
+from telegram.ext import ContextTypes
 
 import frontend.shared.src.db
 import frontend.shared.src.middleware
@@ -76,6 +76,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 name=f"Time restriction for {question.phase} phase of IQ test for user {chat_id}",  # noqa
                 chat_id=chat_id,
                 user_id=chat_id,
+                job_kwargs={"update": update},
             )
             logger.info(f"Created a time restriction job for chat id {chat_id}")
 
@@ -101,35 +102,48 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         self._remove_time_restriction_jobs(context, update.effective_chat.id)
 
     async def _handle_time_restrictions(self, context: ContextTypes.DEFAULT_TYPE):
-        if context.user_data is None:
+        if context.user_data is None or context.job is None:
             raise ValueError
-        context.user_data["is_failed_to_pass_test_on_time"] = True
-
-    async def _out_of_time_error(
-        self, update: Update, context: ContextTypes.DEFAULT_TYPE
-    ):
-        if update.effective_chat is None or context.user_data is None:
+        chat_id = context.job.chat_id
+        if chat_id is None:
             raise ValueError
-        chat_id = update.effective_chat.id
 
-        context.user_data["finished_at"] = arrow.utcnow().datetime
-        chat_id = update.effective_chat.id
+        test_message_id = context.user_data["last_sent_test_message_id"]
+        current_test_step = context.user_data["current_test_step"]
+        await context.bot.delete_message(chat_id, test_message_id)
+        context.user_data["last_sent_test_message_id"] = None
+        context.user_data["current_test_step"] = None
+        kwargs = context.job.data
+        if kwargs is None:
+            raise ValueError
 
-        frontend.telegram_bot.src.app.utils.save_test_answers(
-            chat_id, self.conversation_name, context.user_data
+        current_test = frontend.shared.src.db.TestsCollection().read_one(
+            {"test_name": self.conversation_name, "test_step": current_test_step}
         )
+        if current_test is None:
+            raise ValueError
+        current_phase = current_test["phase"]
 
-        await context.bot.send_message(
-            chat_id,
-            "К сожалению, вы не успели пройти тест целиком за выделенное время. \n\nВаши результаты сохранены.",
-        )
-
-        # TODO: тут возможно текст изменить, и саммари прислать
+        # TODO: check how ob args work
+        logger.warning(kwargs)
+        if current_phase + 1 < 4:
+            await context.bot.send_message(
+                chat_id,
+                "К сожалению, вы не успели пройти эту часть теста целиком "
+                "за выделенное время. \n\nВаши результаты сохранены, вы можете "
+                "приступить к продолжению теста когда будете готовы.",
+            )
+            await self.start_phase(kwargs, context, current_phase + 1)
+        else:
+            await context.bot.send_message(
+                chat_id,
+                "К сожалению, вы не успели пройти тест целиком за выделенное время. "
+                "\n\nВаши результаты сохранены.",
+            )
 
     def _generate_function(
         self,
         current_step: int,
-        total_amount_of_steps: int,
         media_path: str,
     ) -> types.FunctionType:
         async def template_func(
@@ -141,9 +155,6 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                     "template_func function must only be provided "
                     + "with updates that have effective chat and effective message"
                 )
-            if context.user_data["is_failed_to_pass_test_on_time"] is True:
-                await self._out_of_time_error(update, context)
-                return ConversationHandler.END
 
             next_test = frontend.shared.src.db.TestsCollection().read_one(
                 {"test_step": current_step + 1, "test_name": "iq"}
@@ -169,20 +180,18 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
 
             with open(media_path, "rb") as file:
                 media = file.read()
-            await context.bot.send_photo(
+            response = await context.bot.send_photo(
                 update.effective_chat.id,
                 media,
-                caption=self.question_preset.format(
-                    current_step=current_step,
-                    total_amount_of_steps=total_amount_of_steps,
-                    question_text="",
-                ),
                 reply_markup=frontend.telegram_bot.src.app.utils.generate_question_answer_keyboard(  # noqa
                     "iq",
                     current_step,
                     test_phase=phase,
                 ),
             )
+            context.user_data["last_sent_test_message_id"] = response.message_id
+            context.user_data["current_test_step"] = current_step
+
             return current_step + 1
 
         return types.FunctionType(
@@ -199,7 +208,6 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         for test in test_stages:
             function = self._generate_function(
                 current_step=test.test_step,
-                total_amount_of_steps=total_amount_of_steps,
                 media_path=test.media_location,
             )
 
@@ -235,7 +243,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         )
         context.user_data["explainer_message_ids"].append(explainer_message.id)
 
-        await context.bot.send_photo(
+        response = await context.bot.send_photo(
             update.effective_chat.id,
             media,
             reply_markup=frontend.telegram_bot.src.app.utils.generate_question_answer_keyboard(  # noqa
@@ -245,6 +253,9 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             ),
             parse_mode="HTML",
         )
+
+        context.user_data["last_sent_test_message_id"] = response.message_id
+        context.user_data["current_test_step"] = main_info[0]
 
         return main_info[0]
 

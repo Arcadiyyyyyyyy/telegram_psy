@@ -196,5 +196,5 @@ def bot_setup(
 
     bot.job_queue.run_daily(
         frontend.shared.src.utils.backup_db,
-        datetime.datetime(2020, 1, 1, 0, 0, 0).time(),
+        datetime.time(0, 0, 0),
     )

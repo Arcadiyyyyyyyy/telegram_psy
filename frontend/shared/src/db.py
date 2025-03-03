@@ -181,3 +181,9 @@ class TestAnswersCollection(Collection):
 
     def create_test_answer(self, answer: frontend.shared.src.models.TestAnswerModel):
         return self.insert_one(asdict(answer))
+
+
+class TimeSlotsCollection(Collection):
+    def __init__(self):
+        self.db = Connector().db
+        self.collection = "time_slots"

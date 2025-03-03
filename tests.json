@@ -892,7 +892,7 @@
     "is_main_phase_message": true,
     "phase": 1,
     "correct_answer": null,
-    "seconds_to_pass_the_phase": 90
+    "seconds_to_pass_the_phase": 180
   },
   {
     "text": "",
@@ -1032,7 +1032,7 @@
     "is_main_phase_message": true,
     "phase": 2,
     "correct_answer": null,
-    "seconds_to_pass_the_phase": 90
+    "seconds_to_pass_the_phase": 240
   },
   {
     "text": "",
@@ -1182,7 +1182,7 @@
     "is_main_phase_message": true,
     "phase": 3,
     "correct_answer": null,
-    "seconds_to_pass_the_phase": 90
+    "seconds_to_pass_the_phase": 180
   },
   {
     "text": "",
@@ -1322,7 +1322,7 @@
     "is_main_phase_message": true,
     "phase": 4,
     "correct_answer": null,
-    "seconds_to_pass_the_phase": 90
+    "seconds_to_pass_the_phase": 150
   },
   {
     "text": "",

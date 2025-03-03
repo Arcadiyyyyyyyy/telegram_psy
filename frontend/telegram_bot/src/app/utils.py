@@ -162,3 +162,18 @@ def handle_test_answer(
     next_question_step = current_step
 
     return next_question_step
+
+
+async def notify_test_exit_consequence(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+):
+    if update.effective_chat is None:
+        raise ValueError
+    chat_id = update.effective_chat.id
+    await context.bot.send_message(
+        chat_id,
+        "Имейте в виду, что нажатие любой команды отличной "
+        "от ответа на вопрос во время прохождения теста повлечёт за "
+        "собой незамедлительное окончание теста. "
+        "Пересдать тест в таком случае невозможно.",
+    )

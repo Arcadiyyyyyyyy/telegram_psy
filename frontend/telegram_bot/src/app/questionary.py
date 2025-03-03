@@ -18,9 +18,9 @@ class Conversation:
     __initialized: bool
 
     conversation_name: str
-    question_preset = (
-        "Вопрос {current_step} из {total_amount_of_steps}\n\n{question_text}"
-    )
+    # question_preset = (
+    #     "Вопрос {current_step} из {total_amount_of_steps}\n\n{question_text}"
+    # )
     error_text = (
         "Разработчик этого бота допустил ошибку, которую не должен "
         "был допустить. К сожалению, сдать тест в данный момент нельзя."
@@ -100,8 +100,9 @@ class Conversation:
 
         context.user_data["answers"] = []
         context.user_data["questions"] = []
-        context.user_data["is_failed_to_pass_test_on_time"] = False
         context.user_data["explainer_message_ids"] = []
+        context.user_data["last_sent_test_message_id"] = None
+        context.user_data["current_test_step"] = None
 
         test_answers_collection = frontend.shared.src.db.TestAnswersCollection()
         if test_answers_collection.read_one(
@@ -120,6 +121,10 @@ class Conversation:
             return ConversationHandler.END
         context.user_data["started_at"] = arrow.utcnow().datetime
 
+        await frontend.telegram_bot.src.app.utils.notify_test_exit_consequence(
+            update, context
+        )
+
         await self.command_extension(update, context)
 
         return 1
@@ -127,10 +132,7 @@ class Conversation:
     async def finish(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         await frontend.shared.src.middleware.main_handler(update, context)
         if update.effective_chat is None or context.user_data is None:
-            raise ValueError(
-                "finish method must only be provided "
-                + "with updates that have effective chat"
-            )
+            raise ValueError
         context.user_data["finished_at"] = arrow.utcnow().datetime
         chat_id = update.effective_chat.id
 
@@ -142,9 +144,11 @@ class Conversation:
 
         text = frontend.shared.src.utils.generate_test_answers_info(
             int(chat_id), self.conversation_name
-        )
+        )[0]
 
-        texts_to_send = frontend.shared.src.utils.split_string(text)
+        texts_to_send = frontend.shared.src.utils.split_string(
+            f"Поздравляем! Вы успешно прошли тест, ваши ответы сохранены. \n\n{text}"
+        )
         for t in texts_to_send:
             await context.bot.send_message(chat_id, t)
         return ConversationHandler.END
@@ -174,10 +178,7 @@ class Conversation:
         if update.callback_query is not None:
             await frontend.shared.src.utils.handle_callback(update.callback_query)
         if update.effective_message is None or context.user_data is None:
-            raise ValueError(
-                "callback_handler function must only be provided "
-                + "with updates that have effective chat and effective message"
-            )
+            raise ValueError
         chat_id, callback = await frontend.shared.src.utils.handle_callback(
             update.callback_query
         )

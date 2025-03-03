@@ -46,11 +46,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             chat_id = update.effective_chat.id
             await context.bot.send_message(
                 chat_id,
-                self.question_preset.format(
-                    current_step=current_step,
-                    total_amount_of_steps=total_amount_of_steps,
-                    question_text=question_text,
-                ),
+                question_text,
                 reply_markup=frontend.telegram_bot.src.app.utils.generate_question_answer_keyboard(  # noqa
                     "atq", current_step
                 ),

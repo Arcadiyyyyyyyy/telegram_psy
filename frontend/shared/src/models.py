@@ -46,3 +46,23 @@ class TestAnswerModel:
     finished_at: datetime.datetime
     created_at: datetime.datetime = arrow.utcnow().datetime
     updated_at: datetime.datetime = arrow.utcnow().datetime
+
+
+@pydantic.dataclasses.dataclass()
+class TimeSlotConfirmations:
+    by_gleb: bool | None
+    by_kopatych: bool | None
+    by_elena: bool | None
+
+
+@pydantic.dataclasses.dataclass()
+class TimeSlotModel:
+    time: datetime.datetime
+    occupation_reason: str
+
+
+@pydantic.dataclasses.dataclass()
+class TimeBookingModel(TimeSlotModel):
+    confirmations: TimeSlotConfirmations
+    meeting_link: str | None
+    notify_user_at: list[datetime.datetime]
