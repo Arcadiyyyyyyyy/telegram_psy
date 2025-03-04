@@ -57,8 +57,6 @@ def generate_question_answer_keyboard(
                 [
                     InlineKeyboardButton(
                         f"{answer}",
-                        # TODO: i really didn't want to do this, but fuck this
-                        # quality of code when deadlines in the ass
                         callback_data=f"a+iq+step{test_step}+answer{answer}",
                     )
                 ]

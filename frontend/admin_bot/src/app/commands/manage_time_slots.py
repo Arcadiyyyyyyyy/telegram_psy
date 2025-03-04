@@ -1,3 +1,5 @@
+from typing import Literal
+
 import arrow
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
@@ -9,43 +11,49 @@ import frontend.shared.src.utils
 
 
 def generate_available_time_slots_keyboard(
-    start_date: arrow.Arrow, end_date: arrow.Arrow
+    _type: Literal["user", "admin"],
+    page: int = 0,
 ):
     time_manager = frontend.shared.src.utils.TimeManager()
-    available_slots = sorted(
-        list(time_manager.generate_free_time_slots(start_date, end_date))
+    start_date = arrow.utcnow().shift(days=6 * page)
+    end_date = arrow.utcnow().shift(days=6 * page + 6)
+    slots_by_days = list(time_manager.get_available_slots_by_days(start_date, end_date))
+
+    inline_keyboard = [
+        [
+            InlineKeyboardButton(
+                button.format("YYYY-MM-DD HH:mm"),
+                callback_data=f"s+book+{_type}+{button.format('YYYY-MM-DD HH:mm')}+{page}",
+            )
+            for button in line
+        ]
+        for line in slots_by_days
+    ]
+    controls: list[InlineKeyboardButton] = []
+    if page > 0:
+        controls.append(
+            InlineKeyboardButton(
+                "Предыдущая страница", callback_data=f"s+book+{_type}+{None}+{page - 1}"
+            )
+        )
+    back_callback = "s+book"
+    if _type == "admin":
+        back_callback += "+admin"
+    else:
+        back_callback += "+user"
+    controls.append(InlineKeyboardButton("Назад", callback_data=back_callback))
+    controls.append(
+        InlineKeyboardButton(
+            "Следующая страница", callback_data=f"s+book+{_type}+{None}+{page + 1}"
+        )
     )
 
-    if not available_slots:
-        return InlineKeyboardMarkup(
-            [
-                [
-                    InlineKeyboardButton(
-                        "К сожалению, в выбранном периоде нету свободных слотов. Назад.",  # noqa
-                        callback_data="",
-                    )
-                ]
-            ]
-        )  # TODO: callback data
+    inline_keyboard.append(controls)
 
-    active_day = available_slots[0].clone()
-    active_day.replace(hour=0, minute=0, second=0, microsecond=0)
-    slots_by_days: list[list[arrow.Arrow]] = [[]]
-
-    while active_day < available_slots[-1]:
-        result: list[arrow.Arrow] = []
-        for slot in available_slots:
-            if slot > active_day and slot < active_day.shift(days=1):
-                result.append(slot)
-        slots_by_days.append(result)
-
-    # TODO: callback + text format 
-    return InlineKeyboardMarkup(
-        [[InlineKeyboardButton("", callback_data="") for button in slots_by_days]]
-    )
+    return InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
 
 
-async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def command(update: Update, context: ContextTypes.DEFAULT_TYPE, page: int = 0):
     if not await frontend.admin_bot.src.app.middleware.is_admin(update, context):
         return
     await frontend.shared.src.middleware.main_handler(update, context)
@@ -53,21 +61,17 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     chat_id = update.effective_chat.id
 
-    user_data = [
-        (
-            f"{user['first_name']} | {user['username']} | {user['chat_id']}",
-            user["chat_id"],
-        )
-        for user in frontend.shared.src.db.UsersCollection().read({}, {"created_at": 1})
-    ]
-
     await context.bot.send_message(
         chat_id,
-        "Тут можно получить информацию о прохождении теста конкретным пользователем \n\nСписок пользователей бота:",  # noqa
-        reply_markup=InlineKeyboardMarkup(
-            [
-                [InlineKeyboardButton(text[0], callback_data=f"s+ans_by_u+{text[1]}")]
-                for text in user_data
-            ]
-        ),
+        "Тут можно убрать доступный временной слот при помощи клика \n\nСписок слотов:",  # noqa
+        reply_markup=generate_available_time_slots_keyboard("admin", page=page),
     )
+
+
+# TODO: ограничение времени админами, ✅
+# TODO: выбор времени юзерами и пагинация времени,✅
+# TODO: уведомление пользователям о запланированном звонке, ✅
+# TODO: подтверждение звонка админами, ✅
+# TODO: автолинка на зум,✅
+# TODO: и тестовые вопросы в айку
+# TODO: посмотреть запланированные звонки ✅

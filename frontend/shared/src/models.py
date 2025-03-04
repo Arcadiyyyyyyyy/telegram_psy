@@ -56,13 +56,14 @@ class TimeSlotConfirmations:
 
 
 @pydantic.dataclasses.dataclass()
-class TimeSlotModel:
+class TimeSlotBaseModel:
     time: datetime.datetime
     occupation_reason: str
+    chat_id: int
 
 
 @pydantic.dataclasses.dataclass()
-class TimeBookingModel(TimeSlotModel):
+class TimeBookingModel(TimeSlotBaseModel):
     confirmations: TimeSlotConfirmations
     meeting_link: str | None
     notify_user_at: list[datetime.datetime]

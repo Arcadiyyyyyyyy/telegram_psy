@@ -3,6 +3,8 @@ from typing import Any
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler
 
 import frontend.admin_bot.src.app.commands.get_answers_by_user
+import frontend.admin_bot.src.app.commands.list_confirmed_consultations
+import frontend.admin_bot.src.app.commands.manage_time_slots
 import frontend.admin_bot.src.app.commands.start
 import frontend.shared.src.config
 import frontend.shared.src.middleware
@@ -16,6 +18,16 @@ commands = (
         "get_answers_by_user",
         "Get user's answer to the test",
         frontend.admin_bot.src.app.commands.get_answers_by_user.command,
+    ),
+    frontend.shared.src.config.Command(
+        "get_scheduled_calls",
+        "Get the list of planned calls",
+        frontend.admin_bot.src.app.commands.list_confirmed_consultations.command,
+    ),
+    frontend.shared.src.config.Command(
+        "manage_time_slots",
+        "Remove time slots from the availability",
+        frontend.admin_bot.src.app.commands.manage_time_slots.command,
     ),
 )
 

@@ -1,5 +1,5 @@
 import datetime
-from typing import Any
+from typing import Any, Literal
 
 import arrow
 from loguru import logger
@@ -150,3 +150,22 @@ class TimeManager:
                     yield end_date + time_slot
 
             end_date = end_date.shift(days=-1)
+
+    def get_available_slots_by_days(
+        self,
+        start_date: arrow.Arrow,
+        end_date: arrow.Arrow,
+    ):
+        available_slots = sorted(
+            list(self.generate_free_time_slots(start_date, end_date))
+        )
+
+        active_day = available_slots[0].clone()
+        active_day.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        while active_day < available_slots[-1]:
+            result: list[arrow.Arrow] = []
+            for slot in available_slots:
+                if slot > active_day and slot < active_day.shift(days=1):
+                    result.append(slot)
+            yield result

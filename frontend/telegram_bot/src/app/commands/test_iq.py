@@ -124,7 +124,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             raise ValueError
         current_phase = current_test["phase"]
 
-        # TODO: check how ob args work
+        # TODO: check how job args work
         logger.warning(kwargs)
         if current_phase + 1 < 4:
             await context.bot.send_message(
