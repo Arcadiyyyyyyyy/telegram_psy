@@ -1,4 +1,8 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    Update,
+)
 from telegram.ext import ContextTypes
 
 import frontend.admin_bot.src.app.middleware
