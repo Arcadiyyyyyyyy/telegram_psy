@@ -56,6 +56,10 @@ async def request_call(update: Update, context: ContextTypes.DEFAULT_TYPE):
         }
     )
 
+    await context.bot.send_message(
+        chat_id, "Запрос на получение консультации получен, уведомим по подтверждению."
+    )
+
     for admin in admins:
         await context.bot.send_message(
             admin["chat_id"],
@@ -76,4 +80,83 @@ async def request_call(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     ]
                 ]
             ),
+        )
+
+
+async def show_scheduled_calls(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.message is None or update.message.from_user is None:
+        return
+    await frontend.shared.src.middleware.main_handler(update, context)
+    chat_id = update.message.chat.id
+    users = frontend.shared.src.db.UsersCollection()
+    time_slots = frontend.shared.src.db.TimeSlotsCollection()
+    scheduled_calls = list(
+        time_slots.read(
+            {
+                "time": {"$gte": arrow.utcnow().datetime},
+                "meeting_link": {"$exists": 1},
+                "chat_id": chat_id,
+            }
+        )
+    )
+    result: list[str] = ["Вот список запланированных звонков: \n"]
+    for call in scheduled_calls:
+        user = users.read_one({"chat_id": call["chat_id"]})
+        if not user:
+            raise ValueError
+        result.append(
+            f"{arrow.get(call.get('time')).shift(hours=3).format('YYYY-MM-DD HH:mm')} with {user.get('first_name', 'error')} {user.get('username', 'error')} {user.get('chat_id', 'error')}"
+        )
+    else:
+        result.append("У вас ещё нет подтверждённых звонков")
+
+    await context.bot.send_message(chat_id, "\n".join(result))
+
+
+async def cancel_call(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await frontend.shared.src.middleware.main_handler(update, context)
+    if update.effective_chat is None:
+        return
+    chat_id = update.effective_chat.id
+    users_collection = frontend.shared.src.db.UsersCollection()
+    admins = list(users_collection.read({"admin": True}))
+    user = users_collection.read_one({"chat_id": chat_id})
+    if user is None:
+        raise ValueError
+
+    query = update.callback_query
+    if query is None:
+        raise ValueError("Callback distributor must only receive updates with query")
+    callback = query.data
+    if callback is None:
+        raise ValueError
+
+    callback_arguments = callback.split("+")
+    callback_arg_2 = callback_arguments[3]
+
+    time = arrow.get(callback_arg_2)
+    time_slots = frontend.shared.src.db.TimeSlotsCollection()
+
+    get_time_slot = time_slots.read_one(
+        {
+            "time": time.datetime,
+            "occupation_reason": "scheduled call",
+        }
+    )
+
+    if get_time_slot is not None:
+        raise ValueError
+
+    time_slots.delete(
+        {
+            "time": time.datetime,
+            "occupation_reason": "scheduled call",
+        }
+    )
+
+    for _chat_id in admins + [get_time_slot]:
+        text = f"Консультация на {time.shift(hours=3).format('YYYY-MM-DD HH:mm')} по Московскому времени отменена."
+        await context.bot.send_message(
+            _chat_id["chat_id"],
+            text,
         )

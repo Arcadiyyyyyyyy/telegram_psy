@@ -133,6 +133,11 @@ class Commands:
                 "Назначьте звонок с нашими специалистами для интерпретации результатов",
                 frontend.telegram_bot.src.app.commands.request_call.command,
             ),
+            frontend.shared.src.config.Command(
+                "list_confirmed_calls",
+                "Посмотреть список подтверждённых запланированных звонков",
+                frontend.telegram_bot.src.app.commands.request_call.show_scheduled_calls,
+            ),
         )
 
 

@@ -1,5 +1,4 @@
 from typing import Any
-from unittest.mock import NonCallableMagicMock
 
 import arrow
 from loguru import logger
@@ -105,6 +104,10 @@ async def callback_distributor(
     if callback is None:
         raise ValueError
     logger.debug(f"Got {callback} from {chat_id}")
+    try:
+        await query.answer()
+    except Exception:
+        pass
 
     callback_arguments = callback.split("+")
     callback_group = callback_arguments[0]
@@ -217,12 +220,12 @@ async def callback_distributor(
                 raise ValueError
 
             admin_who_confirmed = {
-                431691892: "gleb",
-                5238704259: "kopatych",
-                5472197561: "irina",
-                # 455232738: "gleb",
-                # 520794627: "kopatych",
-                # 476798383: "irina",
+                # 431691892: "gleb",
+                # 5238704259: "kopatych",
+                # 5472197561: "irina",
+                455232738: "gleb",
+                520794627: "kopatych",
+                476798383: "irina",
             }.get(confirming_admin_id, "unknown")
             time_slots.update(
                 {"time": date.datetime},
@@ -250,11 +253,11 @@ async def callback_distributor(
                 for _chat_id in list(users_collection.read({"admin": True})) + [
                     updated
                 ]:
-                    text = f"Консультация на {date.shift(hours=3).format('YYYY-MM-DD HH:mm')} по Московскому времени подтверждена. \n\nСсылка на встречу: {meeting_link.get('join_url', 'error')}"
+                    text = f"Консультация на {date.shift(hours=3).format('YYYY-MM-DD HH:mm')}"
+                    " по Московскому времени подтверждена. \n\nСсылка на встречу: "
+                    f"{meeting_link.get('join_url', 'error')}"
                     await context.bot.send_message(
-                        _chat_id["chat_id"],
-                        text,
-                        disable_web_page_preview=True
+                        _chat_id["chat_id"], text, disable_web_page_preview=True
                     )
 
     elif callback_group == "d":
@@ -271,10 +274,14 @@ async def callback_distributor(
                 await context.bot.delete_message(chat_id, update.effective_message.id)
             except Exception:
                 pass
-        elif callback_file == "book":
-            # TODO: remove a call
-            # d+book+431691892+2025-03-09 14:00 from 431691892
-            pass
+        elif (
+            callback_file == "book"
+            and isinstance(callback_arg_1, str)
+            and callback_arg_2 is not None
+        ):
+            await frontend.telegram_bot.src.app.commands.request_call.cancel_call(
+                update, context
+            )
 
 
 async def test_message_handler(
