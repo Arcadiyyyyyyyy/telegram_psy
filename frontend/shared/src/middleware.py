@@ -104,6 +104,7 @@ async def callback_distributor(
     callback = query.data
     if callback is None:
         raise ValueError
+    logger.debug(f"Got {callback} from {chat_id}")
 
     callback_arguments = callback.split("+")
     callback_group = callback_arguments[0]
@@ -112,11 +113,11 @@ async def callback_distributor(
     callback_arg_1: str | None = None
     callback_arg_2: str | None = None
     callback_arg_3: str | None = None
-    if callback_len > 3:
+    if callback_len >= 3:
         callback_arg_1 = callback_arguments[2]
-    if callback_len > 4:
+    if callback_len >= 4:
         callback_arg_2 = callback_arguments[3]
-    if callback_len > 5:
+    if callback_len >= 5:
         callback_arg_3 = callback_arguments[4]
 
     if callback_group == "s":
@@ -136,41 +137,9 @@ async def callback_distributor(
             )
         elif (
             callback_file == "book"
-            and callback_arg_1 == "admin"
-            and callback_arg_2 is not None
-        ):
-            date = arrow.get(callback_arg_2)
-            occupation_reason = f"Blocked by telegram id {chat_id}"
-            page = callback_arg_3
-
-            try:
-                await context.bot.delete_message(chat_id, update.effective_message.id)
-            except Exception:
-                pass
-
-            frontend.shared.src.db.TimeSlotsCollection().insert_one(
-                {
-                    "time": date,
-                    "occupation_reason": occupation_reason,
-                    "chat_id": chat_id,
-                }
-            )
-
-            await frontend.admin_bot.src.app.commands.manage_time_slots.command(
-                update, context, page=int(page) if page is not None else 0
-            )
-        elif callback_file == "book" and callback_arg_1 == "admin":
-            await frontend.admin_bot.src.app.commands.manage_time_slots.command(
-                update, context
-            )
-        elif callback_file == "book":
-            # TODO: call user side
-            pass
-        elif (
-            callback_file == "book"
             and callback_arg_1 in ["user", "admin"]
-            and callback_arg_2 == "None"
-            and callback_arg_3 is not None
+            and callback_arg_2 == "none"
+            and isinstance(callback_arg_3, str)
         ):
             page = callback_arg_3
             try:
@@ -187,38 +156,79 @@ async def callback_distributor(
                 )
         elif (
             callback_file == "book"
+            and callback_arg_1 == "admin"
+            and callback_arg_2 is not None
+        ):
+            date = arrow.get(callback_arg_2)
+            occupation_reason = f"Blocked by telegram id {chat_id}"
+            page = callback_arg_3
+
+            try:
+                await context.bot.delete_message(chat_id, update.effective_message.id)
+            except Exception:
+                pass
+
+            frontend.shared.src.db.TimeSlotsCollection().insert_one(
+                {
+                    "time": date.datetime,
+                    "occupation_reason": occupation_reason,
+                    "chat_id": chat_id,
+                }
+            )
+
+            await frontend.admin_bot.src.app.commands.manage_time_slots.command(
+                update, context, page=int(page) if page is not None else 0
+            )
+        elif callback_file == "book" and callback_arg_1 == "admin":
+            await frontend.admin_bot.src.app.commands.manage_time_slots.command(
+                update, context
+            )
+        elif (
+            callback_file == "book"
             and callback_arg_1 == "user"
             and callback_arg_2 is not None
         ):
             date = arrow.get(callback_arg_2)
 
-            # TODO: request call
             await frontend.telegram_bot.src.app.commands.request_call.request_call(
                 update, context
             )
-    elif (
-        callback_group == "y"
-        and callback_arg_1 == "admin"
-        and callback_arg_2 is not None
-        and callback_arg_3 is not None
-    ):
-        if callback_file == "book":
+        elif callback_file == "book":
+            try:
+                await context.bot.delete_message(chat_id, update.effective_message.id)
+            except Exception:
+                pass
+            await frontend.telegram_bot.src.app.commands.request_call.command(
+                update, context
+            )
+    elif callback_group == "y":
+        if (
+            callback_file == "book"
+            and callback_arg_1 == "admin"
+            and callback_arg_2 is not None
+            and callback_arg_3 is not None
+        ):
             date = arrow.get(callback_arg_3)
             confirming_admin_id = int(callback_arg_2)
             time_slots = frontend.shared.src.db.TimeSlotsCollection()
 
-            event = time_slots.read_one({"time": date})
+            event = time_slots.read_one({"time": date.datetime})
             if event is None:
                 raise ValueError
 
-            # TODO: add read ids
-            admin_who_confirmed = {1: "gleb", 2: "kopatych", 3: "elena"}.get(
-                confirming_admin_id, "unknown"
-            )
+            admin_who_confirmed = {
+                431691892: "gleb",
+                5238704259: "kopatych",
+                5472197561: "irina",
+                # 455232738: "gleb",
+                # 520794627: "kopatych",
+                # 476798383: "irina",
+            }.get(confirming_admin_id, "unknown")
             time_slots.update(
-                {"time": date}, {"confirmations": {f"by_{admin_who_confirmed}": True}}
+                {"time": date.datetime},
+                {f"confirmations.by_{admin_who_confirmed}": True},
             )
-            updated = time_slots.read_one({"time": date})
+            updated = time_slots.read_one({"time": date.datetime})
             if updated is None:
                 raise ValueError
             confirmations: dict[str, Any] = updated.get("confirmations", {})
@@ -233,16 +243,18 @@ async def callback_distributor(
                 ]
 
                 time_slots.update(
-                    {"time": date},
+                    {"time": date.datetime},
                     {"meeting_link": meeting_link, "notify_user_at": notify_user_at},
                 )
 
                 for _chat_id in list(users_collection.read({"admin": True})) + [
-                    updated["chat_id"]
+                    updated
                 ]:
+                    text = f"Консультация на {date.shift(hours=3).format('YYYY-MM-DD HH:mm')} по Московскому времени подтверждена. \n\nСсылка на встречу: {meeting_link.get('join_url', 'error')}"
                     await context.bot.send_message(
-                        _chat_id,
-                        f"Консультация на {date.shift(hours=3).format('YYYY-MM-DD HH:mm')} по Московскому времени подтверждена. \n\nСсылка на встречу: {meeting_link}",
+                        _chat_id["chat_id"],
+                        text,
+                        disable_web_page_preview=True
                     )
 
     elif callback_group == "d":
@@ -260,6 +272,8 @@ async def callback_distributor(
             except Exception:
                 pass
         elif callback_file == "book":
+            # TODO: remove a call
+            # d+book+431691892+2025-03-09 14:00 from 431691892
             pass
 
 

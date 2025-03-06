@@ -100,7 +100,6 @@ async def show_the_test(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     text_to_send = text[0]
     file_to_send = text[1]
-    # TODO: check if works
     await context.bot.send_document(
         chat_id,
         file_to_send,

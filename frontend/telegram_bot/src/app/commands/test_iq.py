@@ -20,7 +20,6 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
 
     def __init__(self):
         super().__init__()
-        # TODO: У глеба нужно уточнить что делать с юзерами, кто дропает тест в процессе.  # noqa
         self.commands_distributes_by_phases: dict[
             int,
             dict[
@@ -76,7 +75,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 name=f"Time restriction for {question.phase} phase of IQ test for user {chat_id}",  # noqa
                 chat_id=chat_id,
                 user_id=chat_id,
-                job_kwargs={"update": update},
+                data=update,
             )
             logger.info(f"Created a time restriction job for chat id {chat_id}")
 
@@ -113,7 +112,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         await context.bot.delete_message(chat_id, test_message_id)
         context.user_data["last_sent_test_message_id"] = None
         context.user_data["current_test_step"] = None
-        kwargs = context.job.data
+        kwargs: Update | None = context.job.data  # type: ignore
         if kwargs is None:
             raise ValueError
 
@@ -124,7 +123,6 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             raise ValueError
         current_phase = current_test["phase"]
 
-        # TODO: check how job args work
         logger.warning(kwargs)
         if current_phase + 1 < 4:
             await context.bot.send_message(

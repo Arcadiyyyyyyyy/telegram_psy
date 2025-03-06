@@ -52,7 +52,7 @@ class TestAnswerModel:
 class TimeSlotConfirmations:
     by_gleb: bool | None
     by_kopatych: bool | None
-    by_elena: bool | None
+    by_irina: bool | None
 
 
 @pydantic.dataclasses.dataclass()

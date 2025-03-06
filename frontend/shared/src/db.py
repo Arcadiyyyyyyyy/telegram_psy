@@ -41,7 +41,10 @@ class Collection:
         self, _filter: dict[str, Any] = {}, _sort: dict[str, Any] = {}
     ) -> Generator[Any, Any, None]:
         logger.trace("Started reading " + self.__class__.__name__ + " documents")
-        yield from self.db[self.collection].find(_filter).sort(_sort)
+        if _sort:
+            yield from self.db[self.collection].find(_filter).sort(_sort)
+        else:
+            yield from self.db[self.collection].find(_filter)
         logger.trace("Finished reading " + self.__class__.__name__ + " documents")
 
     def read_one(self, _filter: dict[str, Any]) -> dict[str, Any] | None:

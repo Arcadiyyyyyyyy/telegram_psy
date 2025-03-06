@@ -1,5 +1,6 @@
 import datetime
-from typing import Any, Literal
+import re
+from typing import Any
 
 import arrow
 from loguru import logger
@@ -9,6 +10,11 @@ from telegram.ext import ContextTypes
 import frontend.shared.src.db
 import frontend.shared.src.file_manager
 import frontend.shared.src.utils
+
+
+def telegram_escape_markdown(msg: str) -> str:
+    chars = r"\_*[]()~`>#+-=|{}.!"
+    return re.sub(f"([{re.escape(chars)}])", r"\\\1", msg)
 
 
 async def backup_db(*args: Any, **kwargs: Any) -> None:
@@ -114,9 +120,9 @@ async def confirm_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 class TimeManager:
     default_work_hours: list[datetime.time] = [
-        datetime.time(10, 0, 0),
-        datetime.time(11, 0, 0),
-        datetime.time(12, 0, 0),
+        # datetime.time(10, 0, 0),
+        # datetime.time(11, 0, 0),
+        # datetime.time(12, 0, 0),
         datetime.time(13, 0, 0),
         datetime.time(14, 0, 0),
         datetime.time(15, 0, 0),
@@ -133,22 +139,33 @@ class TimeManager:
     }
 
     def generate_free_time_slots(self, start_date: arrow.Arrow, end_date: arrow.Arrow):
+        end_date = end_date.replace(hour=0, minute=0, second=0, microsecond=0)
+
         while end_date >= start_date:
             active_week_day = end_date.strftime("%A")
 
             blocked_slots = list(
                 frontend.shared.src.db.TimeSlotsCollection().read(
-                    {"time": {"$gte": start_date.datetime, "$lte": end_date.datetime}}
+                    {
+                        "time": {
+                            "$gte": start_date.datetime,
+                            "$lte": end_date.datetime + datetime.timedelta(days=1),
+                        }
+                    }
                 )
             )
 
             for time_slot in self.available_hours[active_week_day]:
-                if time_slot not in [
-                    slot.get("time", datetime.datetime(2025, 1, 1, 0, 0, 0)).tine()
+                delta = datetime.timedelta(
+                    hours=time_slot.hour, minutes=time_slot.minute
+                )
+                result = end_date + delta
+                slots_to_compare_against = [
+                    slot.get("time", datetime.datetime(2025, 1, 1, 0, 0, 0))
                     for slot in blocked_slots
-                ]:
-                    yield end_date + time_slot
-
+                ]
+                if result.datetime.replace(tzinfo=None) not in slots_to_compare_against:
+                    yield result
             end_date = end_date.shift(days=-1)
 
     def get_available_slots_by_days(
@@ -159,9 +176,12 @@ class TimeManager:
         available_slots = sorted(
             list(self.generate_free_time_slots(start_date, end_date))
         )
-
-        active_day = available_slots[0].clone()
-        active_day.replace(hour=0, minute=0, second=0, microsecond=0)
+        if available_slots:
+            active_day = available_slots[0].clone()
+            active_day = active_day.replace(hour=0, minute=0, second=0, microsecond=0)
+        else:
+            yield []
+            return
 
         while active_day < available_slots[-1]:
             result: list[arrow.Arrow] = []
@@ -169,3 +189,4 @@ class TimeManager:
                 if slot > active_day and slot < active_day.shift(days=1):
                     result.append(slot)
             yield result
+            active_day = active_day.shift(days=1)

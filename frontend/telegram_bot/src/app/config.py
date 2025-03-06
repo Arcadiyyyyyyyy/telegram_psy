@@ -16,6 +16,7 @@ import frontend.shared.src.errors
 import frontend.shared.src.middleware
 import frontend.shared.src.utils
 import frontend.telegram_bot.src.app.commands.help
+import frontend.telegram_bot.src.app.commands.request_call
 import frontend.telegram_bot.src.app.commands.start
 import frontend.telegram_bot.src.app.commands.test_atq
 import frontend.telegram_bot.src.app.commands.test_iq
@@ -126,6 +127,11 @@ class Commands:
             ),
             frontend.shared.src.config.Command(
                 "cancel", "Cancel the current test", None
+            ),
+            frontend.shared.src.config.Command(
+                "book_a_call",
+                "Назначьте звонок с нашими специалистами для интерпретации результатов",
+                frontend.telegram_bot.src.app.commands.request_call.command,
             ),
         )
 

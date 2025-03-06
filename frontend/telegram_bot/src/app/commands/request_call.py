@@ -49,13 +49,17 @@ async def request_call(update: Update, context: ContextTypes.DEFAULT_TYPE):
     time = arrow.get(callback_arg_2)
 
     frontend.shared.src.db.TimeSlotsCollection().insert_one(
-        {"time": time, "occupation_reason": "scheduled call", "chat_id": int(chat_id)}
+        {
+            "time": time.datetime,
+            "occupation_reason": "scheduled call",
+            "chat_id": int(chat_id),
+        }
     )
 
     for admin in admins:
         await context.bot.send_message(
             admin["chat_id"],
-            f"Пользователь {user['first_name']} {chat_id} {user['username']} "
+            f"Пользователь {user['first_name']} {chat_id} @{user['username']} "
             f"хочет договориться о консультации в "
             f"{time.shift(hours=3).format('YYYY-MM-DD HH:mm')} по Москве",
             reply_markup=InlineKeyboardMarkup(
@@ -63,11 +67,11 @@ async def request_call(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     [
                         InlineKeyboardButton(
                             "Подтвердить",
-                            callback_data=f"y+book+{admin['chat_id']}+{callback_arg_2}",
+                            callback_data=f"y+book+admin+{admin['chat_id']}+{callback_arg_2}",
                         ),
                         InlineKeyboardButton(
                             "Я не могу в это время",
-                            callback_data=f"d+book+{admin['chat_id']}+{callback_arg_2}",
+                            callback_data=f"d+book+admin+{admin['chat_id']}+{callback_arg_2}",
                         ),
                     ]
                 ]

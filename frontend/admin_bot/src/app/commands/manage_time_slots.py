@@ -22,7 +22,7 @@ def generate_available_time_slots_keyboard(
     inline_keyboard = [
         [
             InlineKeyboardButton(
-                button.format("YYYY-MM-DD HH:mm"),
+                button.shift(hours=3).format("MM-DD HH:mm"),
                 callback_data=f"s+book+{_type}+{button.format('YYYY-MM-DD HH:mm')}+{page}",
             )
             for button in line
@@ -33,7 +33,7 @@ def generate_available_time_slots_keyboard(
     if page > 0:
         controls.append(
             InlineKeyboardButton(
-                "Предыдущая страница", callback_data=f"s+book+{_type}+{None}+{page - 1}"
+                "Предыдущая страница", callback_data=f"s+book+{_type}+none+{page - 1}"
             )
         )
     back_callback = "s+book"
@@ -44,7 +44,7 @@ def generate_available_time_slots_keyboard(
     controls.append(InlineKeyboardButton("Назад", callback_data=back_callback))
     controls.append(
         InlineKeyboardButton(
-            "Следующая страница", callback_data=f"s+book+{_type}+{None}+{page + 1}"
+            "Следующая страница", callback_data=f"s+book+{_type}+none+{page + 1}"
         )
     )
 
@@ -68,10 +68,4 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE, page: int 
     )
 
 
-# TODO: ограничение времени админами, ✅
-# TODO: выбор времени юзерами и пагинация времени,✅
-# TODO: уведомление пользователям о запланированном звонке, ✅
-# TODO: подтверждение звонка админами, ✅
-# TODO: автолинка на зум,✅
-# TODO: и тестовые вопросы в айку
-# TODO: посмотреть запланированные звонки ✅
+# TODO: сделать тестовые вопросы в айку
