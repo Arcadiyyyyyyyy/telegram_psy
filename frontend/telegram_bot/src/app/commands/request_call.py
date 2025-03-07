@@ -12,12 +12,13 @@ import frontend.shared.src.middleware
 
 
 async def command(update: Update, context: ContextTypes.DEFAULT_TYPE, page: int = 0):
-    if update.message is None or update.message.from_user is None:
+    if update.effective_chat is None:
         return
+    chat_id = update.effective_chat.id
     await frontend.shared.src.middleware.main_handler(update, context)
 
     await context.bot.send_message(
-        update.message.chat.id,
+        chat_id,
         "Привет! \n\nТут можно выбрать время для консультации с нашими специалистами",
         reply_markup=frontend.admin_bot.src.app.commands.manage_time_slots.generate_available_time_slots_keyboard(
             "user", page=page

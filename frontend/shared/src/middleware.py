@@ -262,7 +262,7 @@ async def callback_distributor(
 
     elif callback_group == "d":
         if callback_file == "ans_by_uid_and_test" and callback_arguments[-1] == "y":
-            await frontend.admin_bot.src.app.commands.get_answers_by_user.delete_test_answer(  # noqa
+            await frontend.admin_bot.src.app.commands.get_answers_by_user.delete_test_answer(
                 update, context
             )
         elif callback_file == "ans_by_uid_and_test":

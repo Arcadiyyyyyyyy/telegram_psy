@@ -60,7 +60,6 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE, page: int 
     if update.effective_chat is None:
         return
     chat_id = update.effective_chat.id
-
     await context.bot.send_message(
         chat_id,
         "Тут можно убрать доступный временной слот при помощи клика \n\nСписок слотов:",  # noqa
