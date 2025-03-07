@@ -146,7 +146,6 @@ async def cancel_call(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     if get_time_slot is None:
-    if get_time_slot is  None:
         raise ValueError
 
     time_slots.delete(
