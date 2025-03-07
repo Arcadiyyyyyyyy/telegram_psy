@@ -110,8 +110,6 @@ class Conversation:
         ):
             text = (
                 "К сожалению, тест можно сдавать только единожды. "
-                "Вот ваши результаты:\n\n"
-                f"{frontend.shared.src.utils.generate_test_answers_info(chat_id, self.conversation_name)}"  # noqa
                 "\n\nПожалуйста, обратитесь к администратору в "
                 "/help если столкнулись с ошибкой."
             )
