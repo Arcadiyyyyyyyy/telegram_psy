@@ -96,18 +96,19 @@ async def show_scheduled_calls(update: Update, context: ContextTypes.DEFAULT_TYP
                 "time": {"$gte": arrow.utcnow().datetime},
                 "meeting_link": {"$exists": 1},
                 "chat_id": chat_id,
-            }
+            },
+            {"time": 1},
         )
     )
-    result: list[str] = ["Вот список запланированных звонков: \n"]
+    result: list[str] = ["Вот список ваших запланированных звонков: \n"]
     for call in scheduled_calls:
         user = users.read_one({"chat_id": call["chat_id"]})
         if not user:
             raise ValueError
         result.append(
-            f"{arrow.get(call.get('time')).shift(hours=3).format('YYYY-MM-DD HH:mm')} with {user.get('first_name', 'error')} {user.get('username', 'error')} {user.get('chat_id', 'error')}"
+            f"Запланированная консультация {arrow.get(call.get('time')).shift(hours=3).format('YYYY-MM-DD HH:mm')}"
         )
-    else:
+    if len(result) == 1:
         result.append("У вас ещё нет подтверждённых звонков")
 
     await context.bot.send_message(chat_id, "\n".join(result))
@@ -132,9 +133,9 @@ async def cancel_call(update: Update, context: ContextTypes.DEFAULT_TYPE):
         raise ValueError
 
     callback_arguments = callback.split("+")
-    callback_arg_2 = callback_arguments[3]
+    callback_arg_3 = callback_arguments[4]
 
-    time = arrow.get(callback_arg_2)
+    time = arrow.get(callback_arg_3)
     time_slots = frontend.shared.src.db.TimeSlotsCollection()
 
     get_time_slot = time_slots.read_one(
@@ -144,7 +145,8 @@ async def cancel_call(update: Update, context: ContextTypes.DEFAULT_TYPE):
         }
     )
 
-    if get_time_slot is not None:
+    if get_time_slot is None:
+    if get_time_slot is  None:
         raise ValueError
 
     time_slots.delete(

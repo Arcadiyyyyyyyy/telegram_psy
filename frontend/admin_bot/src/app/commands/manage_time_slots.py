@@ -41,7 +41,7 @@ def generate_available_time_slots_keyboard(
         back_callback += "+admin"
     else:
         back_callback += "+user"
-    controls.append(InlineKeyboardButton("Назад", callback_data=back_callback))
+    controls.append(InlineKeyboardButton("Назад", callback_data="d+message"))
     controls.append(
         InlineKeyboardButton(
             "Следующая страница", callback_data=f"s+book+{_type}+none+{page + 1}"

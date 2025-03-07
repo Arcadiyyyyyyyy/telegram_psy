@@ -21,18 +21,19 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     time_slots = frontend.shared.src.db.TimeSlotsCollection()
     scheduled_calls = list(
         time_slots.read(
-            {"time": {"$gte": arrow.utcnow().datetime}, "meeting_link": {"$exists": 1}}
+            {"time": {"$gte": arrow.utcnow().datetime}, "meeting_link": {"$exists": 1}},
+            {"time": 1},
         )
     )
-    result: list[str] = ["Вот список запланированных звонков: \n"]
+    result: list[str] = ["Вот список ваших запланированных звонков: \n"]
     for call in scheduled_calls:
         user = users.read_one({"chat_id": call["chat_id"]})
         if not user:
             raise ValueError
         result.append(
-            f"{arrow.get(call.get('time')).shift(hours=3).format('YYYY-MM-DD HH:mm')} with {user.get('first_name', 'error')} {user.get('username', 'error')} {user.get('chat_id', 'error')}"
+            f"{arrow.get(call.get('time')).shift(hours=3).format('YYYY-MM-DD HH:mm')} with {user.get('first_name', 'error')} @{user.get('username', 'error')} {user.get('chat_id', 'error')}"
         )
-    else:
+    if len(result) == 1:
         result.append("У вас ещё нет подтверждённых звонков")
 
     await context.bot.send_message(chat_id, "\n".join(result))
