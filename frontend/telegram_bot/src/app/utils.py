@@ -96,8 +96,8 @@ async def abort_test(
 
     await context.bot.send_message(
         chat_id,
-        "Тест закончен преждевременно, результаты удалены.\n\n"
-        "Чтобы сделать тест ещё раз - пожалуйста, используйте команду теста повторно.",
+        "Тест закончен преждевременно.\n\n"
+        "Чтобы сделать тест ещё раз - пожалуйста, обратитесь в поддержку.",
     )
 
     return ConversationHandler.END
@@ -127,39 +127,6 @@ def save_test_answers(chat_id: int, conversation_name: str, user_data: dict[str,
         test_answers_collection.create_test_answer(
             frontend.shared.src.models.TestAnswerModel(**new_test_answer)
         )
-
-
-def handle_test_answer(
-    *,
-    question_texts: list[str],
-    context: ContextTypes.DEFAULT_TYPE,
-    callback: str,
-) -> int:
-    """Returns next command id"""
-    if context.user_data is None:
-        raise ValueError
-
-    split = callback.split("+")
-    current_step = int(split[2][4:])
-    answer_text = split[3][6:]
-
-    previous_question_text = question_texts[current_step - 1]
-    answers: list[Any] | None = context.user_data.get("answers")
-    questions: list[Any] | None = context.user_data.get("questions")
-    if answers is None:
-        context.user_data["answers"] = []
-    del answers
-    valid_answers: list[str] = context.user_data["answers"]
-    valid_answers.append(answer_text)
-    if questions is None:
-        context.user_data["questions"] = []
-    del questions
-    valid_questions: list[str] = context.user_data["questions"]
-    valid_questions.append(previous_question_text)
-
-    next_question_step = current_step
-
-    return next_question_step
 
 
 async def notify_test_exit_consequence(

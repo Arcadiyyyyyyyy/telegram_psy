@@ -50,11 +50,27 @@ class Conversation:
         )
         self.question_texts = [question["text"] for question in self.questions]
 
+        self.mock_steps: list[dict[str, Any]] | None = (
+            [x for x in self.questions if x["is_test_step"] is True]
+            if self.conversation_name == "iq"
+            else None
+        )
+
         logger.info("Created new conversation instance")
 
     @abstractmethod
     async def command_extension(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ):
+        pass
+
+    @abstractmethod
+    async def _handle_mock_test_answer(
+        self,
+        update: Update,
+        context: ContextTypes.DEFAULT_TYPE,
+        *,
+        current_step: int,
     ):
         pass
 
@@ -173,8 +189,6 @@ class Conversation:
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ):
         # await frontend.shared.src.middleware.main_handler(update, context)
-        if update.callback_query is not None:
-            await frontend.shared.src.utils.handle_callback(update.callback_query)
         if update.effective_message is None or context.user_data is None:
             raise ValueError
         chat_id, callback = await frontend.shared.src.utils.handle_callback(
@@ -189,10 +203,12 @@ class Conversation:
 
         await self.callback_handler_extension(update, context)
 
-        next_step = frontend.telegram_bot.src.app.utils.handle_test_answer(
+        next_step = await self.handle_test_answer(
             question_texts=self.question_texts,
+            update=update,
             context=context,
             callback=callback,
+            mock_steps=self.mock_steps,
         )
         try:
             await context.bot.delete_message(chat_id, update.effective_message.id)
@@ -200,3 +216,53 @@ class Conversation:
             pass
 
         return await self.commands[next_step][1](update, context)
+
+    async def handle_test_answer(
+        self,
+        *,
+        question_texts: list[str],
+        update: Update,
+        context: ContextTypes.DEFAULT_TYPE,
+        callback: str,
+        mock_steps: list[dict[str, Any]] | None,
+    ) -> int:
+        """Returns next command id"""
+        if context.user_data is None or mock_steps is None:
+            raise ValueError
+
+        split = callback.split("+")
+        current_step = int(split[2][4:])
+        answer_text = split[3][6:]
+
+        next_question_step = current_step
+        try:
+            current_test = [
+                x for x in mock_steps if int(x["test_step"]) == current_step
+            ][0]
+        except IndexError:
+            current_test = {}
+
+        if int(current_step) == int(current_test.get("test_step", -1)):
+            # TODO: if answer is not expected send a message
+            if answer_text not in current_test["correct_answer"]:
+                await self._handle_mock_test_answer(
+                    update, context, current_step=current_step
+                )
+
+            return next_question_step
+
+        previous_question_text = question_texts[current_step - 1]
+        answers: list[Any] | None = context.user_data.get("answers")
+        questions: list[Any] | None = context.user_data.get("questions")
+        if answers is None:
+            context.user_data["answers"] = []
+        del answers
+        valid_answers: list[str] = context.user_data["answers"]
+        valid_answers.append(answer_text)
+        if questions is None:
+            context.user_data["questions"] = []
+        del questions
+        valid_questions: list[str] = context.user_data["questions"]
+        valid_questions.append(previous_question_text)
+
+        return next_question_step

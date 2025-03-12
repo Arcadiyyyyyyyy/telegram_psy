@@ -31,6 +31,14 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
     async def command_extension(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ):
+        if update.effective_chat is None or context.user_data is None:
+            raise ValueError
+        explainer_message = await context.bot.send_message(
+            update.effective_chat.id,
+            "Перед вами четыре теста, которые похожи на четыре различные игры-головоломки. В них нет слов, только рисунки. В каждом тесте есть примеры, которые нужны для того, чтобы понять, как выполнять задания. Некоторые задания в конце тестов могут быть очень сложными, однако попробуйте решить как можно больше заданий. Даже если вы не уверены – отметьте вариант ответа, который по вашему мнению может быть правильным. Если вы не уверены какой ответ правильный – можно попытаться угадать, так как за неправильные ответы вы не теряете баллы.\n",
+        )
+        context.user_data["explainer_message_ids"].append(explainer_message.id)
+
         await self.start_phase(update, context, 1)
 
     async def callback_handler_extension(
@@ -156,6 +164,9 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             next_test = frontend.shared.src.db.TestsCollection().read_one(
                 {"test_step": current_step + 1, "test_name": "iq"}
             )
+
+            # TODO: send test_answer callback if test_answer
+
             if next_test is not None:
                 next_test = frontend.shared.src.models.IQTestModel(**next_test)
                 phase = (
@@ -166,6 +177,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 current_test = self.commands_distributes_by_phases[phase][current_step][
                     1
                 ]
+                test_text = current_test.text
 
                 if (
                     current_test.phase == next_test.phase
@@ -174,12 +186,14 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                     return await self.start_phase(update, context, next_test.phase)
             else:
                 phase = 4
+                test_text = ""
 
             with open(media_path, "rb") as file:
                 media = file.read()
             response = await context.bot.send_photo(
                 update.effective_chat.id,
                 media,
+                caption=test_text,
                 reply_markup=frontend.telegram_bot.src.app.utils.generate_question_answer_keyboard(  # noqa
                     "iq",
                     current_step,
@@ -194,6 +208,34 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         return types.FunctionType(
             template_func.__code__, globals(), closure=template_func.__closure__
         )
+
+    async def _handle_mock_test_answer(
+        self,
+        update: Update,
+        context: ContextTypes.DEFAULT_TYPE,
+        *,
+        current_step: int,
+    ):
+        await frontend.shared.src.middleware.main_handler(update, context)
+        if update.effective_chat is None or context.user_data is None:
+            raise ValueError
+        chat_id = update.effective_chat.id
+
+        current_test = frontend.shared.src.db.TestsCollection().read_one(
+            {"test_name": self.conversation_name, "test_step": current_step}
+        )
+        if current_test is None:
+            raise ValueError
+
+        explainer_message = await context.bot.send_message(
+            chat_id,
+            f"Неправильный ответ.\n\nПравильный ответ: "
+            f"{' или '.join(current_test.get('correct_answer', ''))}",
+        )
+        context.user_data["explainer_message_ids"].append(explainer_message.id)
+
+        # TODO: validate + possibly change to the confirmation button
+        # await self.commands[current_step][1](update, context)
 
     def generate_command_list(
         self,
@@ -235,16 +277,13 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         with open(information.media_location, "rb") as file:
             media = file.read()
 
-        explainer_message = await context.bot.send_message(
-            update.effective_chat.id, information.text
-        )
-        context.user_data["explainer_message_ids"].append(explainer_message.id)
-
+        # TODO: continue keyboard should not exist
         response = await context.bot.send_photo(
             update.effective_chat.id,
             media,
+            caption=information.text,
             reply_markup=frontend.telegram_bot.src.app.utils.generate_question_answer_keyboard(  # noqa
-                "continue",
+                "iq",
                 main_info[0],
                 test_phase=phase,
             ),
