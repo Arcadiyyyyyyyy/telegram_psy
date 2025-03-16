@@ -71,6 +71,7 @@ class Conversation:
         context: ContextTypes.DEFAULT_TYPE,
         *,
         current_step: int,
+        answer_text: str
     ):
         pass
 
@@ -292,7 +293,7 @@ class Conversation:
             # TODO: if answer is not expected send a message
             if answer_text not in current_test["correct_answer"]:
                 await self._handle_mock_test_answer(
-                    update, context, current_step=current_step
+                    update, context, current_step=current_step, answer_text=answer_text
                 )
 
             return next_question_step

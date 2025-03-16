@@ -35,7 +35,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             raise ValueError
         explainer_message = await context.bot.send_message(
             update.effective_chat.id,
-            "Перед вами четыре теста, которые похожи на четыре различные игры-головоломки. В них нет слов, только рисунки. В каждом тесте есть примеры, которые нужны для того, чтобы понять, как выполнять задания. Некоторые задания в конце тестов могут быть очень сложными, однако попробуйте решить как можно больше заданий. Даже если вы не уверены – отметьте вариант ответа, который по вашему мнению может быть правильным. Если вы не уверены какой ответ правильный – можно попытаться угадать, так как за неправильные ответы вы не теряете баллы.\n",
+            "Вам нужно будет пройти четыре теста, которые похожи на четыре различные игры-головоломки. В них нет слов, только рисунки. В каждом тесте есть примеры, которые нужны для того, чтобы понять, как выполнять задания. Некоторые задания в конце тестов могут быть очень сложными, однако попробуйте решить как можно больше заданий. Даже если вы не уверены – выберите вариант ответа, который по вашему мнению может быть правильным. Если вы не уверены какой ответ правильный – можно попытаться угадать, так как за неправильные ответы вы не теряете баллы.\n",
         )
         context.user_data["explainer_message_ids"].append(explainer_message.id)
 
@@ -225,6 +225,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         context: ContextTypes.DEFAULT_TYPE,
         *,
         current_step: int,
+        answer_text: str,
     ):
         if update.effective_chat is None or context.user_data is None:
             raise ValueError
@@ -235,12 +236,18 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         )
         if current_test is None:
             raise ValueError
+        expected_answer = current_test.get("correct_answer", "")
 
-        explainer_message = await context.bot.send_message(
-            chat_id,
-            f"Неправильный ответ.\n\nПравильный ответ: "
-            f"{' или '.join(current_test.get('correct_answer', ''))}",
-        )
+        if answer_text == expected_answer:
+            explainer_message = await context.bot.send_message(
+                chat_id,
+                "Правильный ответ!",
+            )
+        else:
+            explainer_message = await context.bot.send_message(
+                chat_id,
+                f"Неправильный ответ.\n\nПравильный ответ: {' и '.join(expected_answer)}",
+            )
         context.user_data["explainer_message_ids"].append(explainer_message.id)
 
         # TODO: validate + possibly change to the confirmation button
