@@ -20,7 +20,7 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE, page: int 
     await context.bot.send_message(
         chat_id,
         "Привет! \n\nТут можно выбрать время для консультации с нашими специалистами",
-        reply_markup=frontend.admin_bot.src.app.commands.manage_time_slots.generate_available_time_slots_keyboard(
+        reply_markup=frontend.admin_bot.src.app.commands.manage_time_slots.generate_available_time_slots_keyboard(  # noqa
             "user", page=page
         ),
     )
@@ -85,10 +85,10 @@ async def request_call(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def show_scheduled_calls(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.message is None or update.message.from_user is None:
+    if update.effective_chat is None:
         return
     await frontend.shared.src.middleware.main_handler(update, context)
-    chat_id = update.message.chat.id
+    chat_id = update.effective_chat.id
     users = frontend.shared.src.db.UsersCollection()
     time_slots = frontend.shared.src.db.TimeSlotsCollection()
     scheduled_calls = list(

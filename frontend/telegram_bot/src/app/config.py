@@ -16,6 +16,7 @@ import frontend.shared.src.errors
 import frontend.shared.src.middleware
 import frontend.shared.src.utils
 import frontend.telegram_bot.src.app.commands.help
+import frontend.telegram_bot.src.app.commands.menu
 import frontend.telegram_bot.src.app.commands.request_call
 import frontend.telegram_bot.src.app.commands.start
 import frontend.telegram_bot.src.app.commands.test_atq
@@ -53,6 +54,10 @@ class Commands:
                         x,
                         frontend.telegram_bot.src.app.commands.test_atq.Conversation().command,  # noqa
                     ),
+                    CallbackQueryHandler(
+                        frontend.telegram_bot.src.app.commands.test_atq.Conversation().command,  # noqa
+                        pattern=rf"r\+{frontend.telegram_bot.src.app.commands.test_atq.Conversation().conversation_name}start",  # noqa
+                    ),
                 ),
                 {
                     k: (
@@ -89,6 +94,10 @@ class Commands:
                         x,
                         frontend.telegram_bot.src.app.commands.test_iq.Conversation().command,  # noqa
                     ),
+                    CallbackQueryHandler(
+                        frontend.telegram_bot.src.app.commands.test_iq.Conversation().command,  # noqa
+                        pattern=rf"r\+{frontend.telegram_bot.src.app.commands.test_iq.Conversation().conversation_name}start",  # noqa
+                    ),
                 ),
                 {
                     k: (
@@ -118,15 +127,14 @@ class Commands:
 
         self.commands = (
             frontend.shared.src.config.Command(
-                "start",
-                "Start the bot",
-                frontend.telegram_bot.src.app.commands.start.command,
+                "menu",
+                "Главное меню",
+                frontend.telegram_bot.src.app.commands.menu.command,
             ),
             frontend.shared.src.config.Command(
-                "help", "Get help", frontend.telegram_bot.src.app.commands.help.command
-            ),
-            frontend.shared.src.config.Command(
-                "cancel", "Cancel the current test", None
+                "help",
+                "Помощь с любым вопросом",
+                frontend.telegram_bot.src.app.commands.help.command,
             ),
             frontend.shared.src.config.Command(
                 "book_a_call",
@@ -137,6 +145,14 @@ class Commands:
                 "list_confirmed_calls",
                 "Посмотреть список подтверждённых запланированных звонков",
                 frontend.telegram_bot.src.app.commands.request_call.show_scheduled_calls,
+            ),
+            frontend.shared.src.config.Command(
+                "start",
+                "Start the bot",
+                frontend.telegram_bot.src.app.commands.start.command,
+            ),
+            frontend.shared.src.config.Command(
+                "cancel", "Cancel the current test", None
             ),
         )
 
@@ -154,7 +170,7 @@ async def set_up_commands(
     await bot.bot.set_my_commands(
         [
             (x.command, x.description)
-            for x in Commands().commands + Commands().conversation_handlers
+            for x in Commands().conversation_handlers + Commands().commands
         ]
     )
 

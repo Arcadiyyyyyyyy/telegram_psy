@@ -5,12 +5,12 @@ import frontend.shared.src.middleware
 
 
 async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.message is None or update.message.from_user is None:
+    if update.effective_chat is None:
         return
     await frontend.shared.src.middleware.main_handler(update, context)
 
     await context.bot.send_message(
-        update.message.chat.id,
+        update.effective_chat.id,
         "Чтобы сбросить результаты теста, задать любой вопрос, или уведомить "
         "о технических проблемах бота - пожалуйста, обратитесь в @Phase_trade",
     )

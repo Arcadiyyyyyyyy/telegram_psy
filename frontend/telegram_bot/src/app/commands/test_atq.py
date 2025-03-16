@@ -28,7 +28,6 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         self,
         question_text: str,
         current_step: int,
-        total_amount_of_steps: int,
     ) -> types.FunctionType:
         async def template_func(
             update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -39,18 +38,23 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 or update.effective_chat is None
                 or context.user_data is None
             ):
-                raise ValueError(
-                    "template_func function must only be provided "
-                    + "with updates that have effective chat and effective message"
-                )
+                raise ValueError
             chat_id = update.effective_chat.id
-            await context.bot.send_message(
+            response = await context.bot.send_message(
                 chat_id,
                 question_text,
                 reply_markup=frontend.telegram_bot.src.app.utils.generate_question_answer_keyboard(  # noqa
                     "atq", current_step
                 ),
             )
+            if current_step == 1:
+                context.user_data["fucking_hack_because_of_dumb_ass_lib"] = (
+                    response.message_id
+                )
+            else:
+                context.user_data["last_sent_test_message_id"] = response.message_id
+                context.user_data["fucking_hack_because_of_dumb_ass_lib"] = None
+
             return current_step + 1
 
         return types.FunctionType(
@@ -69,7 +73,6 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             function = self._generate_function(
                 question_text=test.text,
                 current_step=test.test_step,
-                total_amount_of_steps=total_amount_of_steps,
             )
 
             yield (test.test_step, function)

@@ -17,6 +17,7 @@ import frontend.shared.src.models
 import frontend.shared.src.utils
 import frontend.shared.src.zoom_requester
 import frontend.telegram_bot.src.app.commands
+import frontend.telegram_bot.src.app.commands.help
 import frontend.telegram_bot.src.app.commands.request_call
 import frontend.telegram_bot.src.app.commands.test_atq
 import frontend.telegram_bot.src.app.commands.test_iq
@@ -259,10 +260,20 @@ async def callback_distributor(
                     await context.bot.send_message(
                         _chat_id["chat_id"], text, disable_web_page_preview=True
                     )
-
+    elif callback_group == "r":
+        if callback_file == "help":
+            await frontend.telegram_bot.src.app.commands.help.command(update, context)
+        elif callback_file == "list_calls":
+            await frontend.telegram_bot.src.app.commands.request_call.show_scheduled_calls(  # noqa
+                update, context
+            )
+        elif callback_file == "schedule_call":
+            await frontend.telegram_bot.src.app.commands.request_call.command(
+                update, context
+            )
     elif callback_group == "d":
         if callback_file == "ans_by_uid_and_test" and callback_arguments[-1] == "y":
-            await frontend.admin_bot.src.app.commands.get_answers_by_user.delete_test_answer(
+            await frontend.admin_bot.src.app.commands.get_answers_by_user.delete_test_answer(  # noqa
                 update, context
             )
         elif callback_file == "ans_by_uid_and_test":

@@ -114,15 +114,15 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         chat_id = context.job.chat_id
         if chat_id is None:
             raise ValueError
-
-        test_message_id = context.user_data["last_sent_test_message_id"]
-        current_test_step = context.user_data["current_test_step"]
-        await context.bot.delete_message(chat_id, test_message_id)
-        context.user_data["last_sent_test_message_id"] = None
-        context.user_data["current_test_step"] = None
         kwargs: Update | None = context.job.data  # type: ignore
         if kwargs is None:
             raise ValueError
+
+        await frontend.telegram_bot.src.app.utils.abort_test(
+            kwargs, context, self.conversation_name
+        )
+        current_test_step = context.user_data["current_test_step"]
+        context.user_data["current_test_step"] = None
 
         current_test = frontend.shared.src.db.TestsCollection().read_one(
             {"test_name": self.conversation_name, "test_step": current_test_step}

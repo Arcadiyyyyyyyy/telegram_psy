@@ -29,7 +29,7 @@ class Connector:
             return
         self.__initialized = True
 
-        self.db = MongoClient(os.environ["MONGO_URI"])["psy_kopatych_user_facing_bot"]
+        self.db = MongoClient(os.environ["MONGO_URI"])[os.environ["MONGO_DATABASE_NAME"]]
         logger.info("Connected to the mongodb")
 
 

@@ -99,11 +99,7 @@ class Conversation:
         pass
 
     async def command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        if (
-            update.message is None
-            or update.message.from_user is None
-            or context.user_data is None
-        ):
+        if update.effective_chat is None or context.user_data is None:
             if update.effective_chat is None:
                 return ConversationHandler.END
             await context.bot.send_message(
@@ -112,7 +108,15 @@ class Conversation:
             )
             return ConversationHandler.END
         await frontend.shared.src.middleware.main_handler(update, context)
-        chat_id = update.message.chat.id
+        chat_id = update.effective_chat.id
+
+        if (
+            context.user_data.get("explainer_message_ids") is not None
+            or context.user_data.get("last_sent_test_message_id") is not None
+        ):
+            await frontend.telegram_bot.src.app.utils.abort_test(
+                update, context, self.conversation_name
+            )
 
         context.user_data["answers"] = []
         context.user_data["questions"] = []
@@ -138,6 +142,16 @@ class Conversation:
         await frontend.telegram_bot.src.app.utils.notify_test_exit_consequence(
             update, context
         )
+
+        chat_id = update.effective_chat.id
+        if (
+            x := context.user_data.get("fucking_hack_because_of_dumb_ass_lib")
+        ) is not None:
+            try:
+                await context.bot.delete_message(chat_id, x)
+            except Exception:
+                pass
+            context.user_data["fucking_hack_because_of_dumb_ass_lib"] = None
 
         await self.command_extension(update, context)
 
@@ -167,23 +181,43 @@ class Conversation:
             await context.bot.send_message(chat_id, t)
         return ConversationHandler.END
 
-    async def callback_cancel(
-        self, update: Update, context: ContextTypes.DEFAULT_TYPE
-    ) -> int:
+    async def callback_cancel(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         await frontend.shared.src.middleware.main_handler(update, context)
         if update.callback_query is not None:
             await frontend.shared.src.utils.handle_callback(update.callback_query)
+        if update.effective_chat is None or context.user_data is None:
+            raise ValueError
+        chat_id = update.effective_chat.id
         await self.cancel_extension(update, context)
-        return await frontend.telegram_bot.src.app.utils.abort_test(
+        result = await frontend.telegram_bot.src.app.utils.abort_test(
             update, context, self.conversation_name
         )
+        explainer_message = await context.bot.send_message(
+            chat_id,
+            "Тест закончен преждевременно.\n\n"
+            "Чтобы сделать тест ещё раз - пожалуйста, обратитесь в поддержку.",
+        )
+        context.user_data["explainer_message_ids"].append(explainer_message.id)
 
-    async def cancel(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        return result
+
+    async def cancel(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         await frontend.shared.src.middleware.main_handler(update, context)
+        if update.effective_chat is None or context.user_data is None:
+            raise ValueError
+        chat_id = update.effective_chat.id
         await self.cancel_extension(update, context)
-        return await frontend.telegram_bot.src.app.utils.abort_test(
+        result = await frontend.telegram_bot.src.app.utils.abort_test(
             update, context, self.conversation_name
         )
+        explainer_message = await context.bot.send_message(
+            chat_id,
+            "Тест закончен преждевременно.\n\n"
+            "Чтобы сделать тест ещё раз - пожалуйста, обратитесь в поддержку.",
+        )
+        context.user_data["explainer_message_ids"].append(explainer_message.id)
+
+        return result
 
     async def callback_handler(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
