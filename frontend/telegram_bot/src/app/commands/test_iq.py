@@ -118,9 +118,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         if kwargs is None:
             raise ValueError
 
-        await frontend.telegram_bot.src.app.utils.abort_test(
-            kwargs, context, self.conversation_name
-        )
+        await frontend.telegram_bot.src.app.utils.abort_test(kwargs, context)
         current_test_step = context.user_data["current_test_step"]
         context.user_data["current_test_step"] = None
 
@@ -216,7 +214,6 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         *,
         current_step: int,
     ):
-        await frontend.shared.src.middleware.main_handler(update, context)
         if update.effective_chat is None or context.user_data is None:
             raise ValueError
         chat_id = update.effective_chat.id
@@ -261,7 +258,6 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
     async def start_phase(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE, phase: int
     ) -> int:
-        await frontend.shared.src.middleware.main_handler(update, context)
         if update.effective_chat is None or context.user_data is None:
             raise ValueError(
                 "template_func function must only be provided "

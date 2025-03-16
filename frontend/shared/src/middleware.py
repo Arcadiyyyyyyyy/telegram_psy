@@ -67,6 +67,18 @@ async def is_chat_private(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         return False
 
 
+async def remove_atq_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.effective_chat is None or context.user_data is None:
+        raise ValueError
+    chat_id = update.effective_chat.id
+    if (x := context.user_data.get("fucking_hack_because_of_dumb_ass_lib")) is not None:
+        try:
+            await context.bot.delete_message(chat_id, x)
+        except Exception:
+            pass
+        context.user_data["fucking_hack_because_of_dumb_ass_lib"] = None
+
+
 async def main_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if update.message is not None and update.message.from_user is not None:
         logger.trace(
@@ -89,6 +101,8 @@ async def main_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                 username=update.message.from_user.username,
             )
         )
+
+    await frontend.telegram_bot.src.app.utils.abort_test(update, context)
 
 
 async def callback_distributor(

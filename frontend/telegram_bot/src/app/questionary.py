@@ -110,13 +110,11 @@ class Conversation:
         await frontend.shared.src.middleware.main_handler(update, context)
         chat_id = update.effective_chat.id
 
-        if (
-            context.user_data.get("explainer_message_ids") is not None
-            or context.user_data.get("last_sent_test_message_id") is not None
-        ):
-            await frontend.telegram_bot.src.app.utils.abort_test(
-                update, context, self.conversation_name
-            )
+        # if (
+        #     context.user_data.get("explainer_message_ids") is not None
+        #     or context.user_data.get("last_sent_test_message_id") is not None
+        # ):
+        #     await frontend.telegram_bot.src.app.utils.abort_test(update, context)
 
         context.user_data["answers"] = []
         context.user_data["questions"] = []
@@ -142,16 +140,6 @@ class Conversation:
         await frontend.telegram_bot.src.app.utils.notify_test_exit_consequence(
             update, context
         )
-
-        chat_id = update.effective_chat.id
-        if (
-            x := context.user_data.get("fucking_hack_because_of_dumb_ass_lib")
-        ) is not None:
-            try:
-                await context.bot.delete_message(chat_id, x)
-            except Exception:
-                pass
-            context.user_data["fucking_hack_because_of_dumb_ass_lib"] = None
 
         await self.command_extension(update, context)
 
@@ -188,10 +176,11 @@ class Conversation:
         if update.effective_chat is None or context.user_data is None:
             raise ValueError
         chat_id = update.effective_chat.id
-        await self.cancel_extension(update, context)
-        result = await frontend.telegram_bot.src.app.utils.abort_test(
-            update, context, self.conversation_name
+        frontend.telegram_bot.src.app.utils.save_test_answers(
+            chat_id, self.conversation_name, context.user_data
         )
+        await self.cancel_extension(update, context)
+        # result = await frontend.telegram_bot.src.app.utils.abort_test(update, context)
         explainer_message = await context.bot.send_message(
             chat_id,
             "Тест закончен преждевременно.\n\n"
@@ -199,17 +188,19 @@ class Conversation:
         )
         context.user_data["explainer_message_ids"].append(explainer_message.id)
 
-        return result
+        return ConversationHandler.END
+        # return result
 
     async def cancel(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         await frontend.shared.src.middleware.main_handler(update, context)
         if update.effective_chat is None or context.user_data is None:
             raise ValueError
         chat_id = update.effective_chat.id
-        await self.cancel_extension(update, context)
-        result = await frontend.telegram_bot.src.app.utils.abort_test(
-            update, context, self.conversation_name
+        frontend.telegram_bot.src.app.utils.save_test_answers(
+            chat_id, self.conversation_name, context.user_data
         )
+        await self.cancel_extension(update, context)
+        # result = await frontend.telegram_bot.src.app.utils.abort_test(update, context)
         explainer_message = await context.bot.send_message(
             chat_id,
             "Тест закончен преждевременно.\n\n"
@@ -217,7 +208,8 @@ class Conversation:
         )
         context.user_data["explainer_message_ids"].append(explainer_message.id)
 
-        return result
+        return ConversationHandler.END
+        # return result
 
     async def callback_handler(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -261,7 +253,7 @@ class Conversation:
         mock_steps: list[dict[str, Any]] | None,
     ) -> int:
         """Returns next command id"""
-        if context.user_data is None or mock_steps is None:
+        if context.user_data is None:
             raise ValueError
 
         split = callback.split("+")
@@ -270,9 +262,12 @@ class Conversation:
 
         next_question_step = current_step
         try:
-            current_test = [
-                x for x in mock_steps if int(x["test_step"]) == current_step
-            ][0]
+            if mock_steps is not None:
+                current_test = [
+                    x for x in mock_steps if int(x["test_step"]) == current_step
+                ][0]
+            else:
+                current_test = {}
         except IndexError:
             current_test = {}
 

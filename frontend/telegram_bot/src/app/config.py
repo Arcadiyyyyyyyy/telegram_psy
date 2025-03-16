@@ -66,7 +66,7 @@ class Commands:
                             pattern=rf"a\+{frontend.telegram_bot.src.app.commands.test_atq.Conversation().conversation_name}\+[a-zA-Z0-9+]+",  # noqa
                         ),
                     )
-                    for k, v in frontend.telegram_bot.src.app.commands.test_atq.Conversation().commands  # noqa
+                    for k, v in frontend.telegram_bot.src.app.commands.test_atq.Conversation().commands  # noqa  # type: ignore
                 },
                 [
                     CommandHandler(
@@ -106,7 +106,7 @@ class Commands:
                             pattern=rf"a\+{frontend.telegram_bot.src.app.commands.test_iq.Conversation().conversation_name}\+[a-zA-Z0-9+]+",  # noqa
                         ),
                     )
-                    for k, v in frontend.telegram_bot.src.app.commands.test_iq.Conversation().commands  # noqa
+                    for k, v in frontend.telegram_bot.src.app.commands.test_iq.Conversation().commands  # noqa  # type: ignore
                 },
                 [
                     CommandHandler(
@@ -144,7 +144,7 @@ class Commands:
             frontend.shared.src.config.Command(
                 "list_confirmed_calls",
                 "Посмотреть список подтверждённых запланированных звонков",
-                frontend.telegram_bot.src.app.commands.request_call.show_scheduled_calls,
+                frontend.telegram_bot.src.app.commands.request_call.show_scheduled_calls,  # noqa
             ),
             frontend.shared.src.config.Command(
                 "start",

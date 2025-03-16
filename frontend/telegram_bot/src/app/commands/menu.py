@@ -15,20 +15,20 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     keyboard: list[list[InlineKeyboardButton]] = []
 
-    user_have_not_passed_iq_test = False
-    user_have_not_passed_atq_test = False
+    user_have_passed_iq_test = False
+    user_have_passed_atq_test = False
 
     test_answers_collection = frontend.shared.src.db.TestAnswersCollection()
     if (
         test_answers_collection.read_one({"chat_id": chat_id, "test_name": "iq"})
-        is None
+        is not None
     ):
-        user_have_not_passed_iq_test = True
+        user_have_passed_iq_test = True
     if (
         test_answers_collection.read_one({"chat_id": chat_id, "test_name": "atq"})
-        is None
+        is not None
     ):
-        user_have_not_passed_atq_test = True
+        user_have_passed_atq_test = True
     blocked_slots = list(
         frontend.shared.src.db.TimeSlotsCollection().read(
             {
@@ -41,9 +41,11 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     )
 
-    if user_have_not_passed_iq_test:
-        keyboard.append([InlineKeyboardButton("Пройти IQ тест", callback_data="r+iqstart")])
-    if user_have_not_passed_atq_test:
+    if not user_have_passed_iq_test:
+        keyboard.append(
+            [InlineKeyboardButton("Пройти IQ тест", callback_data="r+iqstart")]
+        )
+    if not user_have_passed_atq_test:
         keyboard.append(
             [InlineKeyboardButton("Пройти ATQ тест", callback_data="r+atqstart")]
         )

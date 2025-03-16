@@ -81,9 +81,7 @@ def generate_question_answer_keyboard(
     return result
 
 
-async def abort_test(
-    update: Update, context: ContextTypes.DEFAULT_TYPE, test_name: str
-) -> int:
+async def abort_test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     if update.effective_chat is None or context.user_data is None:
         raise ValueError
     chat_id = update.effective_chat.id
