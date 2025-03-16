@@ -48,7 +48,7 @@ class Commands:
                     x
                     := frontend.telegram_bot.src.app.commands.test_atq.Conversation().conversation_name  # noqa
                 ),
-                "Take ATQ test",
+                "Пройти ATQ тест",
                 (
                     CommandHandler(
                         x,
@@ -88,7 +88,7 @@ class Commands:
                     x
                     := frontend.telegram_bot.src.app.commands.test_iq.Conversation().conversation_name  # noqa
                 ),
-                "Take IQ test",
+                "Пройти IQ тест",
                 (
                     CommandHandler(
                         x,
@@ -133,7 +133,7 @@ class Commands:
             ),
             frontend.shared.src.config.Command(
                 "help",
-                "Помощь с любым вопросом",
+                "Помощь",
                 frontend.telegram_bot.src.app.commands.help.command,
             ),
             frontend.shared.src.config.Command(
@@ -148,12 +148,10 @@ class Commands:
             ),
             frontend.shared.src.config.Command(
                 "start",
-                "Start the bot",
+                "Начать использование бота",
                 frontend.telegram_bot.src.app.commands.start.command,
             ),
-            frontend.shared.src.config.Command(
-                "cancel", "Cancel the current test", None
-            ),
+            frontend.shared.src.config.Command("cancel", "Отменить текущий тест", None),
         )
 
 
