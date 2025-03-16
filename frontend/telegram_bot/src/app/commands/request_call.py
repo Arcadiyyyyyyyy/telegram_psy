@@ -17,13 +17,18 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE, page: int 
     chat_id = update.effective_chat.id
     await frontend.shared.src.middleware.main_handler(update, context)
 
-    await context.bot.send_message(
+    message = await context.bot.send_message(
         chat_id,
         "Привет! \n\nТут можно выбрать время для консультации с нашими специалистами",
         reply_markup=frontend.admin_bot.src.app.commands.manage_time_slots.generate_available_time_slots_keyboard(  # noqa
             "user", page=page
         ),
     )
+    if context.user_data is not None:
+        if context.user_data.get("explainer_message_ids") is not None:
+            context.user_data["explainer_message_ids"].append(message.id)
+        else:
+            context.user_data["explainer_message_ids"] = [message.id]
 
 
 async def request_call(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -112,7 +117,12 @@ async def show_scheduled_calls(update: Update, context: ContextTypes.DEFAULT_TYP
     if len(result) == 1:
         result.append("У вас ещё нет подтверждённых звонков")
 
-    await context.bot.send_message(chat_id, "\n".join(result))
+    message = await context.bot.send_message(chat_id, "\n".join(result))
+    if context.user_data is not None:
+        if context.user_data.get("explainer_message_ids") is not None:
+            context.user_data["explainer_message_ids"].append(message.id)
+        else:
+            context.user_data["explainer_message_ids"] = [message.id]
 
 
 async def cancel_call(update: Update, context: ContextTypes.DEFAULT_TYPE):

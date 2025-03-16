@@ -51,10 +51,14 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             update.callback_query
         )
         if callback == "":
-            await context.bot.send_message(
+            message = await context.bot.send_message(
                 chat_id,
                 self.error_text,
             )
+            if context.user_data.get("explainer_message_ids") is not None:
+                context.user_data["explainer_message_ids"].append(message.id)
+            else:
+                context.user_data["explainer_message_ids"] = [message.id]
             return
 
         split = callback.split("+")
@@ -130,19 +134,27 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         current_phase = current_test["phase"]
 
         if current_phase + 1 < 4:
-            await context.bot.send_message(
+            message = await context.bot.send_message(
                 chat_id,
                 "К сожалению, вы не успели пройти эту часть теста целиком "
                 "за выделенное время. \n\nВаши результаты сохранены, вы можете "
                 "приступить к продолжению теста когда будете готовы.",
             )
+            if context.user_data.get("explainer_message_ids") is not None:
+                context.user_data["explainer_message_ids"].append(message.id)
+            else:
+                context.user_data["explainer_message_ids"] = [message.id]
             await self.start_phase(kwargs, context, current_phase + 1)
         else:
-            await context.bot.send_message(
+            message = await context.bot.send_message(
                 chat_id,
                 "К сожалению, вы не успели пройти тест целиком за выделенное время. "
                 "\n\nВаши результаты сохранены.",
             )
+            if context.user_data.get("explainer_message_ids") is not None:
+                context.user_data["explainer_message_ids"].append(message.id)
+            else:
+                context.user_data["explainer_message_ids"] = [message.id]
 
     def _generate_function(
         self,

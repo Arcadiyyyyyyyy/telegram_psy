@@ -74,8 +74,13 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton("Сообщить о проблеме", callback_data="r+help")]
     )
 
-    await context.bot.send_message(
+    message = await context.bot.send_message(
         chat_id,
         "Главное меню",
         reply_markup=InlineKeyboardMarkup(keyboard),
     )
+    if context.user_data is not None:
+        if context.user_data.get("explainer_message_ids") is not None:
+            context.user_data["explainer_message_ids"].append(message.id)
+        else:
+            context.user_data["explainer_message_ids"] = [message.id]

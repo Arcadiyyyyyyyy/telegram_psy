@@ -2,6 +2,11 @@ from telegram import Update
 from telegram.ext import ContextTypes
 
 import frontend.shared.src.middleware
+import frontend.telegram_bot
+import frontend.telegram_bot.src
+import frontend.telegram_bot.src.app
+import frontend.telegram_bot.src.app.commands
+import frontend.telegram_bot.src.app.commands.menu
 
 
 async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -9,6 +14,4 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     await frontend.shared.src.middleware.main_handler(update, context)
 
-    await context.bot.send_message(
-        update.message.chat.id, "Привет! \n\n/atq или /iq для прототипа"
-    )  # TODO: change text
+    await frontend.telegram_bot.src.app.commands.menu.command(update, context)

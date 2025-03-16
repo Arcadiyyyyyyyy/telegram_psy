@@ -102,10 +102,15 @@ class Conversation:
         if update.effective_chat is None or context.user_data is None:
             if update.effective_chat is None:
                 return ConversationHandler.END
-            await context.bot.send_message(
+            message = await context.bot.send_message(
                 update.effective_chat.id,
                 self.error_text,
             )
+            if context.user_data is not None:
+                if context.user_data.get("explainer_message_ids") is not None:
+                    context.user_data["explainer_message_ids"].append(message.id)
+                else:
+                    context.user_data["explainer_message_ids"] = [message.id]
             return ConversationHandler.END
         await frontend.shared.src.middleware.main_handler(update, context)
         chat_id = update.effective_chat.id
@@ -133,7 +138,11 @@ class Conversation:
             )
             texts_to_send = frontend.shared.src.utils.split_string(text)
             for t in texts_to_send:
-                await context.bot.send_message(chat_id, t)
+                message = await context.bot.send_message(chat_id, t)
+                if context.user_data.get("explainer_message_ids") is not None:
+                    context.user_data["explainer_message_ids"].append(message.id)
+                else:
+                    context.user_data["explainer_message_ids"] = [message.id]
             return ConversationHandler.END
         context.user_data["started_at"] = arrow.utcnow().datetime
 
@@ -166,7 +175,11 @@ class Conversation:
             f"Поздравляем! Вы успешно прошли тест, ваши ответы сохранены. \n\n{text}"
         )
         for t in texts_to_send:
-            await context.bot.send_message(chat_id, t)
+            message = await context.bot.send_message(chat_id, t)
+            if context.user_data.get("explainer_message_ids") is not None:
+                context.user_data["explainer_message_ids"].append(message.id)
+            else:
+                context.user_data["explainer_message_ids"] = [message.id]
         return ConversationHandler.END
 
     async def callback_cancel(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -221,10 +234,14 @@ class Conversation:
             update.callback_query
         )
         if callback == "":
-            await context.bot.send_message(
+            message = await context.bot.send_message(
                 chat_id,
                 self.error_text,
             )
+            if context.user_data.get("explainer_message_ids") is not None:
+                context.user_data["explainer_message_ids"].append(message.id)
+            else:
+                context.user_data["explainer_message_ids"] = [message.id]
             return ConversationHandler.END
 
         await self.callback_handler_extension(update, context)
