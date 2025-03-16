@@ -164,7 +164,6 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         async def template_func(
             update: Update, context: ContextTypes.DEFAULT_TYPE
         ) -> int:
-            await frontend.shared.src.middleware.main_handler(update, context)
             if update.effective_chat is None or context.user_data is None:
                 raise ValueError(
                     "template_func function must only be provided "
@@ -227,6 +226,8 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         current_step: int,
         answer_text: str,
     ):
+        await frontend.shared.src.middleware.main_handler(update, context)
+
         if update.effective_chat is None or context.user_data is None:
             raise ValueError
         chat_id = update.effective_chat.id
@@ -278,10 +279,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         self, update: Update, context: ContextTypes.DEFAULT_TYPE, phase: int
     ) -> int:
         if update.effective_chat is None or context.user_data is None:
-            raise ValueError(
-                "template_func function must only be provided "
-                + "with updates that have effective chat and effective message"
-            )
+            raise ValueError
 
         self._remove_time_restriction_jobs(context, update.effective_chat.id)
 
