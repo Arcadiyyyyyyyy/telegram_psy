@@ -1,5 +1,6 @@
 from typing import Any, Literal
 
+import arrow
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes, ConversationHandler
 
@@ -114,7 +115,7 @@ def save_test_answers(chat_id: int, conversation_name: str, user_data: dict[str,
         "answers": answers,
         "questions": questions,
         "started_at": user_data["started_at"],
-        "finished_at": user_data["finished_at"],
+        "finished_at": user_data.get("finished_at", arrow.utcnow().datetime),
     }
     filter_to_check_existing_answer: dict[str, Any] = {
         "chat_id": chat_id,
