@@ -48,13 +48,7 @@ def generate_test_answers_info(chat_id: int, conversation_name: str):
             else:
                 to_dump_to_csv.append([i + 1, _answer])
 
-    started_at: datetime.datetime = answer["started_at"]
-    finished_at: datetime.datetime = answer["finished_at"]
-
-    test_summary = (
-        "Количество секунд потраченных на прохождение теста: "
-        f"{(finished_at - started_at).seconds}.\n\n"
-    )
+    test_summary = ""
 
     file_manager = frontend.shared.src.file_manager.FileManager()
 
@@ -120,12 +114,8 @@ async def confirm_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 class TimeManager:
     default_work_hours: list[datetime.time] = [
-        # datetime.time(10, 0, 0),
-        # datetime.time(11, 0, 0),
-        # datetime.time(12, 0, 0),
         datetime.time(13, 0, 0),
-        datetime.time(14, 0, 0),
-        datetime.time(15, 0, 0),
+        datetime.time(14, 30, 0),
         datetime.time(16, 0, 0),
     ]
     available_hours: dict[str, list[datetime.time]] = {

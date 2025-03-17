@@ -138,12 +138,12 @@ class Commands:
             ),
             frontend.shared.src.config.Command(
                 "book_a_call",
-                "Назначить звонок со специалистами",
+                "Запись на интервью",
                 frontend.telegram_bot.src.app.commands.request_call.command,
             ),
             frontend.shared.src.config.Command(
                 "list_confirmed_calls",
-                "Список подтверждённых запланированных звонков",
+                "Список подтверждённых запланированных интервью",
                 frontend.telegram_bot.src.app.commands.request_call.show_scheduled_calls,  # noqa
             ),
             frontend.shared.src.config.Command(

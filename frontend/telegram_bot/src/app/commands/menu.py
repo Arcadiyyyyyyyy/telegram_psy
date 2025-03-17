@@ -65,7 +65,7 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         keyboard.append(
             [
                 InlineKeyboardButton(
-                    "Запланировать звонок с психологом", callback_data="r+schedule_call"
+                    "Запланировать интервью", callback_data="r+schedule_call"
                 )
             ]
         )
