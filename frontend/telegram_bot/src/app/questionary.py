@@ -138,13 +138,34 @@ class Conversation:
             return ConversationHandler.END
         context.user_data["started_at"] = arrow.utcnow().datetime
 
-        await frontend.telegram_bot.src.app.utils.notify_test_exit_consequence(
-            update, context
-        )
-
-        await self.command_extension(update, context)
+        await self.notify_test_exit_consequence(update, context)
 
         return 1
+
+    async def notify_test_exit_consequence(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ):
+        if update.effective_chat is None or context.user_data is None:
+            raise ValueError
+        chat_id = update.effective_chat.id
+        explainer_message = await context.bot.send_message(
+            chat_id,
+            "Имей в виду, что нажатие любой команды отличной "
+            "от ответа на вопрос во время прохождения теста повлечёт за "
+            "собой незамедлительное окончание теста. "
+            "Пересдать тест в таком случае невозможно.",
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            "Продолжить",
+                            callback_data=f"a+{self.conversation_name}+step1+answerContinue",
+                        )
+                    ]
+                ]
+            ),
+        )
+        context.user_data["explainer_message_ids"].append(explainer_message.id)
 
     async def finish(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         await frontend.shared.src.middleware.main_handler(update, context)
@@ -258,6 +279,11 @@ class Conversation:
         )
         if current_test is None:
             raise ValueError
+
+        if answer_text == "Continue":
+            await self.command_extension(update, context)
+            return next_step
+
         if (
             current_test.get("seconds_to_pass_the_phase") is not None
             and answer_text != "Ready"
@@ -278,8 +304,8 @@ class Conversation:
             )
             context.user_data["explainer_message_ids"].append(message.id)
             return next_step
-        else:
-            return await self.commands[next_step][1](update, context)
+
+        return await self.commands[next_step][1](update, context)
 
     async def handle_test_answer(
         self,
@@ -300,7 +326,7 @@ class Conversation:
 
         next_question_step = current_step
 
-        if answer_text == "Ready":
+        if answer_text in ["Ready", "Continue"]:
             return next_question_step
 
         try:
