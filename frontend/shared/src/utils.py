@@ -39,14 +39,15 @@ def generate_test_answers_info(chat_id: int, conversation_name: str):
         for question, _answer in zip(answer["questions"], answer["answers"]):
             to_dump_to_csv.append([question, _answer])
     elif conversation_name == "iq":
-        answers = answer.get("answers", [])
-        for i, question in enumerate(answer.get("questions", [])):
-            _answer = answers[i]
+        questions = answer.get("questions", [])
+        if questions:
+            for i, answer in enumerate(answer.get("answers", [])):
+                _question = questions[i]
 
-            if question != "" and _answer == "Готов":
-                pass
-            else:
-                to_dump_to_csv.append([i + 1, _answer])
+                if _question != "" and answer == "Готов":
+                    pass
+                else:
+                    to_dump_to_csv.append([i + 1, answer])
 
     test_summary = ""
 

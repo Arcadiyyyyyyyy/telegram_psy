@@ -213,8 +213,8 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         if current_phase + 1 < 4:
             message = await context.bot.send_message(
                 chat_id,
-                "К сожалению, ты не успел пройти эту часть теста целиком "
-                "за выделенное время. \n\nТвои результаты сохранены, ты можешь "
+                "Время на этот тест закончилось. "
+                "\n\nТвои результаты сохранены, ты можешь "
                 "приступить к продолжению теста когда будешь готов.",
             )
             if context.user_data.get("explainer_message_ids") is not None:
@@ -337,9 +337,17 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 "Правильный ответ!",
             )
         else:
-            explainer_message = await context.bot.send_message(
+            previous_test = frontend.shared.src.db.TestsCollection().read_one(
+                {"test_name": self.conversation_name, "test_step": current_step}
+            )
+            if previous_test is None:
+                raise ValueError
+            with open(previous_test.get("media_location", ""), "rb") as file:
+                media = file.read()
+            explainer_message = await context.bot.send_photo(
                 chat_id,
-                f"Неправильный ответ.\n\nПравильный ответ: {' и '.join(expected_answer)}",
+                media,
+                caption=f"Неправильный ответ.\n\nПравильный ответ: {' и '.join(expected_answer)}",
             )
         if context.user_data.get("explainer_message_ids") is not None:
             context.user_data["explainer_message_ids"].append(explainer_message.id)

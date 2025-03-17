@@ -312,7 +312,7 @@ class Conversation:
         ):
             message = await context.bot.send_message(
                 chat_id,
-                "Тебе может не хватить времени, чтобы выполнить все задания. Работай так быстро и внимательно, как сможешь.\nКогда будешь готов начать тест - нажми на кнопку внизу, чтобы запустить таймер теста.",
+                "На этом тренировки к этому тесту закончились. \nТебе может не хватить времени, чтобы выполнить все задания. Работай так быстро и внимательно, как сможешь.\nКогда будешь готов начать тест - нажми на кнопку внизу, чтобы запустить таймер.",
                 reply_markup=InlineKeyboardMarkup(
                     [
                         [
@@ -324,7 +324,8 @@ class Conversation:
                     ]
                 ),
             )
-            context.user_data["explainer_message_ids"].append(message.id)
+            if context.user_data.get("explainer_message_ids") is not None:
+                context.user_data["explainer_message_ids"].append(message.id)
             return next_step
 
         return await self.commands[next_step][1](update, context)
