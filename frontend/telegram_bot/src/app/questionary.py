@@ -165,7 +165,7 @@ class Conversation:
                     [
                         InlineKeyboardButton(
                             "Продолжить",
-                            callback_data=f"a+{self.conversation_name}+step1+answerContinue",
+                            callback_data=f"a+{self.conversation_name}+step1+answerПродолжить",
                         )
                     ]
                 ]
@@ -286,18 +286,29 @@ class Conversation:
         if current_test is None:
             raise ValueError
 
-        if answer_text == "Continue":
+        if answer_text == "Продолжить":
             await self.command_extension(update, context)
             return next_step
-        if answer_text == "Continue1":
+        if answer_text == "Продолжить1":
             await self.start_phase(update, context, 1)
             return next_step
         if is_next_step_blocked:
             return next_step
 
+        if answer_text == "Готов":
+            messages_to_delete: list[int] = []
+            if (x := context.user_data.get("explainer_message_ids")) is not None:
+                messages_to_delete.extend(x)
+            context.user_data["explainer_message_ids"] = []
+            for message_id in messages_to_delete:
+                try:
+                    await context.bot.delete_message(chat_id, message_id)
+                except Exception:
+                    pass
+
         if (
             current_test.get("seconds_to_pass_the_phase") is not None
-            and answer_text != "Ready"
+            and answer_text != "Готов"
         ):
             message = await context.bot.send_message(
                 chat_id,
@@ -306,8 +317,8 @@ class Conversation:
                     [
                         [
                             InlineKeyboardButton(
-                                "Ready",
-                                callback_data=f"a+{self.conversation_name}+step{next_step}+answerReady",
+                                "Готов",
+                                callback_data=f"a+{self.conversation_name}+step{next_step}+answerГотов",
                             )
                         ]
                     ]
@@ -337,9 +348,9 @@ class Conversation:
 
         next_question_step = current_step
 
-        if answer_text in ["Ready", "Continue"]:
+        if answer_text in ["Готов", "Продолжить"]:
             return next_question_step
-        if answer_text in ["Continue1"]:
+        if answer_text in ["Продолжить1"]:
             return next_question_step - 1
 
         try:

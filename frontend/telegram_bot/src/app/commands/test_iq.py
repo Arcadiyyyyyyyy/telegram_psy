@@ -46,7 +46,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                     [
                         InlineKeyboardButton(
                             "Продолжить",
-                            callback_data=f"a+{self.conversation_name}+step2+answerContinue1",
+                            callback_data=f"a+{self.conversation_name}+step2+answerПродолжить1",
                         )
                     ]
                 ]
@@ -96,7 +96,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             raise ValueError
         current_phase = int(test["phase"])
 
-        if current_phase == 2:
+        if current_phase == 2 and answer_text != "Готов":
             answer_text = split[3][6:][0]
 
             if not (phase_2_answers := context.user_data.get("phase_2_answers", {})):
@@ -139,7 +139,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 else:
                     return True
 
-        if answer_text == "Ready":
+        if answer_text == "Готов":
             phase_starter_question = frontend.shared.src.db.TestsCollection().read_one(
                 {"test_step": current_step, "test_name": "iq"}
             )
@@ -306,8 +306,6 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             raise ValueError
         chat_id = update.effective_chat.id
 
-        print(current_step)
-
         current_test = frontend.shared.src.db.TestsCollection().read_one(
             {"test_name": self.conversation_name, "test_step": current_step}
         )
@@ -342,7 +340,8 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 chat_id,
                 f"Неправильный ответ.\n\nПравильный ответ: {' и '.join(expected_answer)}",
             )
-        context.user_data["explainer_message_ids"].append(explainer_message.id)
+        if context.user_data.get("explainer_message_ids") is not None:
+            context.user_data["explainer_message_ids"].append(explainer_message.id)
 
     def generate_command_list(
         self,

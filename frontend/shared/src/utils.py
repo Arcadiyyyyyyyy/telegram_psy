@@ -43,7 +43,7 @@ def generate_test_answers_info(chat_id: int, conversation_name: str):
         for i, question in enumerate(answer.get("questions", [])):
             _answer = answers[i]
 
-            if question != "" and _answer == "Ready":
+            if question != "" and _answer == "Готов":
                 pass
             else:
                 to_dump_to_csv.append([i + 1, _answer])

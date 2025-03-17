@@ -69,7 +69,7 @@ def generate_question_answer_keyboard(
                         callback_data=f"a+iq+step{test_step}+answer{answer}",
                     )
                 ]
-                for answer in ["Ready"]
+                for answer in ["Готов"]
             ]
         )
     else:
