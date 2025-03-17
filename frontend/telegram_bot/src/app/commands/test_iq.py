@@ -5,7 +5,7 @@ from typing import Any, Callable, Generator
 import arrow
 from loguru import logger
 from telegram import Update
-from telegram.ext import ContextTypes
+from telegram.ext import ContextTypes, ConversationHandler
 
 import frontend.shared.src.db
 import frontend.shared.src.middleware
@@ -35,7 +35,12 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             raise ValueError
         explainer_message = await context.bot.send_message(
             update.effective_chat.id,
-            "Вам нужно будет пройти четыре теста, которые похожи на четыре различные игры-головоломки. В них нет слов, только рисунки. В каждом тесте есть примеры, которые нужны для того, чтобы понять, как выполнять задания. Некоторые задания в конце тестов могут быть очень сложными, однако попробуйте решить как можно больше заданий. Даже если вы не уверены – выберите вариант ответа, который по вашему мнению может быть правильным. Если вы не уверены какой ответ правильный – можно попытаться угадать, так как за неправильные ответы вы не теряете баллы.\n",
+            "Вам нужно будет пройти четыре теста, которые похожи на четыре различные игры-головоломки. "
+            "В них нет слов, только рисунки. "
+            "В каждом тесте есть примеры, которые нужны для того, чтобы понять, как выполнять задания. "
+            "Некоторые задания в конце тестов могут быть очень сложными, однако попробуйте решить как можно больше заданий. "
+            "Даже если вы не уверены – выберите вариант ответа, который по вашему мнению может быть правильным. "
+            "Если вы не уверены какой ответ правильный – можно попытаться угадать, так как за неправильные ответы вы не теряете баллы.",
         )
         context.user_data["explainer_message_ids"].append(explainer_message.id)
 
@@ -155,6 +160,8 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 context.user_data["explainer_message_ids"].append(message.id)
             else:
                 context.user_data["explainer_message_ids"] = [message.id]
+            # TODO: most certainly will not work, tho it is what it is
+            return ConversationHandler.END
 
     def _generate_function(
         self,
@@ -173,8 +180,6 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             next_test = frontend.shared.src.db.TestsCollection().read_one(
                 {"test_step": current_step + 1, "test_name": "iq"}
             )
-
-            # TODO: send test_answer callback if test_answer
 
             if next_test is not None:
                 next_test = frontend.shared.src.models.IQTestModel(**next_test)
@@ -251,9 +256,6 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             )
         context.user_data["explainer_message_ids"].append(explainer_message.id)
 
-        # TODO: validate + possibly change to the confirmation button
-        # await self.commands[current_step][1](update, context)
-
     def generate_command_list(
         self,
     ) -> Generator[tuple[int, Callable[..., Any]], Any, None]:
@@ -290,7 +292,6 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         with open(information.media_location, "rb") as file:
             media = file.read()
 
-        # TODO: continue keyboard should not exist
         response = await context.bot.send_photo(
             update.effective_chat.id,
             media,

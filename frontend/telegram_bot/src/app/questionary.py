@@ -3,7 +3,7 @@ from typing import Any, Callable, Generator, Optional
 
 import arrow
 from loguru import logger
-from telegram import Update
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes, ConversationHandler
 
 import frontend.shared.src.db
@@ -18,9 +18,6 @@ class Conversation:
     __initialized: bool
 
     conversation_name: str
-    # question_preset = (
-    #     "Вопрос {current_step} из {total_amount_of_steps}\n\n{question_text}"
-    # )
     error_text = (
         "Разработчик этого бота допустил ошибку, которую не должен "
         "был допустить. К сожалению, сдать тест в данный момент нельзя."
@@ -71,7 +68,7 @@ class Conversation:
         context: ContextTypes.DEFAULT_TYPE,
         *,
         current_step: int,
-        answer_text: str
+        answer_text: str,
     ):
         pass
 
@@ -115,12 +112,6 @@ class Conversation:
             return ConversationHandler.END
         await frontend.shared.src.middleware.main_handler(update, context)
         chat_id = update.effective_chat.id
-
-        # if (
-        #     context.user_data.get("explainer_message_ids") is not None
-        #     or context.user_data.get("last_sent_test_message_id") is not None
-        # ):
-        #     await frontend.telegram_bot.src.app.utils.abort_test(update, context)
 
         context.user_data["answers"] = []
         context.user_data["questions"] = []
@@ -259,7 +250,37 @@ class Conversation:
         except Exception:
             pass
 
-        return await self.commands[next_step][1](update, context)
+        split = callback.split("+")
+        # current_step = int(split[2][4:])
+        answer_text = split[3][6:]
+
+        current_test = frontend.shared.src.db.TestsCollection().read_one(
+            {"test_step": next_step, "test_name": self.conversation_name}
+        )
+        if current_test is None:
+            raise ValueError
+        if (
+            current_test.get("seconds_to_pass_the_phase") is not None
+            and answer_text != "Ready"
+        ):
+            message = await context.bot.send_message(
+                chat_id,
+                "Готовы начинать?",
+                reply_markup=InlineKeyboardMarkup(
+                    [
+                        [
+                            InlineKeyboardButton(
+                                "Ready",
+                                callback_data=f"a+{self.conversation_name}+step{next_step}+answerReady",
+                            )
+                        ]
+                    ]
+                ),
+            )
+            context.user_data["explainer_message_ids"].append(message.id)
+            return next_step
+        else:
+            return await self.commands[next_step][1](update, context)
 
     async def handle_test_answer(
         self,
@@ -279,6 +300,10 @@ class Conversation:
         answer_text = split[3][6:]
 
         next_question_step = current_step
+
+        if answer_text == "Ready":
+            return next_question_step
+
         try:
             if mock_steps is not None:
                 current_test = [
@@ -290,11 +315,9 @@ class Conversation:
             current_test = {}
 
         if int(current_step) == int(current_test.get("test_step", -1)):
-            # TODO: if answer is not expected send a message
-            if answer_text not in current_test["correct_answer"]:
-                await self._handle_mock_test_answer(
-                    update, context, current_step=current_step, answer_text=answer_text
-                )
+            await self._handle_mock_test_answer(
+                update, context, current_step=current_step, answer_text=answer_text
+            )
 
             return next_question_step
 
