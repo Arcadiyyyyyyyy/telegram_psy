@@ -18,7 +18,9 @@ import frontend.shared.src.utils
 import frontend.shared.src.zoom_requester
 import frontend.telegram_bot.src.app.commands
 import frontend.telegram_bot.src.app.commands.help
+import frontend.telegram_bot.src.app.commands.menu
 import frontend.telegram_bot.src.app.commands.request_call
+import frontend.telegram_bot.src.app.commands.start
 import frontend.telegram_bot.src.app.commands.test_atq
 import frontend.telegram_bot.src.app.commands.test_iq
 import frontend.telegram_bot.src.app.utils
@@ -153,6 +155,12 @@ async def callback_distributor(
             await frontend.admin_bot.src.app.commands.get_answers_by_user.show_the_test(
                 update, context
             )
+        elif callback_file == "notify_about_pipeline":
+            await (
+                frontend.telegram_bot.src.app.commands.start.notify_about_the_pipeline(
+                    update, context
+                )
+            )
         elif (
             callback_file == "book"
             and callback_arg_1 in ["user", "admin"]
@@ -285,6 +293,8 @@ async def callback_distributor(
             await frontend.telegram_bot.src.app.commands.request_call.command(
                 update, context
             )
+        elif callback_file == "menu":
+            await frontend.telegram_bot.src.app.commands.menu.command(update, context)
     elif callback_group == "d":
         if callback_file == "ans_by_uid_and_test" and callback_arguments[-1] == "y":
             await frontend.admin_bot.src.app.commands.get_answers_by_user.delete_test_answer(  # noqa

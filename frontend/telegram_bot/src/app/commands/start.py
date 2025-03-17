@@ -26,11 +26,35 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=InlineKeyboardMarkup(
             [
                 [
-                    InlineKeyboardButton("Продолжить", callback_data="r+menu"),
+                    InlineKeyboardButton(
+                        "Продолжить", callback_data="s+notify_about_pipeline"
+                    ),
                     InlineKeyboardButton("Выйти", callback_data="d+message"),
                 ]
             ]
         ),
     )
 
-    # await frontend.telegram_bot.src.app.commands.menu.command(update, context)
+
+async def notify_about_the_pipeline(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.effective_chat is None:
+        raise ValueError
+    await frontend.shared.src.middleware.main_handler(update, context)
+    chat_id = update.effective_chat.id
+
+    await context.bot.send_message(
+        chat_id,
+        "Отлично! Наше исследование состоит из трех частей: двух тестов в этом боте и интервью. \n"
+        "Для прохождения двух тестов нужно выделить не менее 15 минут в тихом месте, где вы сможете сконцентрироваться. \n"
+        "Это особенно важно для прохождения теста IQ, так как его нельзя проходить дважды. \n"
+        "После прохождения тестов запишись, пожалуйста, на интервью. \n"
+        "На него нужно выделить не менее 90 минут. \n\n"
+        "В качестве благодарности мы можем выслать вам результаты теста IQ и теста на определение темперамента",
+        reply_markup=InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton("Хорошо", callback_data="r+menu"),
+                ]
+            ]
+        ),
+    )
