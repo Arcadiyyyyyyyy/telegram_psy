@@ -81,7 +81,7 @@ class Conversation:
     @abstractmethod
     async def callback_handler_extension(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
-    ):
+    ) -> bool:
         pass
 
     @abstractmethod
@@ -93,7 +93,7 @@ class Conversation:
     @abstractmethod
     async def start_phase(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE, phase: int
-    ):
+    ) -> int:
         pass
 
     @abstractmethod
@@ -245,7 +245,6 @@ class Conversation:
     async def callback_handler(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ):
-        # await frontend.shared.src.middleware.main_handler(update, context)
         if update.effective_message is None or context.user_data is None:
             raise ValueError
         chat_id, callback = await frontend.shared.src.utils.handle_callback(
@@ -262,7 +261,7 @@ class Conversation:
                 context.user_data["explainer_message_ids"] = [message.id]
             return ConversationHandler.END
 
-        await self.callback_handler_extension(update, context)
+        is_next_step_blocked = await self.callback_handler_extension(update, context)
 
         next_step = await self.handle_test_answer(
             question_texts=self.question_texts,
@@ -272,7 +271,8 @@ class Conversation:
             mock_steps=self.mock_steps,
         )
         try:
-            await context.bot.delete_message(chat_id, update.effective_message.id)
+            if not is_next_step_blocked:
+                await context.bot.delete_message(chat_id, update.effective_message.id)
         except Exception:
             pass
 
@@ -291,6 +291,8 @@ class Conversation:
             return next_step
         if answer_text == "Continue1":
             await self.start_phase(update, context, 1)
+            return next_step
+        if is_next_step_blocked:
             return next_step
 
         if (
@@ -354,9 +356,19 @@ class Conversation:
             await self._handle_mock_test_answer(
                 update, context, current_step=current_step, answer_text=answer_text
             )
-
             return next_question_step
 
+        if self.commands_distributes_by_phases:  # type: ignore
+            is_2_phase_step = (
+                current_step in self.commands_distributes_by_phases[2].keys()  # type: ignore
+            )  # type: ignore
+        else:
+            raise ValueError
+
+        _answers: dict[int, str] = context.user_data.get("phase_2_answers", {})
+        is_there_more_than_2_answers: int = len(_answers.get(current_step, ""))
+
+        # Possibly redundant
         previous_question_text = question_texts[current_step - 1]
         answers: list[Any] | None = context.user_data.get("answers")
         questions: list[Any] | None = context.user_data.get("questions")
@@ -364,7 +376,11 @@ class Conversation:
             context.user_data["answers"] = []
         del answers
         valid_answers: list[str] = context.user_data["answers"]
-        valid_answers.append(answer_text)
+        if is_2_phase_step:
+            if is_there_more_than_2_answers >= 2:
+                valid_answers.append(_answers[current_step])
+        else:
+            valid_answers.append(answer_text)
         if questions is None:
             context.user_data["questions"] = []
         del questions

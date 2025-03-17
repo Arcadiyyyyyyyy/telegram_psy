@@ -53,13 +53,23 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             ),
         )
         context.user_data["explainer_message_ids"].append(explainer_message.id)
+        result = {}
+        for x in frontend.shared.src.db.TestsCollection().read(
+            {"test_name": self.conversation_name, "phase": 2},
+            {"test_step": 1},
+        ):
+            result[x["test_step"]] = ""
 
-        # await self.start_phase(update, context, 1)
+        context.user_data["phase_2_answers"] = result
 
     async def callback_handler_extension(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ):
-        if context.user_data is None or update.effective_chat is None:
+        if (
+            context.user_data is None
+            or update.effective_chat is None
+            or update.effective_message is None
+        ):
             raise ValueError
 
         chat_id, callback = await frontend.shared.src.utils.handle_callback(
@@ -74,11 +84,60 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 context.user_data["explainer_message_ids"].append(message.id)
             else:
                 context.user_data["explainer_message_ids"] = [message.id]
-            return
+            return True
 
         split = callback.split("+")
         current_step = int(split[2][4:])
         answer_text = split[3][6:]
+        test = frontend.shared.src.db.TestsCollection().read_one(
+            {"test_name": self.conversation_name, "test_step": current_step}
+        )
+        if test is None:
+            raise ValueError
+        current_phase = int(test["phase"])
+
+        if current_phase == 2:
+            answer_text = split[3][6:][0]
+
+            if not (phase_2_answers := context.user_data.get("phase_2_answers", {})):
+                raise ValueError
+            if answer_text in phase_2_answers[current_step]:
+                phase_2_answers[current_step] = phase_2_answers[current_step].replace(
+                    answer_text, ""
+                )
+                try:
+                    await context.bot.edit_message_reply_markup(
+                        chat_id,
+                        update.effective_message.id,
+                        reply_markup=frontend.telegram_bot.src.app.utils.generate_question_answer_keyboard(  # noqa
+                            self.conversation_name,  # type: ignore
+                            current_step,
+                            current_phase,
+                            phase_2_answers[current_step].replace(answer_text, ""),
+                        ),
+                    )
+                except Exception:
+                    pass
+                return True
+            elif answer_text not in phase_2_answers[current_step]:
+                phase_2_answers[current_step] += answer_text
+                try:
+                    await context.bot.edit_message_reply_markup(
+                        chat_id,
+                        update.effective_message.id,
+                        reply_markup=frontend.telegram_bot.src.app.utils.generate_question_answer_keyboard(  # noqa
+                            self.conversation_name,  # type: ignore
+                            current_step,
+                            current_phase,
+                            phase_2_answers[current_step],
+                        ),
+                    )
+                except Exception:
+                    pass
+                if len(phase_2_answers[current_step]) >= 2:
+                    return False
+                else:
+                    return True
 
         if answer_text == "Ready":
             phase_starter_question = frontend.shared.src.db.TestsCollection().read_one(
@@ -112,6 +171,8 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             except Exception:
                 pass
             context.user_data["explainer_message_ids"].remove(message_id)
+
+        return False
 
     async def finish_extension(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -241,20 +302,37 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         current_step: int,
         answer_text: str,
     ):
-        await frontend.shared.src.middleware.main_handler(update, context)
-
         if update.effective_chat is None or context.user_data is None:
             raise ValueError
         chat_id = update.effective_chat.id
+
+        print(current_step)
 
         current_test = frontend.shared.src.db.TestsCollection().read_one(
             {"test_name": self.conversation_name, "test_step": current_step}
         )
         if current_test is None:
             raise ValueError
-        expected_answer = current_test.get("correct_answer", "")
+        expected_answer: str = current_test.get("correct_answer", "")
+        is_phase_2 = current_step in self.commands_distributes_by_phases[2].keys()
+        if is_phase_2:
+            answer = context.user_data.get("phase_2_answers", {})
+            if not answer:
+                raise ValueError
+            answer_text = answer[current_step]
 
-        if answer_text == expected_answer:
+        if is_phase_2 and len(answer_text) <= 1:
+            return
+        else:
+            await frontend.shared.src.middleware.main_handler(update, context)
+
+        # TODO: тут можно прокинуть "ваш ответ"
+        if (
+            answer_text.translate(
+                str.maketrans(expected_answer, " " * len(expected_answer))
+            ).replace(" ", "")
+            == ""
+        ):
             explainer_message = await context.bot.send_message(
                 chat_id,
                 "Правильный ответ!",

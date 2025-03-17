@@ -9,7 +9,10 @@ import frontend.shared.src.models
 
 
 def generate_question_answer_keyboard(
-    test_name: Literal["atq", "iq", "continue"], test_step: int, test_phase: int = 0
+    test_name: Literal["atq", "iq", "continue"],
+    test_step: int,
+    test_phase: int = 0,
+    used_answers: str = "",
 ):
     if test_name == "atq":
         result = InlineKeyboardMarkup(
@@ -41,6 +44,11 @@ def generate_question_answer_keyboard(
         ]
         if test_phase == 1 or test_phase == 3:
             answers.append("f")
+
+        for i, answer in enumerate(answers.copy()):
+            if answer in used_answers:
+                answers[i] = f"{answer} ✅"
+
         result = InlineKeyboardMarkup(
             [
                 [
@@ -109,6 +117,10 @@ def save_test_answers(chat_id: int, conversation_name: str, user_data: dict[str,
     questions: list[str] = user_data["questions"]
 
     test_answers_collection = frontend.shared.src.db.TestAnswersCollection()
+
+    if not answers:
+        return
+
     new_test_answer: dict[str, Any] = {
         "chat_id": chat_id,
         "test_name": conversation_name,
