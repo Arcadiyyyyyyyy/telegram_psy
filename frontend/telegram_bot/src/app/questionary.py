@@ -91,6 +91,12 @@ class Conversation:
         pass
 
     @abstractmethod
+    async def start_phase(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE, phase: int
+    ):
+        pass
+
+    @abstractmethod
     def generate_command_list(
         self,
     ) -> Generator[tuple[int, Callable[..., Any]], Any, None]:
@@ -283,6 +289,9 @@ class Conversation:
         if answer_text == "Continue":
             await self.command_extension(update, context)
             return next_step
+        if answer_text == "Continue1":
+            await self.start_phase(update, context, 1)
+            return next_step
 
         if (
             current_test.get("seconds_to_pass_the_phase") is not None
@@ -328,6 +337,8 @@ class Conversation:
 
         if answer_text in ["Ready", "Continue"]:
             return next_question_step
+        if answer_text in ["Continue1"]:
+            return next_question_step - 1
 
         try:
             if mock_steps is not None:

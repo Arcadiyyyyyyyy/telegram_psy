@@ -4,7 +4,7 @@ from typing import Any, Callable, Generator
 
 import arrow
 from loguru import logger
-from telegram import Update
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes, ConversationHandler
 
 import frontend.shared.src.db
@@ -41,10 +41,20 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             "Некоторые задания в конце тестов могут быть очень сложными, однако попробуй решить как можно больше заданий. "
             "Даже если ты не уверен – выбери вариант ответа, который по твоему мнению может быть правильным. "
             "Если ты не уверен какой ответ правильный – можно попытаться угадать, так как за неправильные ответы ты не теряешь баллы.",
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            "Продолжить",
+                            callback_data=f"a+{self.conversation_name}+step2+answerContinue1",
+                        )
+                    ]
+                ]
+            ),
         )
         context.user_data["explainer_message_ids"].append(explainer_message.id)
 
-        await self.start_phase(update, context, 1)
+        # await self.start_phase(update, context, 1)
 
     async def callback_handler_extension(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
