@@ -22,8 +22,8 @@ def generate_available_time_slots_keyboard(
     inline_keyboard = [
         [
             InlineKeyboardButton(
-                button.shift(hours=3).format("MM-DD HH:mm"),
-                callback_data=f"s+book+{_type}+{button.format('YYYY-MM-DD HH:mm')}+{page}",
+                button.shift(hours=3).format("DD/MM HH:mm"),
+                callback_data=f"s+book+{_type}+{button.format('YYYY-DD/MM HH:mm')}+{page}",
             )
             for button in line
         ]

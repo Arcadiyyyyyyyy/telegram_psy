@@ -270,7 +270,7 @@ async def callback_distributor(
                 for _chat_id in list(users_collection.read({"admin": True})) + [
                     updated
                 ]:
-                    text = f"Консультация на {date.shift(hours=3).format('YYYY-MM-DD HH:mm')}"
+                    text = f"Консультация на {date.shift(hours=3).format('YYYY-DD/MM HH:mm')}"
                     " по Московскому времени подтверждена. \n\nСсылка на встречу: "
                     f"{meeting_link.get('join_url', 'error')}"
                     await context.bot.send_message(

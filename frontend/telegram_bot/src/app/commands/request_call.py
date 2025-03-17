@@ -71,7 +71,7 @@ async def request_call(update: Update, context: ContextTypes.DEFAULT_TYPE):
             admin["chat_id"],
             f"Пользователь {user['first_name']} {chat_id} @{user['username']} "
             f"хочет договориться о консультации в "
-            f"{time.shift(hours=3).format('YYYY-MM-DD HH:mm')} по Москве",
+            f"{time.shift(hours=3).format('YYYY-DD/MM HH:mm')} по Москве",
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
@@ -80,7 +80,7 @@ async def request_call(update: Update, context: ContextTypes.DEFAULT_TYPE):
                             callback_data=f"y+book+admin+{admin['chat_id']}+{callback_arg_2}",
                         ),
                         InlineKeyboardButton(
-                            "Я не могу в это время",
+                            "Мне неудобно",
                             callback_data=f"d+book+admin+{admin['chat_id']}+{callback_arg_2}",
                         ),
                     ]
@@ -106,13 +106,13 @@ async def show_scheduled_calls(update: Update, context: ContextTypes.DEFAULT_TYP
             {"time": 1},
         )
     )
-    result: list[str] = ["Вот список твоих запланированных звонков: \n"]
+    result: list[str] = ["Вот список твоих подтвержденных интервью: \n"]
     for call in scheduled_calls:
         user = users.read_one({"chat_id": call["chat_id"]})
         if not user:
             raise ValueError
         result.append(
-            f"Запланированная консультация {arrow.get(call.get('time')).shift(hours=3).format('YYYY-MM-DD HH:mm')}"
+            f"Запланированная консультация {arrow.get(call.get('time')).shift(hours=3).format('YYYY-DD/MM HH:mm')}"
         )
     if len(result) == 1:
         result.append("У вас ещё нет подтверждённых звонков")
@@ -167,7 +167,7 @@ async def cancel_call(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     for _chat_id in admins + [get_time_slot]:
-        text = f"Консультация на {time.shift(hours=3).format('YYYY-MM-DD HH:mm')} по Московскому времени отменена."
+        text = f"Консультация на {time.shift(hours=3).format('YYYY-DD/MM HH:mm')} по Московскому времени отменена."
         await context.bot.send_message(
             _chat_id["chat_id"],
             text,

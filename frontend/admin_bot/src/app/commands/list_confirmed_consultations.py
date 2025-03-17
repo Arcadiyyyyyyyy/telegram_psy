@@ -25,13 +25,13 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             {"time": 1},
         )
     )
-    result: list[str] = ["Вот список ваших запланированных звонков: \n"]
+    result: list[str] = ["Вот список ваших подтвержденных интервью: \n"]
     for call in scheduled_calls:
         user = users.read_one({"chat_id": call["chat_id"]})
         if not user:
             raise ValueError
         result.append(
-            f"{arrow.get(call.get('time')).shift(hours=3).format('YYYY-MM-DD HH:mm')} with {user.get('first_name', 'error')} @{user.get('username', 'error')} {user.get('chat_id', 'error')}"
+            f"{arrow.get(call.get('time')).shift(hours=3).format('YYYY-DD/MM HH:mm')} with {user.get('first_name', 'error')} @{user.get('username', 'error')} {user.get('chat_id', 'error')}"
         )
     if len(result) == 1:
         result.append("У вас ещё нет подтверждённых звонков")

@@ -143,7 +143,7 @@ class Commands:
             ),
             frontend.shared.src.config.Command(
                 "list_confirmed_calls",
-                "Список подтверждённых запланированных интервью",
+                "Список подтверждённых интервью",
                 frontend.telegram_bot.src.app.commands.request_call.show_scheduled_calls,  # noqa
             ),
             frontend.shared.src.config.Command(
