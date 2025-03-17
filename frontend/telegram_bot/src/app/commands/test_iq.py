@@ -325,7 +325,6 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         else:
             await frontend.shared.src.middleware.main_handler(update, context)
 
-        # TODO: тут можно прокинуть "ваш ответ"
         if (
             answer_text.translate(
                 str.maketrans(expected_answer, " " * len(expected_answer))

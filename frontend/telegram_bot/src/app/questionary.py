@@ -17,6 +17,7 @@ class Conversation:
     _instance: Optional["Conversation"] = None
     __initialized: bool
 
+    commands_distributes_by_phases: dict[int, Any] | None = None
     conversation_name: str
     error_text = (
         "Разработчик этого бота допустил ошибку, которую не должен "
@@ -370,12 +371,12 @@ class Conversation:
             )
             return next_question_step
 
-        if self.commands_distributes_by_phases:  # type: ignore
+        if self.commands_distributes_by_phases is not None:  # type: ignore
             is_2_phase_step = (
                 current_step in self.commands_distributes_by_phases[2].keys()  # type: ignore
             )  # type: ignore
         else:
-            raise ValueError
+            is_2_phase_step = False
 
         _answers: dict[int, str] = context.user_data.get("phase_2_answers", {})
         is_there_more_than_2_answers: int = len(_answers.get(current_step, ""))
@@ -397,6 +398,10 @@ class Conversation:
             context.user_data["questions"] = []
         del questions
         valid_questions: list[str] = context.user_data["questions"]
-        valid_questions.append(previous_question_text)
+        if is_2_phase_step:
+            if is_there_more_than_2_answers >= 2:
+                valid_questions.append(previous_question_text)
+        else:
+            valid_questions.append(previous_question_text)
 
         return next_question_step
