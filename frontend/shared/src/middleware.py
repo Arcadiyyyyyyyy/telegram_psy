@@ -30,10 +30,7 @@ def is_chat_exists(
     update: Update, users_collection: frontend.shared.src.db.UsersCollection
 ) -> None:
     if update.effective_chat is None:
-        raise ValueError(
-            "is_chat_private function should not be called "
-            "on updates with no effective chat"
-        )
+        raise ValueError
 
     chat = users_collection.read_one({"chat_id": update.effective_chat.id})
 
@@ -55,10 +52,7 @@ def is_chat_exists(
 
 async def is_chat_private(update: Update, context: ContextTypes.DEFAULT_TYPE) -> bool:
     if update.effective_chat is None:
-        raise ValueError(
-            "is_chat_private function should not be called "
-            "on updates with no effective chat"
-        )
+        raise ValueError
     if update.effective_chat is not None and update.effective_chat.type == "private":
         return True
     else:
@@ -330,5 +324,5 @@ async def test_message_handler(
     await context.bot.send_message(
         chat_id,
         "К сожалению, я не понимаю текст. "
-        "\n\nПожалуйста, воспользуйтесь командами, или кнопками.",
+        "\n\nПожалуйста, воспользуйся командами, или кнопками.",
     )

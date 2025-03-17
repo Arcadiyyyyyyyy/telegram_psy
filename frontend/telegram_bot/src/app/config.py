@@ -138,7 +138,7 @@ class Commands:
             ),
             frontend.shared.src.config.Command(
                 "book_a_call",
-                "Назначьте звонок с специалистами",
+                "Назначить звонок со специалистами",
                 frontend.telegram_bot.src.app.commands.request_call.command,
             ),
             frontend.shared.src.config.Command(
@@ -151,7 +151,7 @@ class Commands:
                 "Начать использование бота",
                 frontend.telegram_bot.src.app.commands.start.command,
             ),
-            frontend.shared.src.config.Command("cancel", "Отменить текущий тест", None),
+            frontend.shared.src.config.Command("cancel", "Закончить текущий тест", None),
         )
 
 

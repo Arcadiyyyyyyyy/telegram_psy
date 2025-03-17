@@ -138,7 +138,7 @@ async def notify_test_exit_consequence(
     chat_id = update.effective_chat.id
     explainer_message = await context.bot.send_message(
         chat_id,
-        "Имейте в виду, что нажатие любой команды отличной "
+        "Имей в виду, что нажатие любой команды отличной "
         "от ответа на вопрос во время прохождения теста повлечёт за "
         "собой незамедлительное окончание теста. "
         "Пересдать тест в таком случае невозможно.",

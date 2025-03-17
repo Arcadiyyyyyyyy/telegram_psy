@@ -6,9 +6,7 @@ import frontend.shared.src.db
 
 async def is_admin(update: Update, context: ContextTypes.DEFAULT_TYPE) -> bool:
     if update.effective_chat is None:
-        raise ValueError(
-            "is_admin function should not be called on updates with no effective chat"
-        )
+        raise ValueError
     chat_id = update.effective_chat.id
 
     users_collection = frontend.shared.src.db.UsersCollection()

@@ -106,7 +106,7 @@ async def show_scheduled_calls(update: Update, context: ContextTypes.DEFAULT_TYP
             {"time": 1},
         )
     )
-    result: list[str] = ["Вот список ваших запланированных звонков: \n"]
+    result: list[str] = ["Вот список твоих запланированных звонков: \n"]
     for call in scheduled_calls:
         user = users.read_one({"chat_id": call["chat_id"]})
         if not user:

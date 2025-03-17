@@ -125,8 +125,8 @@ class Conversation:
         ):
             text = (
                 "К сожалению, тест можно сдавать только единожды. "
-                "\n\nПожалуйста, обратитесь к администратору в "
-                "/help если столкнулись с ошибкой."
+                "\n\nПожалуйста, обратись к администратору в "
+                "/help если столкнулся с ошибкой."
             )
             texts_to_send = frontend.shared.src.utils.split_string(text)
             for t in texts_to_send:
@@ -164,7 +164,7 @@ class Conversation:
         )[0]
 
         texts_to_send = frontend.shared.src.utils.split_string(
-            f"Поздравляем! Вы успешно прошли тест, ваши ответы сохранены. \n\n{text}"
+            f"Поздравляем! Ты успешно прошел тест, твои ответы сохранены. \n\n{text}"
         )
         for t in texts_to_send:
             message = await context.bot.send_message(chat_id, t)
@@ -189,12 +189,11 @@ class Conversation:
         explainer_message = await context.bot.send_message(
             chat_id,
             "Тест закончен преждевременно.\n\n"
-            "Чтобы сделать тест ещё раз - пожалуйста, обратитесь в поддержку.",
+            "Чтобы сделать тест ещё раз - пожалуйста, обратись в поддержку.",
         )
         context.user_data["explainer_message_ids"].append(explainer_message.id)
 
         return ConversationHandler.END
-        # return result
 
     async def cancel(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         await frontend.shared.src.middleware.main_handler(update, context)
@@ -209,7 +208,7 @@ class Conversation:
         explainer_message = await context.bot.send_message(
             chat_id,
             "Тест закончен преждевременно.\n\n"
-            "Чтобы сделать тест ещё раз - пожалуйста, обратитесь в поддержку.",
+            "Чтобы сделать тест ещё раз - пожалуйста, обратись в поддержку.",
         )
         context.user_data["explainer_message_ids"].append(explainer_message.id)
 
@@ -265,7 +264,7 @@ class Conversation:
         ):
             message = await context.bot.send_message(
                 chat_id,
-                "Готовы начинать?",
+                "Готов начинать?",
                 reply_markup=InlineKeyboardMarkup(
                     [
                         [
