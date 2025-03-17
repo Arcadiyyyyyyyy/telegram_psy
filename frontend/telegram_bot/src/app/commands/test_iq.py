@@ -347,7 +347,9 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             explainer_message = await context.bot.send_photo(
                 chat_id,
                 media,
-                caption=f"Неправильный ответ.\n\nПравильный ответ: {' и '.join(expected_answer)}",
+                caption=f"Неправильный ответ.\n\n"
+                f"Вы ответили: {' и '.join(answer_text)}\n\n"
+                f"Правильный ответ: {' и '.join(expected_answer)}",
             )
         if context.user_data.get("explainer_message_ids") is not None:
             context.user_data["explainer_message_ids"].append(explainer_message.id)
