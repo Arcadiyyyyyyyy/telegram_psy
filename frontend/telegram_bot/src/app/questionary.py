@@ -334,6 +334,8 @@ class Conversation(AbstractConversation, ConversationUtils):
         await frontend.shared.src.middleware.main_handler(update, context)
         chat_id = update.effective_chat.id
 
+        await frontend.shared.src.utils.remove_all_messages(chat_id, context)
+
         context.user_data["answers"] = []
         context.user_data["questions"] = []
         context.user_data["explainer_message_ids"] = []
@@ -351,9 +353,7 @@ class Conversation(AbstractConversation, ConversationUtils):
             )
             message = await context.bot.send_message(chat_id, text)
             if context.user_data.get("explainer_message_ids") is not None:
-                print(context.user_data["explainer_message_ids"])
-                context.user_data["explainer_message_ids"].append(message.id)  # type: ignore
-                print(context.user_data["explainer_message_ids"])
+                context.user_data["explainer_message_ids"].append(message.id)  # type: ignore  # noqa
             else:
                 context.user_data["explainer_message_ids"] = [message.id]
             return ConversationHandler.END

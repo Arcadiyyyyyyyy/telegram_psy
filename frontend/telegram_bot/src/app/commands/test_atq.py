@@ -113,3 +113,11 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         )
 
         return misc_info.current_step
+
+    async def cancel_extension(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ):
+        if update.effective_chat is None or context.user_data is None:
+            raise ValueError
+        chat_id = update.effective_chat.id
+        await frontend.shared.src.utils.remove_all_messages(chat_id, context)
