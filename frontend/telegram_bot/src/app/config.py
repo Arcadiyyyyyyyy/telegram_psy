@@ -21,7 +21,6 @@ import frontend.telegram_bot.src.app.commands.request_call
 import frontend.telegram_bot.src.app.commands.start
 import frontend.telegram_bot.src.app.commands.test_atq
 import frontend.telegram_bot.src.app.commands.test_iq
-import frontend.telegram_bot.src.app.utils
 
 
 class Commands:
@@ -151,7 +150,9 @@ class Commands:
                 "Начать использование бота",
                 frontend.telegram_bot.src.app.commands.start.command,
             ),
-            frontend.shared.src.config.Command("cancel", "Закончить текущий тест", None),
+            frontend.shared.src.config.Command(
+                "cancel", "Закончить текущий тест", None
+            ),  # noqa
         )
 
 
@@ -211,7 +212,7 @@ def bot_setup(
     bot.add_handler(
         MessageHandler(
             filters.TEXT & ~filters.COMMAND,
-            frontend.shared.src.middleware.test_message_handler,
+            frontend.shared.src.middleware.text_message_handler,
         )
     )
     bot.add_error_handler(frontend.shared.src.errors.error_handler)

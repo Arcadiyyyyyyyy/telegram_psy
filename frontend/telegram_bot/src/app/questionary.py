@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Any, Callable, Generator, Optional
+from typing import Any, Callable, Generator, Literal, Optional
 
 import arrow
 from loguru import logger
@@ -10,51 +10,160 @@ import frontend.shared.src.db
 import frontend.shared.src.middleware
 import frontend.shared.src.models
 import frontend.shared.src.utils
-import frontend.telegram_bot.src.app.utils
 
 
-class Conversation:
-    _instance: Optional["Conversation"] = None
-    __initialized: bool
+class ConversationUtils:
+    def _generate_question_answer_keyboard(
+        self,
+        test_name: Literal["atq", "iq", "continue"],
+        test_step: int,
+        test_phase: int = 0,
+        used_answers: str = "",
+    ):
+        if test_name == "atq":
+            result = InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            text=f"{answer}",
+                            callback_data=f"a+{test_name}+step{test_step}+answer{answer}",  # noqa
+                        )
+                    ]
+                    for answer in [
+                        "Совершенно неверно",
+                        "Неверно",
+                        "Скорее неверно",
+                        "Трудно сказать",
+                        "Скорее верно",
+                        "Верно",
+                        "Совершенно верно",
+                    ]
+                ]
+            )
+        elif test_name == "iq":
+            answers = [
+                "a",
+                "b",
+                "c",
+                "d",
+                "e",
+            ]
+            if test_phase == 1 or test_phase == 3:
+                answers.append("f")
 
-    commands_distributes_by_phases: dict[int, Any] | None = None
+            for i, answer in enumerate(answers.copy()):
+                if answer in used_answers:
+                    answers[i] = f"{answer} ✅"
+
+            result = InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            text=f"{answer}",
+                            callback_data=f"a+{test_name}+step{test_step}+answer{answer}",  # noqa
+                        )
+                        for answer in answers
+                    ]
+                ]
+            )
+        elif test_name == "continue":
+            result = InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            f"{answer}",
+                            callback_data=f"a+iq+step{test_step}+answer{answer}",
+                        )
+                    ]
+                    for answer in ["Готов"]
+                ]
+            )
+        else:
+            result = InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            text=f"{answer}",
+                            callback_data=f"a+{test_name}+step{test_step}+answer{answer}",  # noqa
+                        )
+                    ]
+                    for answer in [
+                        "No keyboard for you",
+                    ]
+                ]
+            )
+
+        return result
+
+    async def _abort_test(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ) -> int:
+        if update.effective_chat is None or context.user_data is None:
+            raise ValueError
+        chat_id = update.effective_chat.id
+
+        messages_to_delete: list[int] = []
+        if (x := context.user_data.get("explainer_message_ids")) is not None:
+            messages_to_delete.extend(x)
+        context.user_data["explainer_message_ids"] = []
+        if (x := context.user_data.get("last_sent_test_message_id")) is not None:
+            messages_to_delete.append(x)
+        context.user_data["last_sent_test_message_id"] = None
+
+        for message_id in messages_to_delete:
+            try:
+                await context.bot.delete_message(chat_id, message_id)
+            except Exception:
+                pass
+
+        return ConversationHandler.END
+
+    def _save_test_answers(
+        self, chat_id: int, conversation_name: str, user_data: dict[str, Any]
+    ):
+        answers: list[str] = user_data["answers"]
+        questions: list[str] = user_data["questions"]
+
+        test_answers_collection = frontend.shared.src.db.TestAnswersCollection()
+
+        if not answers:
+            return
+
+        new_test_answer: dict[str, Any] = {
+            "chat_id": chat_id,
+            "test_name": conversation_name,
+            "answers": answers,
+            "questions": questions,
+            "started_at": user_data["started_at"],
+            "finished_at": user_data.get("finished_at", arrow.utcnow().datetime),
+        }
+        filter_to_check_existing_answer: dict[str, Any] = {
+            "chat_id": chat_id,
+            "test_name": conversation_name,
+        }
+
+        if (
+            test_answers_collection.read_one(filter_to_check_existing_answer)
+            is not None
+        ):
+            test_answers_collection.update(
+                filter_to_check_existing_answer, new_test_answer
+            )
+        else:
+            test_answers_collection.create_test_answer(
+                frontend.shared.src.models.TestAnswerModel(**new_test_answer)
+            )
+
+
+class AbstractConversation:
     conversation_name: str
+    # commands_distributes_by_phases: dict[int, Any] | None = None
     error_text = (
         "Разработчик этого бота допустил ошибку, которую не должен "
         "был допустить. К сожалению, сдать тест в данный момент нельзя."
         " Пожалуйста, перешлите это сообщение в контакт из команды /help"
     )
-
     commands: tuple[tuple[int, Callable[..., Any]], ...]
-
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super(Conversation, cls).__new__(cls)
-            cls._instance.__initialized = False
-        return cls._instance
-
-    def __init__(self):
-        if self.__initialized:
-            return
-        self.__initialized = True
-
-        self.questions: list[dict[str, Any]] = list(
-            frontend.shared.src.db.TestsCollection().read(
-                {
-                    "test_name": self.conversation_name,
-                },
-                {"test_step": 1},
-            )
-        )
-        self.question_texts = [question["text"] for question in self.questions]
-
-        self.mock_steps: list[dict[str, Any]] | None = (
-            [x for x in self.questions if x["is_test_step"] is True]
-            if self.conversation_name == "iq"
-            else None
-        )
-
-        logger.info("Created new conversation instance")
 
     @abstractmethod
     async def command_extension(
@@ -102,6 +211,40 @@ class Conversation:
         self,
     ) -> Generator[tuple[int, Callable[..., Any]], Any, None]:
         pass
+
+
+class Conversation(AbstractConversation, ConversationUtils):
+    _instance: Optional["Conversation"] = None
+    __initialized: bool
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(Conversation, cls).__new__(cls)
+            cls._instance.__initialized = False
+        return cls._instance
+
+    def __init__(self):
+        if self.__initialized:
+            return
+        self.__initialized = True
+
+        self.questions: list[dict[str, Any]] = list(
+            frontend.shared.src.db.TestsCollection().read(
+                {
+                    "test_name": self.conversation_name,
+                },
+                {"test_step": 1},
+            )
+        )
+        self.question_texts = [question["text"] for question in self.questions]
+
+        self.mock_steps: list[dict[str, Any]] | None = (
+            [x for x in self.questions if x["is_test_step"] is True]
+            if self.conversation_name == "iq"
+            else None
+        )
+
+        logger.info("Created new conversation instance")
 
     async def command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if update.effective_chat is None or context.user_data is None:
@@ -166,7 +309,7 @@ class Conversation:
                     [
                         InlineKeyboardButton(
                             "Продолжить",
-                            callback_data=f"a+{self.conversation_name}+step1+answerПродолжить",
+                            callback_data=f"a+{self.conversation_name}+step1+answerПродолжить",  # noqa
                         )
                     ]
                 ]
@@ -181,9 +324,7 @@ class Conversation:
         context.user_data["finished_at"] = arrow.utcnow().datetime
         chat_id = update.effective_chat.id
 
-        frontend.telegram_bot.src.app.utils.save_test_answers(
-            chat_id, self.conversation_name, context.user_data
-        )
+        self._save_test_answers(chat_id, self.conversation_name, context.user_data)
 
         await self.finish_extension(update, context)
 
@@ -192,7 +333,7 @@ class Conversation:
         )[0]
 
         texts_to_send = frontend.shared.src.utils.split_string(
-            f"Поздравляем! Ты успешно прошел тест, твои ответы сохранены. \n\n{text}"
+            f"Поздравляем! Ты успешно прошел тест, твои ответы сохранены. \nСпасибо за вклад в исследование.\n\n{text}"  # noqa
         )
         for t in texts_to_send:
             message = await context.bot.send_message(chat_id, t)
@@ -209,9 +350,7 @@ class Conversation:
         if update.effective_chat is None or context.user_data is None:
             raise ValueError
         chat_id = update.effective_chat.id
-        frontend.telegram_bot.src.app.utils.save_test_answers(
-            chat_id, self.conversation_name, context.user_data
-        )
+        self._save_test_answers(chat_id, self.conversation_name, context.user_data)
         await self.cancel_extension(update, context)
         # result = await frontend.telegram_bot.src.app.utils.abort_test(update, context)
         explainer_message = await context.bot.send_message(
@@ -228,9 +367,7 @@ class Conversation:
         if update.effective_chat is None or context.user_data is None:
             raise ValueError
         chat_id = update.effective_chat.id
-        frontend.telegram_bot.src.app.utils.save_test_answers(
-            chat_id, self.conversation_name, context.user_data
-        )
+        self._save_test_answers(chat_id, self.conversation_name, context.user_data)
         await self.cancel_extension(update, context)
         # result = await frontend.telegram_bot.src.app.utils.abort_test(update, context)
         explainer_message = await context.bot.send_message(
@@ -313,20 +450,23 @@ class Conversation:
         ):
             message = await context.bot.send_message(
                 chat_id,
-                "На этом тренировки к этому тесту закончились. \nТебе может не хватить времени, чтобы выполнить все задания. Работай так быстро и внимательно, как сможешь.\nКогда будешь готов начать тест - нажми на кнопку внизу, чтобы запустить таймер.",
+                "На этом тренировки к этому тесту закончились. "
+                "\nТебе может не хватить времени, чтобы выполнить все задания. "
+                "Работай так быстро и внимательно, как сможешь.\n"
+                "Когда будешь готов начать тест - нажми на кнопку внизу, чтобы запустить таймер.",  # noqa
                 reply_markup=InlineKeyboardMarkup(
                     [
                         [
                             InlineKeyboardButton(
                                 "Готов",
-                                callback_data=f"a+{self.conversation_name}+step{next_step}+answerГотов",
+                                callback_data=f"a+{self.conversation_name}+step{next_step}+answerГотов",  # noqa
                             )
                         ]
                     ]
                 ),
             )
             if context.user_data.get("explainer_message_ids") is not None:
-                context.user_data["explainer_message_ids"].append(message.id)
+                context.user_data["explainer_message_ids"].append(message.id)  # type: ignore # noqa
             return next_step
 
         return await self.commands[next_step][1](update, context)
@@ -373,7 +513,7 @@ class Conversation:
 
         if self.commands_distributes_by_phases is not None:  # type: ignore
             is_2_phase_step = (
-                current_step in self.commands_distributes_by_phases[2].keys()  # type: ignore
+                current_step in self.commands_distributes_by_phases[2].keys()  # type: ignore  # noqa
             )  # type: ignore
         else:
             is_2_phase_step = False
@@ -381,7 +521,6 @@ class Conversation:
         _answers: dict[int, str] = context.user_data.get("phase_2_answers", {})
         is_there_more_than_2_answers: int = len(_answers.get(current_step, ""))
 
-        # Possibly redundant
         previous_question_text = question_texts[current_step - 1]
         answers: list[Any] | None = context.user_data.get("answers")
         questions: list[Any] | None = context.user_data.get("questions")

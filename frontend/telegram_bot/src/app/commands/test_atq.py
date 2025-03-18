@@ -9,7 +9,6 @@ import frontend.shared.src.middleware
 import frontend.shared.src.models
 import frontend.shared.src.utils
 import frontend.telegram_bot.src.app.questionary
-import frontend.telegram_bot.src.app.utils
 
 
 class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
@@ -43,7 +42,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             response = await context.bot.send_message(
                 chat_id,
                 question_text,
-                reply_markup=frontend.telegram_bot.src.app.utils.generate_question_answer_keyboard(  # noqa
+                reply_markup=self._generate_question_answer_keyboard(  # noqa
                     "atq", current_step
                 ),
             )

@@ -12,7 +12,6 @@ import frontend.shared.src.middleware
 import frontend.shared.src.models
 import frontend.shared.src.utils
 import frontend.telegram_bot.src.app.questionary
-import frontend.telegram_bot.src.app.utils
 
 
 class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
@@ -35,19 +34,19 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             raise ValueError
         explainer_message = await context.bot.send_message(
             update.effective_chat.id,
-            "Тебе нужно будет пройти четыре теста, которые похожи на четыре различные игры-головоломки. \n"
+            "Тебе нужно будет пройти четыре теста, которые похожи на четыре различные игры-головоломки. \n"  # noqa
             "В них нет слов, только рисунки. \n"
-            "В каждом тесте есть примеры, которые нужны для того, чтобы понять, как выполнять задания. \n"
-            "Некоторые задания в конце тестов могут быть очень сложными, однако попробуй решить как можно больше заданий. \n"
-            "Даже если ты не уверен – выбери вариант ответа, который по твоему мнению может быть правильным. \n"
-            "Если ты не уверен какой ответ правильный – можно попытаться угадать, так как за неправильные ответы ты не теряешь баллы.\n\n"
-            "В начале каждого из четырех тестов будет несколько тренировок, чтобы понять как решаются головоломки.",
+            "В каждом тесте есть примеры, которые нужны для того, чтобы понять, как выполнять задания. \n"  # noqa
+            "Некоторые задания в конце тестов могут быть очень сложными, однако попробуй решить как можно больше заданий. \n"  # noqa
+            "Даже если ты не уверен – выбери вариант ответа, который по твоему мнению может быть правильным. \n"  # noqa
+            "Если ты не уверен какой ответ правильный – можно попытаться угадать, так как за неправильные ответы ты не теряешь баллы.\n\n"  # noqa
+            "В начале каждого из четырех тестов будет несколько тренировок, чтобы понять как решаются головоломки.",  # noqa
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
                         InlineKeyboardButton(
                             "Продолжить",
-                            callback_data=f"a+{self.conversation_name}+step2+answerПродолжить1",
+                            callback_data=f"a+{self.conversation_name}+step2+answerПродолжить1",  # noqa
                         )
                     ]
                 ]
@@ -110,7 +109,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                     await context.bot.edit_message_reply_markup(
                         chat_id,
                         update.effective_message.id,
-                        reply_markup=frontend.telegram_bot.src.app.utils.generate_question_answer_keyboard(  # noqa
+                        reply_markup=self._generate_question_answer_keyboard(  # noqa
                             self.conversation_name,  # type: ignore
                             current_step,
                             current_phase,
@@ -126,7 +125,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                     await context.bot.edit_message_reply_markup(
                         chat_id,
                         update.effective_message.id,
-                        reply_markup=frontend.telegram_bot.src.app.utils.generate_question_answer_keyboard(  # noqa
+                        reply_markup=self._generate_question_answer_keyboard(  # noqa
                             self.conversation_name,  # type: ignore
                             current_step,
                             current_phase,
@@ -199,7 +198,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         if kwargs is None:
             raise ValueError
 
-        await frontend.telegram_bot.src.app.utils.abort_test(kwargs, context)
+        await self._abort_test(kwargs, context)
         current_test_step = context.user_data["current_test_step"]
         context.user_data["current_test_step"] = None
 
@@ -232,7 +231,6 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 context.user_data["explainer_message_ids"].append(message.id)
             else:
                 context.user_data["explainer_message_ids"] = [message.id]
-            # TODO: most certainly will not work, tho it is what it is
             return ConversationHandler.END
 
     def _generate_function(
@@ -280,7 +278,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 update.effective_chat.id,
                 media,
                 caption=test_text,
-                reply_markup=frontend.telegram_bot.src.app.utils.generate_question_answer_keyboard(  # noqa
+                reply_markup=self._generate_question_answer_keyboard(  # noqa
                     "iq",
                     current_step,
                     test_phase=phase,
@@ -393,7 +391,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             update.effective_chat.id,
             media,
             caption=information.text,
-            reply_markup=frontend.telegram_bot.src.app.utils.generate_question_answer_keyboard(  # noqa
+            reply_markup=self._generate_question_answer_keyboard(  # noqa
                 "iq",
                 main_info[0],
                 test_phase=phase,

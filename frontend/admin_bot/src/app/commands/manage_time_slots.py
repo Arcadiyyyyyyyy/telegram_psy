@@ -65,6 +65,3 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE, page: int 
         "Тут можно убрать доступный временной слот при помощи клика \n\nСписок слотов:",  # noqa
         reply_markup=generate_available_time_slots_keyboard("admin", page=page),
     )
-
-
-# TODO: сделать тестовые вопросы в айку

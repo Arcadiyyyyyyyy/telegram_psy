@@ -16,6 +16,4 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     chat_id = update.message.chat.id
 
-    await context.bot.send_message(
-        chat_id, "Привет! \n\n/get_answers_by_user"
-    )  # TODO: change text
+    await context.bot.send_message(chat_id, "Привет!")

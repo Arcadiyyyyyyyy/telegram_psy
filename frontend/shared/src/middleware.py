@@ -23,7 +23,6 @@ import frontend.telegram_bot.src.app.commands.request_call
 import frontend.telegram_bot.src.app.commands.start
 import frontend.telegram_bot.src.app.commands.test_atq
 import frontend.telegram_bot.src.app.commands.test_iq
-import frontend.telegram_bot.src.app.utils
 
 
 def is_chat_exists(
@@ -63,6 +62,7 @@ async def is_chat_private(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         return False
 
 
+# TODO: remove that
 async def remove_atq_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_chat is None or context.user_data is None:
         raise ValueError
@@ -98,7 +98,20 @@ async def main_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
             )
         )
 
-    await frontend.telegram_bot.src.app.utils.abort_test(update, context)
+
+async def text_message_handler(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> None:
+    if update.message is None or update.message.from_user is None:
+        return
+    await main_handler(update, context)
+    chat_id = update.message.chat.id
+
+    await context.bot.send_message(
+        chat_id,
+        "К сожалению, я не понимаю текст. "
+        "\n\nПожалуйста, воспользуйся командами, или кнопками.",
+    )
 
 
 async def callback_distributor(
@@ -270,7 +283,7 @@ async def callback_distributor(
                 for _chat_id in list(users_collection.read({"admin": True})) + [
                     updated
                 ]:
-                    text = f"Консультация на {date.shift(hours=3).format('YYYY-DD/MM HH:mm')}"
+                    text = f"Консультация на {date.shift(hours=3).format('YYYY-DD/MM HH:mm')}"  # noqa
                     " по Московскому времени подтверждена. \n\nСсылка на встречу: "
                     f"{meeting_link.get('join_url', 'error')}"
                     await context.bot.send_message(
@@ -311,18 +324,3 @@ async def callback_distributor(
             await frontend.telegram_bot.src.app.commands.request_call.cancel_call(
                 update, context
             )
-
-
-async def test_message_handler(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> None:
-    if update.message is None or update.message.from_user is None:
-        return
-    await main_handler(update, context)
-    chat_id = update.message.chat.id
-
-    await context.bot.send_message(
-        chat_id,
-        "К сожалению, я не понимаю текст. "
-        "\n\nПожалуйста, воспользуйся командами, или кнопками.",
-    )
