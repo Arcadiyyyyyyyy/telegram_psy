@@ -181,3 +181,18 @@ class TimeManager:
                     result.append(slot)
             yield result
             active_day = active_day.shift(days=1)
+
+
+async def remove_all_messages(chat_id: int, context: ContextTypes.DEFAULT_TYPE):
+    if context.user_data is None:
+        raise ValueError
+
+    messages_to_delete: list[int] = []
+    if (x := context.user_data.get("explainer_message_ids")) is not None:
+        messages_to_delete.extend(x)
+    context.user_data["explainer_message_ids"] = []
+    for message_id in messages_to_delete:
+        try:
+            await context.bot.delete_message(chat_id, message_id)
+        except Exception:
+            pass

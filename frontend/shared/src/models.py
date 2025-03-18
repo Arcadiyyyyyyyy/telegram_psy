@@ -67,3 +67,12 @@ class TimeBookingModel(TimeSlotBaseModel):
     confirmations: TimeSlotConfirmations
     meeting_link: str | None
     notify_user_at: list[datetime.datetime]
+
+
+@pydantic.dataclasses.dataclass()
+class CallbackValidationOutput:
+    split: list[str]
+    current_step: int
+    answer_text: str
+    chat_id: int
+    callback: str

@@ -2,7 +2,7 @@ import types
 from typing import Any, Callable, Generator
 
 from telegram import Update
-from telegram.ext import ContextTypes
+from telegram.ext import ContextTypes, ConversationHandler
 
 import frontend.shared.src.db
 import frontend.shared.src.middleware
@@ -76,3 +76,45 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
 
             yield (test.test_step, function)
         yield (total_amount_of_steps + 1, self.finish)
+
+    async def callback_handler(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ):
+        if update.effective_message is None or context.user_data is None:
+            raise ValueError
+
+        if (misc_info := await self._validate_callback(update, context)) is None:
+            return ConversationHandler.END
+
+        next_step = await self._handle_test_answer(update, context)
+        if misc_info.answer_text == "Продолжить":
+            await self.command_extension(update, context)
+            return next_step
+
+        if misc_info.answer_text == "Готов":
+            await frontend.shared.src.utils.remove_all_messages(
+                misc_info.chat_id, context
+            )
+
+        return await self.commands[next_step][1](update, context)
+
+    async def _handle_test_answer(
+        self,
+        update: Update,
+        context: ContextTypes.DEFAULT_TYPE,
+    ) -> int:
+        """Returns next command id"""
+        if context.user_data is None:
+            raise ValueError
+        if (misc_info := await self._validate_callback(update, context)) is None:
+            raise ValueError
+
+        if misc_info.answer_text in ["Готов", "Продолжить"]:
+            return misc_info.current_step
+
+        self._save_question_answer(
+            misc_info=misc_info,
+            context=context,
+        )
+
+        return misc_info.current_step

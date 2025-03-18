@@ -144,11 +144,11 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 {"test_step": current_step, "test_name": "iq"}
             )
             if phase_starter_question is None:
-                raise ValueError("Tests misconfig")
+                raise ValueError("Tests miss config")
             question = frontend.shared.src.models.IQTestModel(**phase_starter_question)
             if question.seconds_to_pass_the_phase is None:
                 logger.error(f"Full question: {phase_starter_question}")
-                raise ValueError("Tests misconfig")
+                raise ValueError("Tests miss config")
 
             time_of_starting_the_phase = arrow.utcnow()
             expected_to_finish_test_before = time_of_starting_the_phase + timedelta(
@@ -165,12 +165,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             )
             logger.info(f"Created a time restriction job for chat id {chat_id}")
 
-        for message_id in context.user_data["explainer_message_ids"]:
-            try:
-                await context.bot.delete_message(chat_id=chat_id, message_id=message_id)
-            except Exception:
-                pass
-            context.user_data["explainer_message_ids"].remove(message_id)
+        await frontend.shared.src.utils.remove_all_messages(chat_id, context)
 
         return False
 
@@ -404,6 +399,72 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
 
         return main_info[0]
 
+    async def callback_handler(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ):
+        if update.effective_message is None or context.user_data is None:
+            raise ValueError
+
+        if (misc_info := await self._validate_callback(update, context)) is None:
+            return ConversationHandler.END
+
+        is_next_step_blocked = await self.callback_handler_extension(update, context)
+        try:
+            if not is_next_step_blocked:
+                await context.bot.delete_message(
+                    misc_info.chat_id, update.effective_message.id
+                )
+        except Exception:
+            pass
+
+        next_step = await self._handle_test_answer(update, context)
+        if misc_info.answer_text == "Продолжить":
+            await self.command_extension(update, context)
+            return next_step
+
+        current_test = frontend.shared.src.db.TestsCollection().read_one(
+            {"test_step": next_step, "test_name": self.conversation_name}
+        )
+        if current_test is None:
+            raise ValueError
+        if misc_info.answer_text == "Продолжить1":
+            await self.start_phase(update, context, 1)
+            return next_step
+        if is_next_step_blocked:
+            return next_step
+
+        if misc_info.answer_text == "Готов":
+            await frontend.shared.src.utils.remove_all_messages(
+                misc_info.chat_id, context
+            )
+
+        if (
+            current_test.get("seconds_to_pass_the_phase") is not None
+            and misc_info.answer_text != "Готов"
+        ):
+            message = await context.bot.send_message(
+                misc_info.chat_id,
+                "На этом тренировки к этому тесту закончились. "
+                "\nТебе может не хватить времени, чтобы выполнить все задания. "
+                "Работай так быстро и внимательно, как сможешь.\n"
+                "Когда будешь готов начать тест - нажми на кнопку внизу, чтобы запустить таймер.",  # noqa
+                reply_markup=InlineKeyboardMarkup(
+                    [
+                        [
+                            InlineKeyboardButton(
+                                "Готов",
+                                callback_data=f"a+{self.conversation_name}+step{next_step}+answerГотов",  # noqa
+                            )
+                        ]
+                    ]
+                ),
+            )
+            if context.user_data.get("explainer_message_ids") is not None:
+                context.user_data["explainer_message_ids"].append(message.id)  # type: ignore # noqa
+            return next_step
+
+        return await self.commands[next_step][1](update, context)
+
     def _remove_time_restriction_jobs(
         self, context: ContextTypes.DEFAULT_TYPE, chat_id: int
     ):
@@ -416,3 +477,56 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             for job in jobs:  # type: ignore
                 job.schedule_removal()
         logger.info(f"Removed jobs for chat_id {chat_id}")
+
+    async def _handle_test_answer(
+        self,
+        update: Update,
+        context: ContextTypes.DEFAULT_TYPE,
+    ) -> int:
+        """Returns next command id"""
+        if context.user_data is None:
+            raise ValueError
+        if (misc_info := await self._validate_callback(update, context)) is None:
+            raise ValueError
+
+        if misc_info.answer_text in ["Готов", "Продолжить"]:
+            return misc_info.current_step
+        if misc_info.answer_text in ["Продолжить1"]:
+            return misc_info.current_step - 1
+
+        try:
+            if self.mock_steps is not None:
+                current_test = [
+                    x
+                    for x in self.mock_steps
+                    if int(x["test_step"]) == misc_info.current_step
+                ][0]
+            else:
+                current_test = {}
+        except IndexError:
+            current_test = {}
+        if int(misc_info.current_step) == int(current_test.get("test_step", -1)):
+            await self._handle_mock_test_answer(
+                update,
+                context,
+                current_step=misc_info.current_step,
+                answer_text=misc_info.answer_text,
+            )
+            return misc_info.current_step
+
+        is_2_phase_step = (
+            current_step in self.commands_distributes_by_phases[2].keys()  # type: ignore  # noqa
+        )  # type: ignore
+
+        _answers: dict[int, str] = context.user_data.get("phase_2_answers", {})
+        amount_of_answers = len(_answers.get(misc_info.current_step, ""))
+
+        self._save_question_answer(
+            misc_info=misc_info,
+            context=context,
+            is_2_phase_step=is_2_phase_step,
+            amount_of_answers=amount_of_answers,
+            _answers=_answers,
+        )
+
+        return misc_info.current_step
