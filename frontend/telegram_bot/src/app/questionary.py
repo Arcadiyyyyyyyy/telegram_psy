@@ -349,13 +349,11 @@ class Conversation(AbstractConversation, ConversationUtils):
                 "\n\nПожалуйста, обратись к администратору в "
                 "/help если столкнулся с ошибкой."
             )
-            texts_to_send = frontend.shared.src.utils.split_string(text)
-            for t in texts_to_send:
-                message = await context.bot.send_message(chat_id, t)
-                if context.user_data.get("explainer_message_ids") is not None:
-                    context.user_data["explainer_message_ids"].append(message.id)
-                else:
-                    context.user_data["explainer_message_ids"] = [message.id]
+            message = await context.bot.send_message(chat_id, text)
+            if context.user_data.get("explainer_message_ids") is not None:
+                context.user_data["explainer_message_ids"].append(message.id)
+            else:
+                context.user_data["explainer_message_ids"] = [message.id]
             return ConversationHandler.END
         context.user_data["started_at"] = arrow.utcnow().datetime
 
@@ -388,7 +386,12 @@ class Conversation(AbstractConversation, ConversationUtils):
         )
         context.user_data["explainer_message_ids"].append(explainer_message.id)
 
-    async def finish(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    async def finish(
+        self,
+        update: Update,
+        context: ContextTypes.DEFAULT_TYPE,
+        confirmation_button: bool = False,
+    ) -> int:
         await frontend.shared.src.middleware.main_handler(update, context)
         if update.effective_chat is None or context.user_data is None:
             raise ValueError
@@ -424,18 +427,33 @@ class Conversation(AbstractConversation, ConversationUtils):
             text += "Следующим шагом необходимо записаться на интервью "
             "при помощи команды /book_a_call"
 
-        texts_to_send = frontend.shared.src.utils.split_string(
+        text_to_send = (
             f"Поздравляем! \n\n"
             "Ты успешно прошел тест, твои ответы сохранены.\n"
             "Спасибо за вклад в исследование.\n\n"
             f"{text}"  # noqa
         )
-        for t in texts_to_send:
-            message = await context.bot.send_message(chat_id, t)
-            if context.user_data.get("explainer_message_ids") is not None:
-                context.user_data["explainer_message_ids"].append(message.id)
-            else:
-                context.user_data["explainer_message_ids"] = [message.id]
+        if not confirmation_button:
+            message = await context.bot.send_message(chat_id, text_to_send)
+        else:
+            message = await context.bot.send_message(
+                chat_id,
+                text_to_send,
+                reply_markup=InlineKeyboardMarkup(
+                    [
+                        [
+                            InlineKeyboardButton(
+                                "Продолжить",
+                                callback_data=f"a+{self.conversation_name}+step1+answerch_end",  # noqa
+                            )
+                        ]
+                    ]
+                ),
+            )
+        if context.user_data.get("explainer_message_ids") is not None:
+            context.user_data["explainer_message_ids"].append(message.id)
+        else:
+            context.user_data["explainer_message_ids"] = [message.id]
         return ConversationHandler.END
 
     async def callback_cancel(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -451,7 +469,7 @@ class Conversation(AbstractConversation, ConversationUtils):
         explainer_message = await context.bot.send_message(
             chat_id,
             "Тест закончен преждевременно.\n\n"
-            "Если столкнулись с ошибкой - пожалуйста, обратись в поддержку.",
+            "Если столкнулся с ошибкой - пожалуйста, обратись в поддержку.",
         )
         context.user_data["explainer_message_ids"].append(explainer_message.id)
 
@@ -468,7 +486,7 @@ class Conversation(AbstractConversation, ConversationUtils):
         explainer_message = await context.bot.send_message(
             chat_id,
             "Тест закончен преждевременно.\n\n"
-            "Если столкнулись с ошибкой - пожалуйста, обратись в поддержку.",
+            "Если столкнулся с ошибкой - пожалуйста, обратись в поддержку.",
         )
         context.user_data["explainer_message_ids"].append(explainer_message.id)
 

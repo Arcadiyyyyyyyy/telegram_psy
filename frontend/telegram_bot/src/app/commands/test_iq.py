@@ -11,6 +11,8 @@ import frontend.shared.src.db
 import frontend.shared.src.middleware
 import frontend.shared.src.models
 import frontend.shared.src.utils
+import frontend.telegram_bot.src.app.commands
+import frontend.telegram_bot.src.app.commands.menu
 import frontend.telegram_bot.src.app.questionary
 
 
@@ -64,7 +66,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
 
     async def callback_handler_extension(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
-    ):
+    ) -> bool:
         if (
             context.user_data is None
             or update.effective_chat is None
@@ -217,16 +219,8 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 context.user_data["explainer_message_ids"] = [message.id]
             await self.start_phase(kwargs, context, current_phase + 1)
         else:
-            message = await context.bot.send_message(
-                chat_id,
-                "К сожалению, ты не успел пройти тест целиком за выделенное время. "
-                "\n\nТвои результаты сохранены.",
-            )
-            if context.user_data.get("explainer_message_ids") is not None:
-                context.user_data["explainer_message_ids"].append(message.id)
-            else:
-                context.user_data["explainer_message_ids"] = [message.id]
-            return ConversationHandler.END
+            # TODO: add a button here for correct CH state
+            return await self.finish(kwargs, context, confirmation_button=True)
 
     def _generate_function(
         self,
@@ -340,7 +334,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 chat_id,
                 media,
                 caption=f"Неправильный ответ.\n\n"
-                f"Вы ответили: {' и '.join(answer_text)}\n\n"
+                f"Ты ответил: {' и '.join(answer_text)}\n\n"
                 f"Правильный ответ: {' и '.join(expected_answer)}",
             )
         if context.user_data.get("explainer_message_ids") is not None:
@@ -417,6 +411,9 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         except Exception:
             pass
 
+        if misc_info.answer_text == "ch_end":
+            await frontend.telegram_bot.src.app.commands.menu.command(update, context)
+            return ConversationHandler.END
         next_step = await self._handle_test_answer(update, context)
         if misc_info.answer_text == "Продолжить":
             await self.command_extension(update, context)
@@ -515,8 +512,8 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             return misc_info.current_step
 
         is_2_phase_step = (
-            current_step in self.commands_distributes_by_phases[2].keys()  # type: ignore  # noqa
-        )  # type: ignore
+            misc_info.current_step in self.commands_distributes_by_phases[2].keys()
+        )
 
         _answers: dict[int, str] = context.user_data.get("phase_2_answers", {})
         amount_of_answers = len(_answers.get(misc_info.current_step, ""))
