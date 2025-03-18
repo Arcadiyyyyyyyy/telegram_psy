@@ -206,7 +206,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             raise ValueError
         current_phase = current_test["phase"]
 
-        if current_phase + 1 < 4:
+        if current_phase < 4:
             message = await context.bot.send_message(
                 chat_id,
                 "Время на этот тест закончилось. "

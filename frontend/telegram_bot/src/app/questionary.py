@@ -345,13 +345,15 @@ class Conversation(AbstractConversation, ConversationUtils):
             {"chat_id": chat_id, "test_name": self.conversation_name}
         ):
             text = (
-                "К сожалению, тест можно сдавать только единожды. "
-                "\n\nПожалуйста, обратись к администратору в "
+                "К сожалению, тест можно сдавать только единожды.\n\n"
+                "Пожалуйста, обратись к администратору в "
                 "/help если столкнулся с ошибкой."
             )
             message = await context.bot.send_message(chat_id, text)
             if context.user_data.get("explainer_message_ids") is not None:
-                context.user_data["explainer_message_ids"].append(message.id)
+                print(context.user_data["explainer_message_ids"])
+                context.user_data["explainer_message_ids"].append(message.id)  # type: ignore
+                print(context.user_data["explainer_message_ids"])
             else:
                 context.user_data["explainer_message_ids"] = [message.id]
             return ConversationHandler.END
