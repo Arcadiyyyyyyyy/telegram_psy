@@ -184,8 +184,9 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         if update.effective_chat is None:
             raise ValueError
         self._remove_time_restriction_jobs(context, update.effective_chat.id)
-        chat_id = update.effective_chat.id
-        await frontend.shared.src.utils.remove_all_messages(chat_id, context)
+        if not (update.message is not None and update.message.text == "/atq"):
+            chat_id = update.effective_chat.id
+            await frontend.shared.src.utils.remove_all_messages(chat_id, context)
 
     async def _handle_time_restrictions(self, context: ContextTypes.DEFAULT_TYPE):
         if context.user_data is None or context.job is None:
@@ -275,7 +276,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                     test_phase=phase,
                 ),
             )
-            context.user_data["last_sent_test_message_id"] = response.message_id
+            context.user_data["explainer_message_ids"].append(response.message_id)
             context.user_data["current_test_step"] = current_step
 
             return current_step + 1
@@ -390,7 +391,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             parse_mode="HTML",
         )
 
-        context.user_data["last_sent_test_message_id"] = response.message_id
+        context.user_data["explainer_message_ids"].append(response.message_id)
         context.user_data["current_test_step"] = main_info[0]
 
         return main_info[0]

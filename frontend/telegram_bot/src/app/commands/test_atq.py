@@ -46,8 +46,10 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                     "atq", current_step
                 ),
             )
+            # TODO: Why the fuck
             if current_step != 1:
-                context.user_data["last_sent_test_message_id"] = response.message_id
+                await frontend.shared.src.utils.remove_all_messages(chat_id, context)
+            context.user_data["explainer_message_ids"].append(response.id)
 
             return current_step + 1
 

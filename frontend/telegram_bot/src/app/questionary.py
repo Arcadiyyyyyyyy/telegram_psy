@@ -113,9 +113,6 @@ class ConversationUtils:
         if (x := context.user_data.get("explainer_message_ids")) is not None:
             messages_to_delete.extend(x)
         context.user_data["explainer_message_ids"] = []
-        if (x := context.user_data.get("last_sent_test_message_id")) is not None:
-            messages_to_delete.append(x)
-        context.user_data["last_sent_test_message_id"] = None
 
         for message_id in messages_to_delete:
             try:
@@ -339,7 +336,6 @@ class Conversation(AbstractConversation, ConversationUtils):
         context.user_data["answers"] = []
         context.user_data["questions"] = []
         context.user_data["explainer_message_ids"] = []
-        context.user_data["last_sent_test_message_id"] = None
         context.user_data["current_test_step"] = None
 
         test_answers_collection = frontend.shared.src.db.TestAnswersCollection()
@@ -485,11 +481,12 @@ class Conversation(AbstractConversation, ConversationUtils):
         self._save_test_answers(chat_id, self.conversation_name, context.user_data)
         await self.cancel_extension(update, context)
         # result = await frontend.telegram_bot.src.app.utils.abort_test(update, context)
-        explainer_message = await context.bot.send_message(
-            chat_id,
-            "Тест закончен преждевременно.\n\n"
-            "Если столкнулся с ошибкой - пожалуйста, обратись в поддержку.",
-        )
-        context.user_data["explainer_message_ids"].append(explainer_message.id)
+        if not (update.message is not None and update.message.text == "/atq"):
+            explainer_message = await context.bot.send_message(
+                chat_id,
+                "Тест закончен преждевременно.\n\n"
+                "Если столкнулся с ошибкой - пожалуйста, обратись в поддержку.",
+            )
+            context.user_data["explainer_message_ids"].append(explainer_message.id)
 
         return ConversationHandler.END
