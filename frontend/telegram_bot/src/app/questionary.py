@@ -399,12 +399,36 @@ class Conversation(AbstractConversation, ConversationUtils):
 
         await self.finish_extension(update, context)
 
-        text = frontend.shared.src.utils.generate_test_answers_info(
-            int(chat_id), self.conversation_name
-        )[0]
+        text = ""
+        if (
+            frontend.shared.src.db.TestAnswersCollection().read_one(
+                {
+                    "test_name": "atq",
+                    "chat_id": chat_id,
+                }
+            )
+            is None
+        ):
+            text += "Следующим шагом необходимо пройти ATQ тест при помощи команды /atq"
+        elif (
+            frontend.shared.src.db.TestAnswersCollection().read_one(
+                {
+                    "test_name": "iq",
+                    "chat_id": chat_id,
+                }
+            )
+            is None
+        ):
+            text += "Следующим шагом необходимо пройти IQ тест при помощи команды /iq"
+        else:
+            text += "Следующим шагом необходимо записаться на интервью "
+            "при помощи команды /book_a_call"
 
         texts_to_send = frontend.shared.src.utils.split_string(
-            f"Поздравляем! Ты успешно прошел тест, твои ответы сохранены. \nСпасибо за вклад в исследование.\n\n{text}"  # noqa
+            f"Поздравляем! \n\n"
+            "Ты успешно прошел тест, твои ответы сохранены.\n"
+            "Спасибо за вклад в исследование.\n\n"
+            f"{text}"  # noqa
         )
         for t in texts_to_send:
             message = await context.bot.send_message(chat_id, t)
