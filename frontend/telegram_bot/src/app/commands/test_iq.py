@@ -184,6 +184,8 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         if update.effective_chat is None:
             raise ValueError
         self._remove_time_restriction_jobs(context, update.effective_chat.id)
+        chat_id = update.effective_chat.id
+        await frontend.shared.src.utils.remove_all_messages(chat_id, context)
 
     async def _handle_time_restrictions(self, context: ContextTypes.DEFAULT_TYPE):
         if context.user_data is None or context.job is None:
