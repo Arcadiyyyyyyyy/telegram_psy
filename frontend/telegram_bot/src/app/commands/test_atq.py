@@ -46,13 +46,8 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                     "atq", current_step
                 ),
             )
-            if current_step == 1:
-                context.user_data["fucking_hack_because_of_dumb_ass_lib"] = (
-                    response.message_id
-                )
-            else:
+            if current_step != 1:
                 context.user_data["last_sent_test_message_id"] = response.message_id
-                context.user_data["fucking_hack_because_of_dumb_ass_lib"] = None
 
             return current_step + 1
 
