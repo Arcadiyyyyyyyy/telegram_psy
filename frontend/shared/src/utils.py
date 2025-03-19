@@ -44,7 +44,6 @@ def generate_test_answers_info(chat_id: int, conversation_name: str):
             to_dump_to_csv.append([question, _answer])
     elif conversation_name == "iq":
         for question, _answer in answer["test_results"].items():
-            # TODO: make sure _answer == "Готов" and other test options are not being saved
             question_step = int(question[10:])
             if question_step not in test_question_steps:
                 to_dump_to_csv.append([question, _answer])

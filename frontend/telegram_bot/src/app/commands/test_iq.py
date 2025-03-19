@@ -79,7 +79,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             raise ValueError
         current_phase = int(test["phase"])
 
-        answer_text = misc_info.split[3][6:][0]  # TODO:!!!!!@!@!@! this is the problem
+        answer_text = misc_info.split[3][6:][0]
         test_results_get_arg = f"test_step_{misc_info.current_step}"
 
         if not (test_results := context.user_data.get("test_results", {}).get("iq")):
@@ -104,7 +104,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                             [
                                 int(x[10:])
                                 for x in context.user_data.get("test_results", {})
-                                .get("atq", {})  # TODO: WTF!!!!!!!
+                                .get("atq", {})
                                 .keys()
                             ]
                             + [0]
@@ -563,8 +563,6 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         update: Update,
         context: ContextTypes.DEFAULT_TYPE,
     ) -> int:
-        # TODO: not save test 2 phase
-
         """Returns next command id"""
         if context.user_data is None:
             raise ValueError
