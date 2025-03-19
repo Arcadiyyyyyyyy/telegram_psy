@@ -247,6 +247,17 @@ async def callback_distributor(
             if event is None:
                 raise ValueError
 
+            if event.get("meeting_link") is not None:
+                try:
+                    await context.bot.delete_message(
+                        chat_id, update.effective_message.id
+                    )
+                except Exception:
+                    pass
+                await context.bot.send_message(
+                    chat_id, "Это интервью уже было подтверждено"
+                )
+                return
             admins_ids = {
                 # 431691892: "gleb",
                 # 5238704259: "kopatych",
