@@ -22,11 +22,60 @@ class ConversationUtils:
 
     def _generate_question_answer_keyboard(
         self,
+        *,
         test_name: Literal["atq", "iq", "continue"],
         test_step: int,
+        furthest_answered_question: int,
         test_phase: int = 0,
         used_answers: str = "",
     ):
+        buttons_for_moving_in_between_tests: list[InlineKeyboardButton] = []
+
+        if test_name == "atq":
+            non_test_questions_in_selected_phase = list(
+                frontend.shared.src.db.TestsCollection().read(
+                    {
+                        "test_name": test_name,
+                    },
+                    {"test_step": 1},
+                )
+            )
+        else:
+            non_test_questions_in_selected_phase = list(
+                frontend.shared.src.db.TestsCollection().read(
+                    {
+                        "test_name": test_name,
+                        "is_test_step": False,
+                        "phase": test_phase,
+                    },
+                    {"test_step": 1},
+                )
+            )
+
+        if test_step > non_test_questions_in_selected_phase[0].get("test_step", 0):
+            buttons_for_moving_in_between_tests.append(
+                InlineKeyboardButton(
+                    "Назад",
+                    callback_data=f"a+{test_name}+step{test_step - 2}+answerMove",
+                )
+            )
+
+        print(test_step - 1)
+        print(furthest_answered_question)
+        if test_step - 1 < furthest_answered_question:
+            buttons_for_moving_in_between_tests.append(
+                InlineKeyboardButton(
+                    "Вперёд",
+                    callback_data=f"a+{test_name}+step{test_step}+answerMove",
+                )
+            )
+            buttons_for_moving_in_between_tests.append(
+                InlineKeyboardButton(
+                    "Последний вопрос",
+                    callback_data=f"a+{test_name}+step{furthest_answered_question}+answerMove",  # noqa
+                )
+            )
+
         if test_name == "atq":
             result = InlineKeyboardMarkup(
                 [
@@ -46,7 +95,9 @@ class ConversationUtils:
                         "Совершенно верно",
                     ]
                 ]
+                + [buttons_for_moving_in_between_tests]
             )
+
         elif test_name == "iq":
             answers = [
                 "a",
@@ -72,6 +123,7 @@ class ConversationUtils:
                         for answer in answers
                     ]
                 ]
+                + [buttons_for_moving_in_between_tests]
             )
         elif test_name == "continue":
             result = InlineKeyboardMarkup(
@@ -123,23 +175,28 @@ class ConversationUtils:
         return ConversationHandler.END
 
     def _save_test_answers(
-        self, chat_id: int, conversation_name: str, user_data: dict[str, Any]
+        self, chat_id: int, conversation_name: str, context: ContextTypes.DEFAULT_TYPE
     ):
-        answers: list[str] = user_data["answers"]
-        questions: list[str] = user_data["questions"]
-
+        if context.user_data is None:
+            raise ValueError
+        test_results: dict[str, dict[str, str]] | None = context.user_data.get(
+            "test_results"
+        )
+        if test_results is None:
+            context.user_data["test_results"] = {"iq": {}, "atq": {}}
+        test_results = context.user_data.get("test_results")
         test_answers_collection = frontend.shared.src.db.TestAnswersCollection()
-
-        if not answers:
-            return
+        if test_results is None:  # TODO: or not test_results[conversation_name]:
+            raise ValueError
 
         new_test_answer: dict[str, Any] = {
             "chat_id": chat_id,
             "test_name": conversation_name,
-            "answers": answers,
-            "questions": questions,
-            "started_at": user_data["started_at"],
-            "finished_at": user_data.get("finished_at", arrow.utcnow().datetime),
+            "test_results": test_results[conversation_name],
+            "started_at": context.user_data["started_at"],
+            "finished_at": context.user_data.get(
+                "finished_at", arrow.utcnow().datetime
+            ),
         }
         filter_to_check_existing_answer: dict[str, Any] = {
             "chat_id": chat_id,
@@ -170,27 +227,26 @@ class ConversationUtils:
         if context.user_data is None:
             raise ValueError
 
-        previous_question_text = self.question_texts[misc_info.current_step - 1]
-        answers: list[Any] | None = context.user_data.get("answers")
-        questions: list[Any] | None = context.user_data.get("questions")
-        if answers is None:
-            context.user_data["answers"] = []
-        del answers
-        valid_answers: list[str] = context.user_data["answers"]
-        if is_2_phase_step:
-            if amount_of_answers >= 2:
-                valid_answers.append(_answers[misc_info.current_step])
+        test_results: dict[str, dict[str, str]] | None = context.user_data.get(
+            "test_results"
+        )
+        if test_results is None:
+            context.user_data["test_results"] = {"iq": {}, "atq": {}}
+        test_results = context.user_data.get("test_results")
+        if test_results is None:
+            raise ValueError
+        if not is_2_phase_step:
+            test_results[misc_info.split[1]][f"test_step_{misc_info.current_step}"] = (
+                misc_info.answer_text
+            )
         else:
-            valid_answers.append(misc_info.answer_text)
-        if questions is None:
-            context.user_data["questions"] = []
-        del questions
-        valid_questions: list[str] = context.user_data["questions"]
-        if is_2_phase_step:
-            if amount_of_answers >= 2:
-                valid_questions.append(previous_question_text)
-        else:
-            valid_questions.append(previous_question_text)
+            test_results[misc_info.split[1]] = {}
+            if answer := test_results[misc_info.split[1]].get(
+                f"test_step_{misc_info.current_step}", ""
+            ):
+                if amount_of_answers >= 2:
+                    answer += _answers[misc_info.current_step]
+        print(test_results)
 
     async def _validate_callback(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -333,9 +389,8 @@ class Conversation(AbstractConversation, ConversationUtils):
 
         await frontend.shared.src.utils.remove_all_messages(chat_id, context)
 
-        context.user_data["answers"] = []
-        context.user_data["questions"] = []
         context.user_data["explainer_message_ids"] = []
+        context.user_data["test_results"] = {"iq": {}, "atq": {}}
         context.user_data["current_test_step"] = None
 
         test_answers_collection = frontend.shared.src.db.TestAnswersCollection()
@@ -396,7 +451,7 @@ class Conversation(AbstractConversation, ConversationUtils):
         context.user_data["finished_at"] = arrow.utcnow().datetime
         chat_id = update.effective_chat.id
 
-        self._save_test_answers(chat_id, self.conversation_name, context.user_data)
+        self._save_test_answers(chat_id, self.conversation_name, context)
 
         await self.finish_extension(update, context)
 
@@ -461,7 +516,7 @@ class Conversation(AbstractConversation, ConversationUtils):
         if update.effective_chat is None or context.user_data is None:
             raise ValueError
         chat_id = update.effective_chat.id
-        self._save_test_answers(chat_id, self.conversation_name, context.user_data)
+        self._save_test_answers(chat_id, self.conversation_name, context)
         await self.cancel_extension(update, context)
         # result = await frontend.telegram_bot.src.app.utils.abort_test(update, context)
         explainer_message = await context.bot.send_message(
@@ -478,7 +533,7 @@ class Conversation(AbstractConversation, ConversationUtils):
         if update.effective_chat is None or context.user_data is None:
             raise ValueError
         chat_id = update.effective_chat.id
-        self._save_test_answers(chat_id, self.conversation_name, context.user_data)
+        self._save_test_answers(chat_id, self.conversation_name, context)
         await self.cancel_extension(update, context)
         # result = await frontend.telegram_bot.src.app.utils.abort_test(update, context)
         if not (update.message is not None and update.message.text == "/atq"):

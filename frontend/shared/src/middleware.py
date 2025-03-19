@@ -274,8 +274,9 @@ async def callback_distributor(
                 for admin in admins:
                     await context.bot.send_message(
                         admin["chat_id"],
-                        f"{admins_ids.get(admin['chat_id'], 'unknown')} согласился на консультацию в {date.shift(hours=3).format('DD/MM/YYYY HH:mm')}"
-                        f" по Московскому времени. Нужно ещё {3 - len(confirmations)} согласий для подтверждения.",
+                        f"{admins_ids.get(admin['chat_id'], 'unknown')} согласился "
+                        f"на консультацию в {date.shift(hours=3).format('DD/MM/YYYY HH:mm')}"  # noqa
+                        f" по Московскому времени. Нужно ещё {3 - len(confirmations)} согласий для подтверждения.",  # noqa
                     )
 
             if len(confirmations) == 3:

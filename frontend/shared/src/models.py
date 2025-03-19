@@ -40,8 +40,7 @@ class IQTestModel:
 class TestAnswerModel:
     chat_id: int
     test_name: str
-    answers: list[str]
-    questions: list[str]
+    test_results: dict[str, str]
     started_at: datetime.datetime
     finished_at: datetime.datetime
     created_at: datetime.datetime = arrow.utcnow().datetime

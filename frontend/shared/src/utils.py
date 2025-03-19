@@ -36,28 +36,17 @@ def generate_test_answers_info(chat_id: int, conversation_name: str):
     to_dump_to_csv: list[list[str | int]] = []
 
     if conversation_name == "atq":
-        for question, _answer in zip(answer["questions"], answer["answers"]):
+        for question, _answer in answer["test_results"].items():
             to_dump_to_csv.append([question, _answer])
     elif conversation_name == "iq":
-        questions = answer.get("questions", [])
-        if questions:
-            for i, answer in enumerate(answer.get("answers", [])):
-                _question = questions[i]
-
-                if _question != "" and answer == "Готов":
-                    pass
-                else:
-                    to_dump_to_csv.append([i + 1, answer])
-
-    test_summary = ""
+        for question, _answer in answer["test_results"].items():
+            # TODO: make sure _answer == "Готов" and other test options are not being saved
+            to_dump_to_csv.append([question, _answer])
 
     file_manager = frontend.shared.src.file_manager.FileManager()
-
     file_manager.write_cache_test_answers(chat_id, conversation_name, to_dump_to_csv)
 
-    return test_summary, file_manager.read_cache_test_answers(
-        chat_id, conversation_name
-    )
+    return "", file_manager.read_cache_test_answers(chat_id, conversation_name)
 
 
 async def handle_callback(query: CallbackQuery | None) -> tuple[int, str]:

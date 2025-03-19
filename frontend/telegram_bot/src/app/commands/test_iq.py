@@ -108,6 +108,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                     answer_text, ""
                 )
                 try:
+                    # MARK: TODO: check who the fuck are phase two answers
                     await context.bot.edit_message_reply_markup(
                         chat_id,
                         update.effective_message.id,
@@ -222,7 +223,6 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 context.user_data["explainer_message_ids"] = [message.id]
             await self.start_phase(kwargs, context, current_phase + 1)
         else:
-            # TODO: add a button here for correct CH state
             return await self.finish(kwargs, context, confirmation_button=True)
 
     def _generate_function(
@@ -271,8 +271,17 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 media,
                 caption=test_text,
                 reply_markup=self._generate_question_answer_keyboard(  # noqa
-                    "iq",
-                    current_step,
+                    test_name="iq",
+                    test_step=current_step,
+                    furthest_answered_question=max(
+                        [
+                            int(x[10:])
+                            for x in context.user_data.get("test_results", {})
+                            .get("iq", {})
+                            .keys()
+                        ]
+                        + [0]
+                    ),
                     test_phase=phase,
                 ),
             )
@@ -384,9 +393,18 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             media,
             caption=information.text,
             reply_markup=self._generate_question_answer_keyboard(  # noqa
-                "iq",
-                main_info[0],
                 test_phase=phase,
+                test_name="iq",
+                test_step=main_info[0],
+                furthest_answered_question=max(
+                    [
+                        int(x[10:])
+                        for x in context.user_data.get("test_results", {})
+                        .get("iq", {})
+                        .keys()
+                    ]
+                    + [0]
+                ),
             ),
             parse_mode="HTML",
         )
@@ -413,6 +431,10 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 )
         except Exception:
             pass
+
+        if misc_info.answer_text == "Move":
+            # если аргумент для мува отличный от текущей фазы или больше максимального то соси # noqa
+            return await self.commands[misc_info.current_step][1](update, context)
 
         if misc_info.answer_text == "ch_end":
             await frontend.telegram_bot.src.app.commands.menu.command(update, context)

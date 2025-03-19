@@ -43,16 +43,26 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 chat_id,
                 question_text,
                 reply_markup=self._generate_question_answer_keyboard(  # noqa
-                    "atq", current_step
+                    test_name="atq",
+                    test_step=current_step,
+                    furthest_answered_question=max(
+                        [
+                            int(x[10:])
+                            for x in context.user_data.get("test_results", {})
+                            .get("atq", {})
+                            .keys()
+                        ]
+                        + [0]
+                    ),
                 ),
             )
-            # TODO: Why the fuck
             if current_step != 1:
                 await frontend.shared.src.utils.remove_all_messages(chat_id, context)
             context.user_data["explainer_message_ids"].append(response.id)
 
             return current_step + 1
 
+        # TODO: изучить в свободное время персист джоб куеуе
         return types.FunctionType(
             template_func.__code__, globals(), closure=template_func.__closure__
         )
@@ -82,6 +92,10 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
 
         if (misc_info := await self._validate_callback(update, context)) is None:
             return ConversationHandler.END
+
+        if misc_info.answer_text == "Move":
+            # если аргумент для мува отличный от текущей фазы или больше максимального то соси # noqa
+            return await self.commands[misc_info.current_step][1](update, context)
 
         next_step = await self._handle_test_answer(update, context)
         if misc_info.answer_text == "Продолжить":
