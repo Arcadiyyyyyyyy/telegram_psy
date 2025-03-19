@@ -2,12 +2,12 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
 import frontend.shared.src.middleware
+import frontend.shared.src.utils
 import frontend.telegram_bot
 import frontend.telegram_bot.src
 import frontend.telegram_bot.src.app
 import frontend.telegram_bot.src.app.commands
 import frontend.telegram_bot.src.app.commands.menu
-import frontend.shared.src.utils
 
 
 async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -27,7 +27,7 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Но мы очень будем признательны, если ты пройдешь исследование целиком. \n"
         "Данные будут полностью анонимизированы и доступны только исследовательской команде. \n"
         "Продолжая общение с ботом ты даешь право на сбор, обработку и хранение своей персональной информации.\n\n"
-        "В качестве благодарности мы можем выслать тебе результаты теста IQ и теста на определение темперамента",
+        "В качестве благодарности мы можем выслать тебе результаты теста IQ и теста на определение темперамента.",
         reply_markup=InlineKeyboardMarkup(
             [
                 [
@@ -53,7 +53,7 @@ async def notify_about_the_pipeline(update: Update, context: ContextTypes.DEFAUL
         chat_id,
         "Отлично! Наше исследование состоит из трех частей: двух тестов в этом боте и интервью. \n"
         "Для прохождения двух тестов нужно выделить не менее 15 минут в тихом месте, где ты сможешь сконцентрироваться. \n"
-        "Это особенно важно для прохождения теста IQ, так как его нельзя проходить дважды. \n"
+        "Это особенно важно для теста IQ, так как в нем есть ограничения по времени на каждую часть.\n"
         "После прохождения тестов запишись, пожалуйста, на интервью. \n"
         "На него нужно выделить не менее 90 минут.",
         reply_markup=InlineKeyboardMarkup(
