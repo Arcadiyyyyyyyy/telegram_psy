@@ -113,10 +113,21 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                         chat_id,
                         update.effective_message.id,
                         reply_markup=self._generate_question_answer_keyboard(  # noqa
-                            self.conversation_name,  # type: ignore
-                            current_step,
-                            current_phase,
-                            phase_2_answers[current_step].replace(answer_text, ""),
+                            test_name=self.conversation_name,  # type: ignore
+                            test_step=current_step,
+                            furthest_answered_question=max(
+                                [
+                                    int(x[10:])
+                                    for x in context.user_data.get("test_results", {})
+                                    .get("atq", {})
+                                    .keys()
+                                ]
+                                + [0]
+                            ),
+                            test_phase=current_phase,
+                            used_answers=phase_2_answers[current_step].replace(
+                                answer_text, ""
+                            ),
                         ),
                     )
                 except Exception:
@@ -125,14 +136,26 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             elif answer_text not in phase_2_answers[current_step]:
                 phase_2_answers[current_step] += answer_text
                 try:
+                    print(f"Used answers: {phase_2_answers[current_step]}")
+                    print(f"phase_2_answers: {context.user_data['phase_2_answers']}")
+                    print(f"test_results: {context.user_data['test_results']}")
                     await context.bot.edit_message_reply_markup(
                         chat_id,
                         update.effective_message.id,
                         reply_markup=self._generate_question_answer_keyboard(  # noqa
-                            self.conversation_name,  # type: ignore
-                            current_step,
-                            current_phase,
-                            phase_2_answers[current_step],
+                            test_name=self.conversation_name,  # type: ignore
+                            test_step=current_step,
+                            furthest_answered_question=max(
+                                [
+                                    int(x[10:])
+                                    for x in context.user_data.get("test_results", {})
+                                    .get("atq", {})
+                                    .keys()
+                                ]
+                                + [0]
+                            ),
+                            test_phase=current_phase,
+                            used_answers=phase_2_answers[current_step],
                         ),
                     )
                 except Exception:
@@ -540,15 +563,10 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             misc_info.current_step in self.commands_distributes_by_phases[2].keys()
         )
 
-        _answers: dict[int, str] = context.user_data.get("phase_2_answers", {})
-        amount_of_answers = len(_answers.get(misc_info.current_step, ""))
-
         self._save_question_answer(
             misc_info=misc_info,
             context=context,
             is_2_phase_step=is_2_phase_step,
-            amount_of_answers=amount_of_answers,
-            _answers=_answers,
         )
 
         return misc_info.current_step

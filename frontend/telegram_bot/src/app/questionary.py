@@ -20,6 +20,8 @@ class ConversationUtils:
     )
     question_texts: list[Any]
 
+    # TODO: рефактор phase_2_answers
+
     def _generate_question_answer_keyboard(
         self,
         *,
@@ -60,8 +62,6 @@ class ConversationUtils:
                 )
             )
 
-        print(test_step - 1)
-        print(furthest_answered_question)
         if test_step - 1 < furthest_answered_question:
             buttons_for_moving_in_between_tests.append(
                 InlineKeyboardButton(
@@ -186,8 +186,12 @@ class ConversationUtils:
             context.user_data["test_results"] = {"iq": {}, "atq": {}}
         test_results = context.user_data.get("test_results")
         test_answers_collection = frontend.shared.src.db.TestAnswersCollection()
-        if test_results is None:  # TODO: or not test_results[conversation_name]:
+        if test_results is None:
             raise ValueError
+
+        print(test_results)
+        if not test_results.get(conversation_name, {}):
+            return
 
         new_test_answer: dict[str, Any] = {
             "chat_id": chat_id,
@@ -221,11 +225,11 @@ class ConversationUtils:
         misc_info: frontend.shared.src.models.CallbackValidationOutput,
         context: ContextTypes.DEFAULT_TYPE,
         is_2_phase_step: bool = False,
-        amount_of_answers: int = 1,
-        _answers: dict[int, str] = {},
     ):
         if context.user_data is None:
             raise ValueError
+        _answers: dict[int, str] = context.user_data.get("phase_2_answers", {})
+        amount_of_answers = len(_answers.get(misc_info.current_step, "1"))
 
         test_results: dict[str, dict[str, str]] | None = context.user_data.get(
             "test_results"
@@ -246,7 +250,7 @@ class ConversationUtils:
             ):
                 if amount_of_answers >= 2:
                     answer += _answers[misc_info.current_step]
-        print(test_results)
+                    _answers[misc_info.current_step] = ""
 
     async def _validate_callback(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
