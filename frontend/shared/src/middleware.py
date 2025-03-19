@@ -247,10 +247,6 @@ async def callback_distributor(
             if event is None:
                 raise ValueError
 
-            admins = list(
-                frontend.shared.src.db.UsersCollection().read({"admin": True})
-            )
-
             admins_ids = {
                 # 431691892: "gleb",
                 # 5238704259: "kopatych",
@@ -271,16 +267,7 @@ async def callback_distributor(
             confirmations: dict[str, Any] = updated.get("confirmations", {})
             users_collection = frontend.shared.src.db.UsersCollection()
 
-            if len(confirmations) < 3:
-                for admin in admins:
-                    await context.bot.send_message(
-                        admin["chat_id"],
-                        f"{admins_ids.get(admin['chat_id'], 'unknown')} согласился "
-                        f"на консультацию в {date.shift(hours=3).format('DD/MM/YYYY HH:mm')}"  # noqa
-                        f" по Московскому времени. Нужно ещё {3 - len(confirmations)} согласий для подтверждения.",  # noqa
-                    )
-
-            if len(confirmations) == 3:
+            if len(confirmations) == 1:
                 meeting_link = frontend.shared.src.zoom_requester.ZOOM().create_meeting(
                     "Trader consultation", "", 45, date
                 )
@@ -297,9 +284,11 @@ async def callback_distributor(
                 for _chat_id in list(users_collection.read({"admin": True})) + [
                     updated
                 ]:
-                    text = f"Консультация на {date.shift(hours=3).format('DD/MM/YYYY HH:mm')}"  # noqa
-                    " по Московскому времени подтверждена. \n\nСсылка на встречу: "
-                    f"{meeting_link.get('join_url', 'error')}"
+                    text = (
+                        f"Консультация на {date.shift(hours=3).format('DD/MM/YYYY HH:mm')}"  # noqa
+                        " по Московскому времени подтверждена. \n\nСсылка на встречу: "
+                        f"{meeting_link.get('join_url', 'error')}"
+                    )
                     await context.bot.send_message(
                         _chat_id["chat_id"], text, disable_web_page_preview=True
                     )
@@ -346,6 +335,6 @@ async def callback_distributor(
                 await context.bot.delete_message(chat_id, update.effective_message.id)
             except Exception:
                 pass
-            await frontend.telegram_bot.src.app.commands.request_call.cancel_call(
-                update, context
-            )
+            # await frontend.telegram_bot.src.app.commands.request_call.cancel_call(
+            #     update, context
+            # )
