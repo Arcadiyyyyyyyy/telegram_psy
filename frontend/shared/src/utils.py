@@ -34,6 +34,10 @@ def generate_test_answers_info(chat_id: int, conversation_name: str):
         raise ValueError
 
     to_dump_to_csv: list[list[str | int]] = []
+    test_question_steps = list(
+        x.get("test_step", 0)
+        for x in frontend.shared.src.db.TestsCollection().read({"is_test_step": True})
+    )
 
     if conversation_name == "atq":
         for question, _answer in answer["test_results"].items():
@@ -41,7 +45,9 @@ def generate_test_answers_info(chat_id: int, conversation_name: str):
     elif conversation_name == "iq":
         for question, _answer in answer["test_results"].items():
             # TODO: make sure _answer == "Готов" and other test options are not being saved
-            to_dump_to_csv.append([question, _answer])
+            question_step = int(question[10:])
+            if question_step not in test_question_steps:
+                to_dump_to_csv.append([question, _answer])
 
     file_manager = frontend.shared.src.file_manager.FileManager()
     file_manager.write_cache_test_answers(chat_id, conversation_name, to_dump_to_csv)
