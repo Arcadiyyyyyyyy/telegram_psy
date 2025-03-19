@@ -1,5 +1,4 @@
 import arrow
-from loguru import logger
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
@@ -51,7 +50,6 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
     if blocked_slots:
-        logger.warning(blocked_slots)
         # Show scheduled calls
         keyboard.append(
             [

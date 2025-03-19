@@ -20,8 +20,6 @@ class ConversationUtils:
     )
     question_texts: list[Any]
 
-    # TODO: рефактор phase_2_answers
-
     def _generate_question_answer_keyboard(
         self,
         *,
@@ -182,6 +180,7 @@ class ConversationUtils:
         test_results: dict[str, dict[str, str]] | None = context.user_data.get(
             "test_results"
         )
+
         if test_results is None:
             context.user_data["test_results"] = {"iq": {}, "atq": {}}
         test_results = context.user_data.get("test_results")
@@ -189,7 +188,6 @@ class ConversationUtils:
         if test_results is None:
             raise ValueError
 
-        print(test_results)
         if not test_results.get(conversation_name, {}):
             return
 
@@ -219,6 +217,13 @@ class ConversationUtils:
                 frontend.shared.src.models.TestAnswerModel(**new_test_answer)
             )
 
+    def _reset_iq_answers(self, context: ContextTypes.DEFAULT_TYPE, step: int):
+        if context.user_data is None:
+            raise ValueError
+
+        context.user_data.get("test_results", {}).get("iq")[f"test_step_{step}"] = ""
+
+    # TODO: remove правильный ответ из айку теста вовремя
     def _save_question_answer(
         self,
         *,
@@ -228,29 +233,21 @@ class ConversationUtils:
     ):
         if context.user_data is None:
             raise ValueError
-        _answers: dict[int, str] = context.user_data.get("phase_2_answers", {})
-        amount_of_answers = len(_answers.get(misc_info.current_step, "1"))
 
         test_results: dict[str, dict[str, str]] | None = context.user_data.get(
             "test_results"
         )
+        logger.warning(test_results)
         if test_results is None:
             context.user_data["test_results"] = {"iq": {}, "atq": {}}
-        test_results = context.user_data.get("test_results")
+        test_results = context.user_data.get("test_results", {})
         if test_results is None:
             raise ValueError
+
         if not is_2_phase_step:
             test_results[misc_info.split[1]][f"test_step_{misc_info.current_step}"] = (
                 misc_info.answer_text
             )
-        else:
-            test_results[misc_info.split[1]] = {}
-            if answer := test_results[misc_info.split[1]].get(
-                f"test_step_{misc_info.current_step}", ""
-            ):
-                if amount_of_answers >= 2:
-                    answer += _answers[misc_info.current_step]
-                    _answers[misc_info.current_step] = ""
 
     async def _validate_callback(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -536,6 +533,7 @@ class Conversation(AbstractConversation, ConversationUtils):
         await frontend.shared.src.middleware.main_handler(update, context)
         if update.effective_chat is None or context.user_data is None:
             raise ValueError
+        # context.user_data["test_results"]["iq"] = {}
         chat_id = update.effective_chat.id
         self._save_test_answers(chat_id, self.conversation_name, context)
         await self.cancel_extension(update, context)

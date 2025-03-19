@@ -55,14 +55,103 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             ),
         )
         context.user_data["explainer_message_ids"].append(explainer_message.id)
-        result = {}
-        for x in frontend.shared.src.db.TestsCollection().read(
-            {"test_name": self.conversation_name, "phase": 2},
-            {"test_step": 1},
-        ):
-            result[x["test_step"]] = ""
 
-        context.user_data["phase_2_answers"] = result
+    async def _handle_real_2_phase_answer(
+        self,
+        update: Update,
+        context: ContextTypes.DEFAULT_TYPE,
+        misc_info: frontend.shared.src.models.CallbackValidationOutput,
+    ):
+        if (
+            context.user_data is None
+            or update.effective_chat is None
+            or update.effective_message is None
+        ):
+            raise ValueError
+
+        test = frontend.shared.src.db.TestsCollection().read_one(
+            {"test_name": self.conversation_name, "test_step": misc_info.current_step}
+        )
+        if test is None:
+            raise ValueError
+        current_phase = int(test["phase"])
+
+        answer_text = misc_info.split[3][6:][0]  # TODO:!!!!!@!@!@! this is the problem
+        test_results_get_arg = f"test_step_{misc_info.current_step}"
+
+        if not (test_results := context.user_data.get("test_results", {}).get("iq")):
+            raise ValueError
+        if test_results.get(test_results_get_arg) is None:
+            test_results[test_results_get_arg] = ""
+        if answer_text in test_results[test_results_get_arg]:
+            logger.warning(test_results[test_results_get_arg])
+            test_results[test_results_get_arg] = test_results[
+                test_results_get_arg
+            ].replace(answer_text, "")
+            logger.warning(test_results[test_results_get_arg])
+            try:
+                # MARK: TODO: check who the fuck are phase two answers
+                await context.bot.edit_message_reply_markup(
+                    misc_info.chat_id,
+                    update.effective_message.id,
+                    reply_markup=self._generate_question_answer_keyboard(  # noqa
+                        test_name=self.conversation_name,  # type: ignore
+                        test_step=misc_info.current_step,
+                        furthest_answered_question=max(
+                            [
+                                int(x[10:])
+                                for x in context.user_data.get("test_results", {})
+                                .get("atq", {})  # TODO: WTF!!!!!!!
+                                .keys()
+                            ]
+                            + [0]
+                        ),
+                        test_phase=current_phase,
+                        used_answers=test_results[test_results_get_arg].replace(
+                            answer_text, ""
+                        ),
+                    ),
+                )
+            except Exception:
+                pass
+            return True
+        elif (
+            answer_text != "Move"
+            and answer_text not in test_results[test_results_get_arg]
+        ):
+            # TODO: вот это страшное багающее место, которое не ясно как решать
+            # Если чел дважды нажимает на кнопку при сдаче теста - ответ сбрасывается
+            amount_of_answers = len(test_results.get(test_results_get_arg, "1"))
+            if amount_of_answers >= 2:
+                self._reset_iq_answers(context, misc_info.current_step)
+
+            test_results[test_results_get_arg] += answer_text
+            try:
+                await context.bot.edit_message_reply_markup(
+                    misc_info.chat_id,
+                    update.effective_message.id,
+                    reply_markup=self._generate_question_answer_keyboard(  # noqa
+                        test_name=self.conversation_name,  # type: ignore
+                        test_step=misc_info.current_step,
+                        furthest_answered_question=max(
+                            [
+                                int(x[10:])
+                                for x in context.user_data.get("test_results", {})
+                                .get("atq", {})
+                                .keys()
+                            ]
+                            + [0]
+                        ),
+                        test_phase=current_phase,
+                        used_answers=test_results[test_results_get_arg],
+                    ),
+                )
+            except Exception:
+                pass
+            if len(test_results[test_results_get_arg]) >= 2:
+                return False
+            else:
+                return True
 
     async def callback_handler_extension(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -88,92 +177,31 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 context.user_data["explainer_message_ids"] = [message.id]
             return True
 
-        split = callback.split("+")
-        current_step = int(split[2][4:])
-        answer_text = split[3][6:]
+        if (misc_info := await self._validate_callback(update, context)) is None:
+            raise ValueError
+
         test = frontend.shared.src.db.TestsCollection().read_one(
-            {"test_name": self.conversation_name, "test_step": current_step}
+            {"test_name": self.conversation_name, "test_step": misc_info.current_step}
         )
         if test is None:
             raise ValueError
         current_phase = int(test["phase"])
 
-        if current_phase == 2 and answer_text != "Готов":
-            answer_text = split[3][6:][0]
+        if current_phase == 2 and misc_info.answer_text not in ["Готов", "Move"]:
+            phase_2_result = await self._handle_real_2_phase_answer(
+                update, context, misc_info
+            )
+            if isinstance(phase_2_result, bool):
+                return phase_2_result
 
-            if not (phase_2_answers := context.user_data.get("phase_2_answers", {})):
-                raise ValueError
-            if answer_text in phase_2_answers[current_step]:
-                phase_2_answers[current_step] = phase_2_answers[current_step].replace(
-                    answer_text, ""
-                )
-                try:
-                    # MARK: TODO: check who the fuck are phase two answers
-                    await context.bot.edit_message_reply_markup(
-                        chat_id,
-                        update.effective_message.id,
-                        reply_markup=self._generate_question_answer_keyboard(  # noqa
-                            test_name=self.conversation_name,  # type: ignore
-                            test_step=current_step,
-                            furthest_answered_question=max(
-                                [
-                                    int(x[10:])
-                                    for x in context.user_data.get("test_results", {})
-                                    .get("atq", {})
-                                    .keys()
-                                ]
-                                + [0]
-                            ),
-                            test_phase=current_phase,
-                            used_answers=phase_2_answers[current_step].replace(
-                                answer_text, ""
-                            ),
-                        ),
-                    )
-                except Exception:
-                    pass
-                return True
-            elif answer_text not in phase_2_answers[current_step]:
-                phase_2_answers[current_step] += answer_text
-                try:
-                    print(f"Used answers: {phase_2_answers[current_step]}")
-                    print(f"phase_2_answers: {context.user_data['phase_2_answers']}")
-                    print(f"test_results: {context.user_data['test_results']}")
-                    await context.bot.edit_message_reply_markup(
-                        chat_id,
-                        update.effective_message.id,
-                        reply_markup=self._generate_question_answer_keyboard(  # noqa
-                            test_name=self.conversation_name,  # type: ignore
-                            test_step=current_step,
-                            furthest_answered_question=max(
-                                [
-                                    int(x[10:])
-                                    for x in context.user_data.get("test_results", {})
-                                    .get("atq", {})
-                                    .keys()
-                                ]
-                                + [0]
-                            ),
-                            test_phase=current_phase,
-                            used_answers=phase_2_answers[current_step],
-                        ),
-                    )
-                except Exception:
-                    pass
-                if len(phase_2_answers[current_step]) >= 2:
-                    return False
-                else:
-                    return True
-
-        if answer_text == "Готов":
+        if misc_info.answer_text == "Готов":
             phase_starter_question = frontend.shared.src.db.TestsCollection().read_one(
-                {"test_step": current_step, "test_name": "iq"}
+                {"test_step": misc_info.current_step, "test_name": "iq"}
             )
             if phase_starter_question is None:
                 raise ValueError("Tests miss config")
             question = frontend.shared.src.models.IQTestModel(**phase_starter_question)
             if question.seconds_to_pass_the_phase is None:
-                logger.error(f"Full question: {phase_starter_question}")
                 raise ValueError("Tests miss config")
 
             time_of_starting_the_phase = arrow.utcnow()
@@ -337,10 +365,10 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         expected_answer: str = current_test.get("correct_answer", "")
         is_phase_2 = current_step in self.commands_distributes_by_phases[2].keys()
         if is_phase_2:
-            answer = context.user_data.get("phase_2_answers", {})
+            answer = context.user_data.get("test_results", {}).get("iq", {})
             if not answer:
                 raise ValueError
-            answer_text = answer[current_step]
+            answer_text = answer[f"test_step_{current_step}"]
 
         if is_phase_2 and len(answer_text) <= 1:
             return
@@ -457,12 +485,16 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
 
         if misc_info.answer_text == "Move":
             # если аргумент для мува отличный от текущей фазы или больше максимального то соси # noqa
+            await frontend.shared.src.utils.remove_all_messages(
+                misc_info.chat_id, context
+            )
             return await self.commands[misc_info.current_step][1](update, context)
-
         if misc_info.answer_text == "ch_end":
             await frontend.telegram_bot.src.app.commands.menu.command(update, context)
             return ConversationHandler.END
+
         next_step = await self._handle_test_answer(update, context)
+
         if misc_info.answer_text == "Продолжить":
             await self.command_extension(update, context)
             return next_step
@@ -528,6 +560,8 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         update: Update,
         context: ContextTypes.DEFAULT_TYPE,
     ) -> int:
+        # TODO: not save test 2 phase
+
         """Returns next command id"""
         if context.user_data is None:
             raise ValueError
@@ -538,6 +572,8 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             return misc_info.current_step
         if misc_info.answer_text in ["Продолжить1"]:
             return misc_info.current_step - 1
+        if misc_info.answer_text in ["Move"]:
+            return misc_info.current_step
 
         try:
             if self.mock_steps is not None:
@@ -550,7 +586,9 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 current_test = {}
         except IndexError:
             current_test = {}
-        if int(misc_info.current_step) == int(current_test.get("test_step", -1)):
+        if is_test_step := (
+            int(misc_info.current_step) == int(current_test.get("test_step", -1))
+        ):
             await self._handle_mock_test_answer(
                 update,
                 context,
@@ -563,10 +601,11 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             misc_info.current_step in self.commands_distributes_by_phases[2].keys()
         )
 
-        self._save_question_answer(
-            misc_info=misc_info,
-            context=context,
-            is_2_phase_step=is_2_phase_step,
-        )
+        if not is_test_step:
+            self._save_question_answer(
+                misc_info=misc_info,
+                context=context,
+                is_2_phase_step=is_2_phase_step,
+            )
 
         return misc_info.current_step
