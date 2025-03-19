@@ -9,6 +9,7 @@ import frontend.admin_bot.src.app.commands
 import frontend.admin_bot.src.app.commands.manage_time_slots
 import frontend.shared.src.db
 import frontend.shared.src.middleware
+import frontend.shared.src.utils
 
 
 async def command(update: Update, context: ContextTypes.DEFAULT_TYPE, page: int = 0):
@@ -16,6 +17,9 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE, page: int 
         return
     chat_id = update.effective_chat.id
     await frontend.shared.src.middleware.main_handler(update, context)
+    await frontend.shared.src.utils.remove_all_messages(
+        update.effective_chat.id, context
+    )
 
     message = await context.bot.send_message(
         chat_id,

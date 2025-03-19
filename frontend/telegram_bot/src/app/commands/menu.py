@@ -4,6 +4,7 @@ from telegram.ext import ContextTypes
 
 import frontend.shared.src.db
 import frontend.shared.src.middleware
+import frontend.shared.src.utils
 
 
 async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -11,6 +12,9 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         raise ValueError
     await frontend.shared.src.middleware.main_handler(update, context)
     chat_id = update.effective_chat.id
+    await frontend.shared.src.utils.remove_all_messages(
+        update.effective_chat.id, context
+    )
 
     keyboard: list[list[InlineKeyboardButton]] = []
 

@@ -38,6 +38,10 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 or context.user_data is None
             ):
                 raise ValueError
+            await frontend.shared.src.utils.remove_all_messages(
+                update.effective_chat.id, context
+            )
+
             chat_id = update.effective_chat.id
             response = await context.bot.send_message(
                 chat_id,

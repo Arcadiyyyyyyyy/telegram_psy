@@ -34,6 +34,9 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
     ):
         if update.effective_chat is None or context.user_data is None:
             raise ValueError
+        await frontend.shared.src.utils.remove_all_messages(
+            update.effective_chat.id, context
+        )
         explainer_message = await context.bot.send_message(
             update.effective_chat.id,
             "Тебе нужно будет пройти четыре теста, которые похожи на четыре различные игры-головоломки. \n"  # noqa

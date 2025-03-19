@@ -7,6 +7,7 @@ import frontend.telegram_bot.src
 import frontend.telegram_bot.src.app
 import frontend.telegram_bot.src.app.commands
 import frontend.telegram_bot.src.app.commands.menu
+import frontend.shared.src.utils
 
 
 async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -14,6 +15,9 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         raise ValueError
     await frontend.shared.src.middleware.main_handler(update, context)
     chat_id = update.effective_chat.id
+    await frontend.shared.src.utils.remove_all_messages(
+        update.effective_chat.id, context
+    )
 
     message = await context.bot.send_message(
         chat_id,
