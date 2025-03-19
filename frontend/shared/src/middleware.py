@@ -150,6 +150,7 @@ async def callback_distributor(
                 update, context
             )
         elif callback_file == "notify_about_pipeline":
+            await frontend.shared.src.utils.remove_all_messages(chat_id, context)
             await (
                 frontend.telegram_bot.src.app.commands.start.notify_about_the_pipeline(
                     update, context
@@ -320,6 +321,7 @@ async def callback_distributor(
                 update, context
             )
         elif callback_file == "menu":
+            await frontend.shared.src.utils.remove_all_messages(chat_id, context)
             await frontend.telegram_bot.src.app.commands.menu.command(update, context)
     elif callback_group == "d":
         if callback_file == "ans_by_uid_and_test" and callback_arguments[-1] == "y":
