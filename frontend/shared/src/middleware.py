@@ -179,7 +179,7 @@ async def callback_distributor(
             and callback_arg_1 == "admin"
             and callback_arg_2 is not None
         ):
-            date = arrow.get(callback_arg_2)
+            date = arrow.get(callback_arg_2, "DD/MM/YYYY HH:mm")
             occupation_reason = f"Blocked by telegram id {chat_id}"
             page = callback_arg_3
 
@@ -199,7 +199,12 @@ async def callback_distributor(
             await frontend.admin_bot.src.app.commands.manage_time_slots.command(
                 update, context, page=int(page) if page is not None else 0
             )
+
         elif callback_file == "book" and callback_arg_1 == "admin":
+            try:
+                await context.bot.delete_message(chat_id, update.effective_message.id)
+            except Exception:
+                pass
             await frontend.admin_bot.src.app.commands.manage_time_slots.command(
                 update, context
             )
@@ -208,7 +213,12 @@ async def callback_distributor(
             and callback_arg_1 == "user"
             and callback_arg_2 is not None
         ):
-            date = arrow.get(callback_arg_2)
+            date = arrow.get(callback_arg_2, "DD/MM/YYYY HH:mm")
+
+            try:
+                await context.bot.delete_message(chat_id, update.effective_message.id)
+            except Exception:
+                pass
 
             await frontend.telegram_bot.src.app.commands.request_call.request_call(
                 update, context
@@ -228,7 +238,7 @@ async def callback_distributor(
             and callback_arg_2 is not None
             and callback_arg_3 is not None
         ):
-            date = arrow.get(callback_arg_3)
+            date = arrow.get(callback_arg_3, "DD/MM/YYYY HH:mm")
             confirming_admin_id = int(callback_arg_2)
             time_slots = frontend.shared.src.db.TimeSlotsCollection()
 
@@ -236,14 +246,20 @@ async def callback_distributor(
             if event is None:
                 raise ValueError
 
-            admin_who_confirmed = {
+            admins = list(
+                frontend.shared.src.db.UsersCollection().read({"admin": True})
+            )
+
+            admins_ids = {
                 # 431691892: "gleb",
                 # 5238704259: "kopatych",
                 # 5472197561: "irina",
                 455232738: "gleb",
                 520794627: "kopatych",
                 476798383: "irina",
-            }.get(confirming_admin_id, "unknown")
+            }
+
+            admin_who_confirmed = admins_ids.get(confirming_admin_id, "unknown")
             time_slots.update(
                 {"time": date.datetime},
                 {f"confirmations.by_{admin_who_confirmed}": True},
@@ -253,6 +269,15 @@ async def callback_distributor(
                 raise ValueError
             confirmations: dict[str, Any] = updated.get("confirmations", {})
             users_collection = frontend.shared.src.db.UsersCollection()
+
+            if len(confirmations) < 3:
+                for admin in admins:
+                    await context.bot.send_message(
+                        admin["chat_id"],
+                        f"{admins_ids.get(admin['chat_id'], 'unknown')} согласился на консультацию в {date.shift(hours=3).format('DD/MM/YYYY HH:mm')}"
+                        f" по Московскому времени. Нужно ещё {3 - len(confirmations)} согласий для подтверждения.",
+                    )
+
             if len(confirmations) == 3:
                 meeting_link = frontend.shared.src.zoom_requester.ZOOM().create_meeting(
                     "Trader consultation", "", 45, date
@@ -270,12 +295,18 @@ async def callback_distributor(
                 for _chat_id in list(users_collection.read({"admin": True})) + [
                     updated
                 ]:
-                    text = f"Консультация на {date.shift(hours=3).format('YYYY-DD/MM HH:mm')}"  # noqa
+                    text = f"Консультация на {date.shift(hours=3).format('DD/MM/YYYY HH:mm')}"  # noqa
                     " по Московскому времени подтверждена. \n\nСсылка на встречу: "
                     f"{meeting_link.get('join_url', 'error')}"
                     await context.bot.send_message(
                         _chat_id["chat_id"], text, disable_web_page_preview=True
                     )
+
+            try:
+                await context.bot.delete_message(chat_id, update.effective_message.id)
+            except Exception:
+                pass
+
     elif callback_group == "r":
         if callback_file == "help":
             await frontend.telegram_bot.src.app.commands.help.command(update, context)
@@ -308,6 +339,10 @@ async def callback_distributor(
             and isinstance(callback_arg_1, str)
             and callback_arg_2 is not None
         ):
+            try:
+                await context.bot.delete_message(chat_id, update.effective_message.id)
+            except Exception:
+                pass
             await frontend.telegram_bot.src.app.commands.request_call.cancel_call(
                 update, context
             )

@@ -31,7 +31,7 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if not user:
             raise ValueError
         result.append(
-            f"{arrow.get(call.get('time')).shift(hours=3).format('YYYY-DD/MM HH:mm')} with {user.get('first_name', 'error')} @{user.get('username', 'error')} {user.get('chat_id', 'error')}"
+            f"{arrow.get(call.get('time')).shift(hours=3).format('DD/MM/YYYY HH:mm')} with {user.get('first_name', 'error')} @{user.get('username', 'error')} {user.get('chat_id', 'error')}"
         )
     if len(result) == 1:
         result.append("У вас ещё нет подтверждённых звонков")

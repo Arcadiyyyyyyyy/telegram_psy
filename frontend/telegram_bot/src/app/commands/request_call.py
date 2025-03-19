@@ -12,7 +12,7 @@ import frontend.shared.src.middleware
 
 
 async def command(update: Update, context: ContextTypes.DEFAULT_TYPE, page: int = 0):
-    if update.effective_chat is None:
+    if update.effective_chat is None or context.user_data is None:
         return
     chat_id = update.effective_chat.id
     await frontend.shared.src.middleware.main_handler(update, context)
@@ -24,11 +24,10 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE, page: int 
             "user", page=page
         ),
     )
-    if context.user_data is not None:
-        if context.user_data.get("explainer_message_ids") is not None:
-            context.user_data["explainer_message_ids"].append(message.id)
-        else:
-            context.user_data["explainer_message_ids"] = [message.id]
+    if context.user_data.get("explainer_message_ids") is not None:
+        context.user_data["explainer_message_ids"].append(message.id)
+    else:
+        context.user_data["explainer_message_ids"] = [message.id]
 
 
 async def request_call(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -52,7 +51,7 @@ async def request_call(update: Update, context: ContextTypes.DEFAULT_TYPE):
     callback_arguments = callback.split("+")
     callback_arg_2 = callback_arguments[3]
 
-    time = arrow.get(callback_arg_2)
+    time = arrow.get(callback_arg_2, "DD/MM/YYYY HH:mm")
 
     frontend.shared.src.db.TimeSlotsCollection().insert_one(
         {
@@ -71,7 +70,7 @@ async def request_call(update: Update, context: ContextTypes.DEFAULT_TYPE):
             admin["chat_id"],
             f"Пользователь {user['first_name']} {chat_id} @{user['username']} "
             f"хочет договориться о консультации в "
-            f"{time.shift(hours=3).format('YYYY-DD/MM HH:mm')} по Москве",
+            f"{time.shift(hours=3).format('DD/MM/YYYY HH:mm')} по Москве",
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
@@ -112,7 +111,7 @@ async def show_scheduled_calls(update: Update, context: ContextTypes.DEFAULT_TYP
         if not user:
             raise ValueError
         result.append(
-            f"Запланированная консультация {arrow.get(call.get('time')).shift(hours=3).format('YYYY-DD/MM HH:mm')}"
+            f"Запланированная консультация {arrow.get(call.get('time')).shift(hours=3).format('DD/MM/YYYY HH:mm')}"
         )
     if len(result) == 1:
         result.append("У вас ещё нет подтверждённых звонков")
@@ -146,7 +145,7 @@ async def cancel_call(update: Update, context: ContextTypes.DEFAULT_TYPE):
     callback_arguments = callback.split("+")
     callback_arg_3 = callback_arguments[4]
 
-    time = arrow.get(callback_arg_3)
+    time = arrow.get(callback_arg_3, "DD/MM/YYYY HH:mm")
     time_slots = frontend.shared.src.db.TimeSlotsCollection()
 
     get_time_slot = time_slots.read_one(
@@ -167,7 +166,7 @@ async def cancel_call(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     for _chat_id in admins + [get_time_slot]:
-        text = f"Консультация на {time.shift(hours=3).format('YYYY-DD/MM HH:mm')} по Московскому времени отменена."
+        text = f"Консультация на {time.shift(hours=3).format('DD/MM/YYYY HH:mm')} по Московскому времени отменена."
         await context.bot.send_message(
             _chat_id["chat_id"],
             text,

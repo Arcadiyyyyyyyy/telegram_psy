@@ -467,7 +467,7 @@ class Conversation(AbstractConversation, ConversationUtils):
         explainer_message = await context.bot.send_message(
             chat_id,
             "Тест закончен преждевременно.\n\n"
-            "Если столкнулся с ошибкой - пожалуйста, обратись в поддержку.",
+            "Если столкнулся с ошибкой — пожалуйста, обратись в поддержку.",
         )
         context.user_data["explainer_message_ids"].append(explainer_message.id)
 
@@ -485,7 +485,7 @@ class Conversation(AbstractConversation, ConversationUtils):
             explainer_message = await context.bot.send_message(
                 chat_id,
                 "Тест закончен преждевременно.\n\n"
-                "Если столкнулся с ошибкой - пожалуйста, обратись в поддержку.",
+                "Если столкнулся с ошибкой — пожалуйста, обратись в поддержку.",
             )
             context.user_data["explainer_message_ids"].append(explainer_message.id)
 
