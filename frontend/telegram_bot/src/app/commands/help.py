@@ -16,7 +16,7 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = await context.bot.send_message(
         update.effective_chat.id,
         "Чтобы задать любой вопрос, или уведомить "
-        "о технических проблемах бота, пожалуйста, обратись в @Phase_trade",
+        "о технических проблемах бота, пожалуйста, обратись к @Phase_trade",
     )
     if context.user_data is not None:
         if context.user_data.get("explainer_message_ids") is not None:
