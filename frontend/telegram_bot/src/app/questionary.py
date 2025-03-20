@@ -453,6 +453,7 @@ class Conversation(AbstractConversation, ConversationUtils):
         chat_id = update.effective_chat.id
 
         self._save_test_answers(chat_id, self.conversation_name, context)
+        await frontend.shared.src.utils.remove_all_messages(chat_id, context)
 
         await self.finish_extension(update, context)
 
@@ -478,8 +479,10 @@ class Conversation(AbstractConversation, ConversationUtils):
         ):
             text += "Следующим шагом необходимо пройти IQ тест при помощи команды /iq"
         else:
-            text += "Следующим шагом необходимо записаться на интервью "
-            "при помощи команды /book_a_call"
+            text += (
+                "Следующим шагом необходимо записаться на интервью "
+                "при помощи команды /book_a_call"
+            )
 
         text_to_send = (
             f"Поздравляем! \n\n"

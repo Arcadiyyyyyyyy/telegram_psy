@@ -376,6 +376,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         if is_phase_2 and len(answer_text) <= 1:
             return
         else:
+            await frontend.shared.src.utils.remove_all_messages(chat_id, context)
             await frontend.shared.src.middleware.main_handler(update, context)
 
         if (
