@@ -42,6 +42,7 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     answers_by_user_id: dict[int, dict[str, str]] = {}
 
     users_collection = frontend.shared.src.db.UsersCollection()
+    tests_collection = frontend.shared.src.db.TestsCollection()
     for answers_document in answers:
         test_results = answers_document.get("test_results", {})
         results_to_add: dict[str, str] = {}
@@ -50,7 +51,8 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             raise ValueError
         if user.get("random_id") is None:
             users_collection.update(
-                {"chat_id": answers_document["chat_id"]}, {"random_id": str(uuid.uuid4())}
+                {"chat_id": answers_document["chat_id"]},
+                {"random_id": str(uuid.uuid4())},
             )
             user = users_collection.read_one({"chat_id": answers_document["chat_id"]})
             if not user:
@@ -70,10 +72,55 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not total_amount_of_questions_in_test:
         await context.bot.send_message(_chat_id, "Error")
     keys: list[str | int] = ["Name"]
+    subtest_first_question: dict[int, int] = {
+        1: list(
+            tests_collection.read(
+                {"test_name": "iq", "phase": 1, "is_test_step": False},
+                {"test_step": 1},
+            )
+        )[  # type: ignore # noqa
+            0
+        ],
+        2: list(
+            tests_collection.read(
+                {"test_name": "iq", "phase": 2, "is_test_step": False},
+                {"test_step": 1},
+            )
+        )[  # type: ignore # noqa
+            0
+        ],
+        3: list(
+            tests_collection.read(
+                {"test_name": "iq", "phase": 3, "is_test_step": False},
+                {"test_step": 1},
+            )
+        )[  # type: ignore # noqa
+            0
+        ],
+        4: list(
+            tests_collection.read(
+                {"test_name": "iq", "phase": 4, "is_test_step": False},
+                {"test_step": 1},
+            )
+        )[  # type: ignore # noqa
+            0
+        ],
+    }
     for key in answers_by_user_id[list(answers_by_user_id.keys())[0]].keys():
         question_step = int(key[10:])
-        if question_step not in test_question_steps:
-            keys.append(key)
+        test = tests_collection.read_one(
+            {"test_step": question_step, "test_name": "iq"}
+        )
+        if test is None:
+            raise ValueError
+        if question_step in test_question_steps:
+            continue
+        keys.append(
+            (
+                f"Subtest: {test.get('phase', 'Error')}; "
+                f"Question: {(test.get('test_step', 0) + 1) - subtest_first_question[test.get('phase', 0)]['test_step']}"
+            )
+        )
     to_dump_to_csv.append(keys)
 
     for chat_id, _answers in answers_by_user_id.items():

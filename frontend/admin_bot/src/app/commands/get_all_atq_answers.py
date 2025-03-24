@@ -1,4 +1,5 @@
 import uuid
+
 from telegram import (
     Update,
 )
@@ -36,6 +37,7 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     answers_by_user_id: dict[int, dict[str, str]] = {}
 
     users_collection = frontend.shared.src.db.UsersCollection()
+    tests_collection = frontend.shared.src.db.TestsCollection()
     for answers_document in answers:
         test_results = answers_document.get("test_results", {})
         results_to_add: dict[str, str] = {}
@@ -44,7 +46,8 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             raise ValueError
         if user.get("random_id") is None:
             users_collection.update(
-                {"chat_id": answers_document["chat_id"]}, {"random_id": str(uuid.uuid4())}
+                {"chat_id": answers_document["chat_id"]},
+                {"random_id": str(uuid.uuid4())},
             )
             user = users_collection.read_one({"chat_id": answers_document["chat_id"]})
             if not user:
@@ -65,7 +68,14 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_message(_chat_id, "Error")
     keys: list[str | int] = ["Name"]
     for key in answers_by_user_id[list(answers_by_user_id.keys())[0]].keys():
-        keys.append(key)
+        question_step = int(key[10:])
+        test = tests_collection.read_one(
+            {"test_step": question_step, "test_name": "atq"}
+        )
+        if test is None:
+            raise ValueError
+
+        keys.append(test.get("text", "Error"))
     to_dump_to_csv.append(keys)
 
     for chat_id, _answers in answers_by_user_id.items():
