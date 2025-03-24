@@ -366,6 +366,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         if current_test is None:
             raise ValueError
         expected_answer: str = current_test.get("correct_answer", "")
+        reasoning: str | None = current_test.get("answer_reasoning")
         is_phase_2 = current_step in self.commands_distributes_by_phases[2].keys()
         if is_phase_2:
             answer = context.user_data.get("test_results", {}).get("iq", {})
@@ -385,9 +386,12 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             ).replace(" ", "")
             == ""
         ):
+            text = "Правильный ответ!"
+            if reasoning is not None:
+                text += f"\n\n{reasoning}"
             explainer_message = await context.bot.send_message(
                 chat_id,
-                "Правильный ответ!",
+                text,
             )
         else:
             previous_test = frontend.shared.src.db.TestsCollection().read_one(
@@ -397,12 +401,17 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 raise ValueError
             with open(previous_test.get("media_location", ""), "rb") as file:
                 media = file.read()
+            text = (
+                f"Неправильный ответ.\n\n"
+                f"Ты ответил: {' и '.join(answer_text)}\n\n"
+                f"Правильный ответ: {' и '.join(expected_answer)}"
+            )
+            if reasoning is not None:
+                text += f"\n\n{reasoning}"
             explainer_message = await context.bot.send_photo(
                 chat_id,
                 media,
-                caption=f"Неправильный ответ.\n\n"
-                f"Ты ответил: {' и '.join(answer_text)}\n\n"
-                f"Правильный ответ: {' и '.join(expected_answer)}",
+                caption=text,
             )
         if context.user_data.get("explainer_message_ids") is not None:
             context.user_data["explainer_message_ids"].append(explainer_message.id)
