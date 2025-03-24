@@ -238,7 +238,6 @@ class ConversationUtils:
 
         context.user_data.get("test_results", {}).get("iq")[f"test_step_{step}"] = ""
 
-    # TODO: remove правильный ответ из айку теста вовремя
     def _save_question_answer(
         self,
         *,
@@ -252,7 +251,6 @@ class ConversationUtils:
         test_results: dict[str, dict[str, str]] | None = context.user_data.get(
             "test_results"
         )
-        logger.warning(test_results)
         if test_results is None:
             context.user_data["test_results"] = {"iq": {}, "atq": {}}
         test_results = context.user_data.get("test_results", {})

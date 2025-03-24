@@ -2,6 +2,8 @@ from typing import Any
 
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler
 
+import frontend.admin_bot.src.app.commands.get_all_atq_answers
+import frontend.admin_bot.src.app.commands.get_all_iq_answers
 import frontend.admin_bot.src.app.commands.get_answers_by_user
 import frontend.admin_bot.src.app.commands.list_confirmed_consultations
 import frontend.admin_bot.src.app.commands.manage_time_slots
@@ -28,6 +30,16 @@ commands = (
         "manage_time_slots",
         "Remove time slots from the availability",
         frontend.admin_bot.src.app.commands.manage_time_slots.command,
+    ),
+    frontend.shared.src.config.Command(
+        "get_all_atq_answers",
+        "Get csv of user atq answers",
+        frontend.admin_bot.src.app.commands.get_all_atq_answers.command,
+    ),
+    frontend.shared.src.config.Command(
+        "get_all_iq_answers",
+        "Get csv of user iq answers",
+        frontend.admin_bot.src.app.commands.get_all_iq_answers.command,
     ),
 )
 

@@ -87,11 +87,9 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         if test_results.get(test_results_get_arg) is None:
             test_results[test_results_get_arg] = ""
         if answer_text in test_results[test_results_get_arg]:
-            logger.warning(test_results[test_results_get_arg])
             test_results[test_results_get_arg] = test_results[
                 test_results_get_arg
             ].replace(answer_text, "")
-            logger.warning(test_results[test_results_get_arg])
             try:
                 # MARK: TODO: check who the fuck are phase two answers
                 await context.bot.edit_message_reply_markup(
@@ -612,11 +610,13 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             misc_info.current_step in self.commands_distributes_by_phases[2].keys()
         )
 
+        # logger.warning(context.user_data.get("test_results"))
         if not is_test_step:
             self._save_question_answer(
                 misc_info=misc_info,
                 context=context,
                 is_2_phase_step=is_2_phase_step,
             )
+        # logger.warning(context.user_data.get("test_results"))
 
         return misc_info.current_step
