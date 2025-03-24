@@ -60,8 +60,8 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         to_dump_to_csv.append([chat_id] + list(_answers.values()))
 
     file_manager = frontend.shared.src.file_manager.FileManager()
-    file_manager.write_cache_test_answers(0, "iq", to_dump_to_csv)
+    file_manager.write_cache_test_answers(0, "atq", to_dump_to_csv)
 
     await context.bot.send_document(
-        chat_id, file_manager.read_cache_test_answers(0, "iq")
+        chat_id, file_manager.read_cache_test_answers(0, "atq")
     )
