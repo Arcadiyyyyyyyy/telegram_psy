@@ -269,7 +269,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 chat_id,
                 "Время на этот тест закончилось. "
                 "\n\nТвои результаты сохранены, ты можешь "
-                "приступить к продолжению теста когда будешь готов.",
+                " приступить к следующему тесту, когда будешь готов.",
             )
             if context.user_data.get("explainer_message_ids") is not None:
                 context.user_data["explainer_message_ids"].append(message.id)
@@ -528,7 +528,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 "На этом тренировки к этому тесту закончились. "
                 "\nТебе может не хватить времени, чтобы выполнить все задания. "
                 "Работай так быстро и внимательно, как сможешь.\n"
-                "Когда будешь готов начать тест - нажми на кнопку внизу, чтобы запустить таймер.",  # noqa
+                "Когда будешь готов начать тест — нажми на кнопку внизу, чтобы запустить таймер.",  # noqa
                 reply_markup=InlineKeyboardMarkup(
                     [
                         [

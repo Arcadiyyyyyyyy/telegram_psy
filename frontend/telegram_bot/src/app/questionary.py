@@ -32,6 +32,21 @@ class ConversationUtils:
         buttons_for_moving_in_between_tests: list[InlineKeyboardButton] = []
 
         if test_name == "atq":
+            if test_step == 1:
+                return InlineKeyboardMarkup(
+                    [
+                        [
+                            InlineKeyboardButton(
+                                text=f"{answer}",
+                                callback_data=f"a+{test_name}+step{test_step}+answer{answer}",  # noqa
+                            )
+                        ]
+                        for answer in [
+                            "Мужчина",
+                            "Женщина",
+                        ]
+                    ]
+                )
             non_test_questions_in_selected_phase = list(
                 frontend.shared.src.db.TestsCollection().read(
                     {
@@ -69,7 +84,7 @@ class ConversationUtils:
             )
             buttons_for_moving_in_between_tests.append(
                 InlineKeyboardButton(
-                    "Последний вопрос",
+                    "Последний",
                     callback_data=f"a+{test_name}+step{furthest_answered_question}+answerMove",  # noqa
                 )
             )

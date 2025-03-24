@@ -19,7 +19,7 @@ class ZOOM:
         base64_credentials = base64.b64encode(credentials.encode("ascii")).decode(
             "ascii"
         )
-        url = f"https://zoom.us/oauth/token?grant_type=account_credentials&account_id={self.account_id}"
+        url = f"https://zoom.us/oauth/token?grant_type=account_credentials&account_id={self.account_id}"  # noqa
 
         headers = {
             "Authorization": f"Basic {base64_credentials}",
