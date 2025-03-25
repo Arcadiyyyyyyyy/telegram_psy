@@ -118,7 +118,7 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         keys.append(
             (
                 f"Subtest: {test.get('phase', 'Error')}; "
-                f"Question: {(test.get('test_step', 0) + 1) - subtest_first_question[test.get('phase', 0)]['test_step']}"
+                f"Question: {(test.get('test_step', 0) + 1) - subtest_first_question[test['phase']]['test_step']}"  # type: ignore
             )
         )
     to_dump_to_csv.append(keys)

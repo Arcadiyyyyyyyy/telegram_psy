@@ -192,3 +192,9 @@ class TimeSlotsCollection(Collection):
     def __init__(self):
         self.db = Connector().db
         self.collection = "time_slots"
+
+
+class ResultRequestsCollection(Collection):
+    def __init__(self):
+        self.db = Connector().db
+        self.collection = "result_requests"

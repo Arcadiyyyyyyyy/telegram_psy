@@ -15,6 +15,7 @@ import frontend.shared.src.db
 import frontend.shared.src.errors
 import frontend.shared.src.middleware
 import frontend.shared.src.utils
+import frontend.telegram_bot.src.app.commands.ask_for_results
 import frontend.telegram_bot.src.app.commands.help
 import frontend.telegram_bot.src.app.commands.menu
 import frontend.telegram_bot.src.app.commands.request_call
@@ -139,6 +140,11 @@ class Commands:
                 "book_a_call",
                 "Запись на интервью",
                 frontend.telegram_bot.src.app.commands.request_call.command,
+            ),
+            frontend.shared.src.config.Command(
+                "ask_for_results",
+                "Получить результаты теста",
+                frontend.telegram_bot.src.app.commands.ask_for_results.command,
             ),
             frontend.shared.src.config.Command(
                 "list_confirmed_calls",

@@ -17,6 +17,7 @@ import frontend.shared.src.models
 import frontend.shared.src.utils
 import frontend.shared.src.zoom_requester
 import frontend.telegram_bot.src.app.commands
+import frontend.telegram_bot.src.app.commands.ask_for_results
 import frontend.telegram_bot.src.app.commands.help
 import frontend.telegram_bot.src.app.commands.menu
 import frontend.telegram_bot.src.app.commands.request_call
@@ -232,6 +233,10 @@ async def callback_distributor(
             await frontend.telegram_bot.src.app.commands.request_call.command(
                 update, context
             )
+        elif callback_file == "ask_for_results":
+            await frontend.telegram_bot.src.app.commands.ask_for_results.handle_confirmation(
+                update, context
+            )
     elif callback_group == "y":
         if (
             callback_file == "book"
@@ -245,6 +250,11 @@ async def callback_distributor(
 
             event = time_slots.read_one({"time": date.datetime})
             if event is None:
+                raise ValueError
+            users_collection = frontend.shared.src.db.UsersCollection()
+            user_chat_id: int = event.get("chat_id", 0)
+            user = users_collection.read_one({"chat_id": user_chat_id})
+            if user is None:
                 raise ValueError
 
             if event.get("meeting_link") is not None:
@@ -276,7 +286,6 @@ async def callback_distributor(
             if updated is None:
                 raise ValueError
             confirmations: dict[str, Any] = updated.get("confirmations", {})
-            users_collection = frontend.shared.src.db.UsersCollection()
 
             if len(confirmations) == 1:
                 meeting_link = frontend.shared.src.zoom_requester.ZOOM().create_meeting(
@@ -296,7 +305,9 @@ async def callback_distributor(
                     updated
                 ]:
                     text = (
-                        f"Консультация на {date.shift(hours=3).format('DD/MM/YYYY HH:mm')}"  # noqa
+                        f"Консультация с {user.get('first_name', 'error')} "
+                        f"@{user.get('username', 'error')} {user.get('chat_id', 'error')} "
+                        f"на {date.shift(hours=3).format('DD/MM/YYYY HH:mm')}"
                         " по Московскому времени подтверждена. \n\nСсылка на встречу: "
                         f"{meeting_link.get('join_url', 'error')}"
                     )
@@ -323,6 +334,11 @@ async def callback_distributor(
         elif callback_file == "menu":
             await frontend.shared.src.utils.remove_all_messages(chat_id, context)
             await frontend.telegram_bot.src.app.commands.menu.command(update, context)
+        elif callback_file == "ask_for_results":
+            await frontend.shared.src.utils.remove_all_messages(chat_id, context)
+            await frontend.telegram_bot.src.app.commands.ask_for_results.command(
+                update, context
+            )
     elif callback_group == "d":
         if callback_file == "ans_by_uid_and_test" and callback_arguments[-1] == "y":
             await frontend.admin_bot.src.app.commands.get_answers_by_user.delete_test_answer(  # noqa

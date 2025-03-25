@@ -53,6 +53,11 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton("Пройти ATQ тест", callback_data="r+atqstart")]
         )
 
+    if any([user_have_passed_iq_test, user_have_passed_atq_test]):
+        keyboard.append(
+            [InlineKeyboardButton("Результаты тестов", callback_data="r+ask_for_results")]
+        )
+
     if blocked_slots:
         # Show scheduled calls
         keyboard.append(
