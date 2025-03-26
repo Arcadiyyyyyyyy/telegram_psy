@@ -465,6 +465,15 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         with open(information.media_location, "rb") as file:
             media = file.read()
 
+        test_results_get_arg = f"test_step_{information.test_step}"
+        if not (test_results := context.user_data.get("test_results", {}).get("iq")):
+            test_results: dict[str, Any] = {}
+
+        used_answers = deepcopy(test_results)
+
+        if test_results.get(test_results_get_arg) is None:
+            used_answers = {}
+
         response = await context.bot.send_photo(
             update.effective_chat.id,
             media,
@@ -482,6 +491,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                     ]
                     + [0]
                 ),
+                used_answers=used_answers.get(test_results_get_arg, ""),
             ),
             parse_mode="HTML",
         )
