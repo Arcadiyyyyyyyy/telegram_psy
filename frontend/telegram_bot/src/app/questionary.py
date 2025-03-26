@@ -3,6 +3,7 @@ from typing import Any, Callable, Generator, Literal, Optional
 
 import arrow
 from loguru import logger
+from pydantic import ValidationError
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes, ConversationHandler
 
@@ -27,9 +28,13 @@ class ConversationUtils:
         test_step: int,
         furthest_answered_question: int,
         test_phase: int = 0,
-        used_answers: str = "",
+        used_answers: list[str] | None = None,
     ):
         buttons_for_moving_in_between_tests: list[InlineKeyboardButton] = []
+        if used_answers is None:
+            used_answers = [""]
+
+        logger.warning(f"Used answers: {used_answers}")
 
         if test_name == "atq":
             if test_step == 1:
@@ -90,6 +95,18 @@ class ConversationUtils:
             )
 
         if test_name == "atq":
+            answers = [
+                "Совершенно неверно",
+                "Неверно",
+                "Скорее неверно",
+                "Трудно сказать",
+                "Скорее верно",
+                "Верно",
+                "Совершенно верно",
+            ]
+            for i, answer in enumerate(answers.copy()):
+                if answer in used_answers:
+                    answers[i] = f"{answer} ✅"
             result = InlineKeyboardMarkup(
                 [
                     [
@@ -98,15 +115,7 @@ class ConversationUtils:
                             callback_data=f"a+{test_name}+step{test_step}+answer{answer}",  # noqa
                         )
                     ]
-                    for answer in [
-                        "Совершенно неверно",
-                        "Неверно",
-                        "Скорее неверно",
-                        "Трудно сказать",
-                        "Скорее верно",
-                        "Верно",
-                        "Совершенно верно",
-                    ]
+                    for answer in answers
                 ]
                 + [buttons_for_moving_in_between_tests]
             )
@@ -228,9 +237,13 @@ class ConversationUtils:
                 filter_to_check_existing_answer, new_test_answer
             )
         else:
-            test_answers_collection.create_test_answer(
-                frontend.shared.src.models.TestAnswerModel(**new_test_answer)
-            )
+            try:
+                test_answers_collection.create_test_answer(
+                    frontend.shared.src.models.TestAnswerModel(**new_test_answer)
+                )
+            except ValidationError:
+                logger.critical("Fucking alarma")
+                test_results = {"iq": {}, "atq": {}}
 
     def _reset_iq_answers(self, context: ContextTypes.DEFAULT_TYPE, step: int):
         if context.user_data is None:

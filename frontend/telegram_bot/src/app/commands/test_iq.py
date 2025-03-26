@@ -1,4 +1,5 @@
 import types
+from copy import deepcopy
 from datetime import timedelta
 from typing import Any, Callable, Generator
 
@@ -316,6 +317,17 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 phase = 4
                 test_text = ""
 
+            test_results_get_arg = f"test_step_{current_step}"
+            if not (
+                test_results := context.user_data.get("test_results", {}).get("iq")
+            ):
+                test_results: dict[str, Any] = {}
+
+            used_answers = deepcopy(test_results)
+
+            if test_results.get(test_results_get_arg) is None:
+                used_answers = {}
+
             with open(media_path, "rb") as file:
                 media = file.read()
             response = await context.bot.send_photo(
@@ -335,8 +347,11 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                         + [0]
                     ),
                     test_phase=phase,
+                    used_answers=used_answers.get(test_results_get_arg, ""),
                 ),
             )
+            logger.debug(context.user_data.get("test_results"))
+
             context.user_data["explainer_message_ids"].append(response.message_id)
             context.user_data["current_test_step"] = current_step
 
@@ -618,6 +633,6 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 context=context,
                 is_2_phase_step=is_2_phase_step,
             )
-        # logger.warning(context.user_data.get("test_results"))
+        logger.warning(context.user_data.get("test_results"))
 
         return misc_info.current_step

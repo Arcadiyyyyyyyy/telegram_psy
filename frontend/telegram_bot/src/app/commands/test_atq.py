@@ -1,6 +1,8 @@
 import types
+from copy import deepcopy
 from typing import Any, Callable, Generator
 
+from loguru import logger
 from telegram import Update
 from telegram.ext import ContextTypes, ConversationHandler
 
@@ -42,6 +44,17 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 update.effective_chat.id, context
             )
 
+            test_results_get_arg = f"test_step_{current_step}"
+            if not (
+                test_results := context.user_data.get("test_results", {}).get("atq")
+            ):
+                test_results: dict[str, Any] = {}
+
+            used_answers = deepcopy(test_results)
+
+            if test_results.get(test_results_get_arg) is None:
+                used_answers = {}
+
             chat_id = update.effective_chat.id
             response = await context.bot.send_message(
                 chat_id,
@@ -58,6 +71,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                         ]
                         + [0]
                     ),
+                    used_answers=[used_answers.get(test_results_get_arg, "")],
                 ),
             )
             if current_step != 1:
@@ -131,6 +145,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             misc_info=misc_info,
             context=context,
         )
+        logger.warning(context.user_data.get("test_results"))
 
         return misc_info.current_step
 
