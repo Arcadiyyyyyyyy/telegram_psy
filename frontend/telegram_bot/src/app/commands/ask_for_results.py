@@ -57,7 +57,10 @@ async def handle_confirmation(update: Update, context: ContextTypes.DEFAULT_TYPE
         update.effective_chat.id, context
     )
 
-    frontend.shared.src.db.ResultRequestsCollection().insert_one({"chat_id": chat_id})
+    request_collection = frontend.shared.src.db.ResultRequestsCollection()
+
+    if request_collection.read_one({"chat_id": chat_id}) is None:
+        request_collection.insert_one({"chat_id": chat_id})
 
     message = await context.bot.send_message(
         chat_id,

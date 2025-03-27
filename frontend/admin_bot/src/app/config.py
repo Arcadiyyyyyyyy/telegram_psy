@@ -5,6 +5,7 @@ from telegram.ext import Application, CallbackQueryHandler, CommandHandler
 import frontend.admin_bot.src.app.commands.get_all_atq_answers
 import frontend.admin_bot.src.app.commands.get_all_iq_answers
 import frontend.admin_bot.src.app.commands.get_answers_by_user
+import frontend.admin_bot.src.app.commands.get_interpretation_requests
 import frontend.admin_bot.src.app.commands.list_confirmed_consultations
 import frontend.admin_bot.src.app.commands.manage_time_slots
 import frontend.admin_bot.src.app.commands.start
@@ -40,6 +41,11 @@ commands = (
         "get_all_iq_answers",
         "Get csv of user iq answers",
         frontend.admin_bot.src.app.commands.get_all_iq_answers.command,
+    ),
+    frontend.shared.src.config.Command(
+        "get_interpretation_requests",
+        "Get user requests for test results",
+        frontend.admin_bot.src.app.commands.get_interpretation_requests.command,
     ),
 )
 
