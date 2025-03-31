@@ -33,20 +33,65 @@ def generate_test_answers_info(chat_id: int, conversation_name: str):
     if answer is None:
         raise ValueError
 
+    tests_collection = frontend.shared.src.db.TestsCollection()
+
     to_dump_to_csv: list[list[str | int]] = []
     test_question_steps = list(
-        x.get("test_step", 0)
-        for x in frontend.shared.src.db.TestsCollection().read({"is_test_step": True})
+        x.get("test_step", 0) for x in tests_collection.read({"is_test_step": True})
     )
 
     if conversation_name == "atq":
         for question, _answer in answer["test_results"].items():
             to_dump_to_csv.append([question, _answer])
     elif conversation_name == "iq":
+        subtest_first_question: dict[int, int] = {
+            1: list(
+                tests_collection.read(
+                    {"test_name": "iq", "phase": 1, "is_test_step": False},
+                    {"test_step": 1},
+                )
+            )[  # type: ignore # noqa
+                0
+            ],
+            2: list(
+                tests_collection.read(
+                    {"test_name": "iq", "phase": 2, "is_test_step": False},
+                    {"test_step": 1},
+                )
+            )[  # type: ignore # noqa
+                0
+            ],
+            3: list(
+                tests_collection.read(
+                    {"test_name": "iq", "phase": 3, "is_test_step": False},
+                    {"test_step": 1},
+                )
+            )[  # type: ignore # noqa
+                0
+            ],
+            4: list(
+                tests_collection.read(
+                    {"test_name": "iq", "phase": 4, "is_test_step": False},
+                    {"test_step": 1},
+                )
+            )[  # type: ignore # noqa
+                0
+            ],
+        }
         for question, _answer in answer["test_results"].items():
             question_step = int(question[10:])
+            test = tests_collection.read_one(
+                {"test_name": "iq", "test_step": question_step}
+            )
+            if test is not None:
+                question_aggregation_name = (
+                    f"Subtest: {test.get('phase', 'Error')}; "
+                    f"Question: {(test.get('test_step', 0) + 1) - subtest_first_question[test['phase']]['test_step']}"  # type: ignore
+                )  # type: ignore
+            else:
+                question_aggregation_name = question
             if question_step not in test_question_steps:
-                to_dump_to_csv.append([question, _answer])
+                to_dump_to_csv.append([question_aggregation_name, _answer])
 
     file_manager = frontend.shared.src.file_manager.FileManager()
     file_manager.write_cache_test_answers(chat_id, conversation_name, to_dump_to_csv)
