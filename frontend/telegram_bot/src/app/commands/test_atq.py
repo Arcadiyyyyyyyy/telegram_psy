@@ -8,7 +8,6 @@ from telegram.ext import ContextTypes, ConversationHandler
 
 import frontend.shared.src.db
 import frontend.shared.src.middleware
-import frontend.shared.src.models
 import frontend.shared.src.utils
 import frontend.telegram_bot.src.app.questionary
 
@@ -26,9 +25,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
         await self.commands[0][1](update, context)
 
     def _generate_function(
-        self,
-        question_text: str,
-        current_step: int,
+        self, question_text: str, current_step: int, total_amount_of_steps: int
     ) -> types.FunctionType:
         async def template_func(
             update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -44,6 +41,8 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 update.effective_chat.id, context
             )
 
+            current_step_info = f"{current_step}/{total_amount_of_steps}\n\n"
+
             test_results_get_arg = f"test_step_{current_step}"
             if not (
                 test_results := context.user_data.get("test_results", {}).get("atq")
@@ -58,7 +57,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             chat_id = update.effective_chat.id
             response = await context.bot.send_message(
                 chat_id,
-                question_text,
+                current_step_info + question_text,
                 reply_markup=self._generate_question_answer_keyboard(  # noqa
                     test_name="atq",
                     test_step=current_step,
@@ -97,6 +96,7 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             function = self._generate_function(
                 question_text=test.text,
                 current_step=test.test_step,
+                total_amount_of_steps=total_amount_of_steps,
             )
 
             yield (test.test_step, function)

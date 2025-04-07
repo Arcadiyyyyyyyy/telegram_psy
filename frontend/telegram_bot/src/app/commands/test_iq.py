@@ -92,7 +92,6 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                 test_results_get_arg
             ].replace(answer_text, "")
             try:
-                # MARK: TODO: check who the fuck are phase two answers
                 await context.bot.edit_message_reply_markup(
                     misc_info.chat_id,
                     update.effective_message.id,
@@ -555,13 +554,20 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             current_test.get("seconds_to_pass_the_phase") is not None
             and misc_info.answer_text != "Готов"
         ):
-            message = await context.bot.send_message(
-                misc_info.chat_id,
+            text = (
                 "На этом тренировки к этому тесту закончились. "
                 "\nТебе может не хватить времени, чтобы выполнить все задания. "
                 "Работай так быстро и внимательно, как сможешь.\n"
                 "Когда будешь готов начать тест — нажми на кнопку внизу, чтобы запустить таймер.\n\n"  # noqa
-                "Учти, что ты можешь изменить ответ на любой вопрос в любое время, пока не закончится таймер.",  # noqa
+                "Учти, что ты можешь изменить ответ на любой вопрос в любое время, пока не закончится таймер.\n\n"  # noqa
+            )  # noqa
+            if current_test.get("phase", 0) == 1:
+                text += "(!) хотим еще раз обратить внимание, что время на каждый тест ограничено, выполняйте так быстро как сможете.\n\n"  # noqa
+                text += "Лучше проходить iq тест со стационарного компьютера или планшета с большим экраном."
+
+            message = await context.bot.send_message(
+                misc_info.chat_id,
+                text,
                 reply_markup=InlineKeyboardMarkup(
                     [
                         [
