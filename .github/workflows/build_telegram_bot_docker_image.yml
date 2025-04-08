@@ -49,9 +49,9 @@ jobs:
       - name: Determine deployment folder
         run: |
           if [ "${{ github.event_name }}" == "push" ]; then
-            export DEPLOYMENT_FOLDER="Production/kopatych_psy/prod"
+            DEPLOYMENT_FOLDER="Production/kopatych_psy/prod"
           else
-            export DEPLOYMENT_FOLDER="Production/kopatych_psy/stage"
+            DEPLOYMENT_FOLDER="Production/kopatych_psy/stage"
           fi
       - name: Connect to host and execute command
         uses: appleboy/ssh-action@master
