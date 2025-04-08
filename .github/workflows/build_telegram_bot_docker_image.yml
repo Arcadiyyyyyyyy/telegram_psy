@@ -60,4 +60,4 @@ jobs:
           host: ${{ vars.PRODUCTION_SSH_HOST }}
           key: ${{ secrets.PRODUCTION_SSH_KEY }}
           script: |
-            cd ~/${DEPLOYMENT_FOLDER} && docker compose down; docker compose up -d
+            cd ~/$DEPLOYMENT_FOLDER && docker compose down; docker compose up -d
