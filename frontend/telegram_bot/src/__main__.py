@@ -6,7 +6,6 @@ from telegram import Update
 from telegram.ext import Application, PicklePersistence
 from telegram.warnings import PTBUserWarning
 
-import frontend.shared.src.config
 import frontend.shared.src.db
 import frontend.telegram_bot.src.app.config
 

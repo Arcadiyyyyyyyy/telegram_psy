@@ -178,6 +178,10 @@ async def set_up_commands(
             for x in Commands().conversation_handlers + Commands().commands
         ]
     )
+    try:
+        await bot.bot.send_message(431691892, "Started")
+    except Exception:
+        pass
 
 
 def bot_setup(

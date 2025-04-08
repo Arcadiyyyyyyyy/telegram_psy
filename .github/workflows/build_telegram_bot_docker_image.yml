@@ -45,6 +45,8 @@ jobs:
   release:
     runs-on: ubuntu-latest
     needs: build
+    env:
+      folder:
     steps:
       - name: Determine deployment folder
         run: |

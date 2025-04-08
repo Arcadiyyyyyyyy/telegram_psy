@@ -105,7 +105,7 @@ class ConversationUtils:
                 "Совершенно верно",
             ]
             for i, answer in enumerate(answers.copy()):
-                if answer in used_answers:
+                if answer.rstrip(" ✅") in used_answers:
                     answers[i] = f"{answer} ✅"
             result = InlineKeyboardMarkup(
                 [
