@@ -1,4 +1,4 @@
-name: Build telegram bot image
+name: Build and release
 
 on:
   push:
@@ -12,12 +12,14 @@ defaults:
     working-directory: ./
 
 env:
-  IMAGE_NAME: psy_telegram_bot
   REGISTRY: ghcr.io
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image: ["telegram_bot", "admin_bot"]
 
     steps:
       - name: Check out the repo
@@ -28,21 +30,32 @@ jobs:
 
       - name: Build and push the image
         run: |
-          IMAGE_ID=${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}
+          IMAGE_ID=${{ env.REGISTRY }}/${{ github.repository }}/psy_${{ matrix.image }}
 
           # Strip git ref prefix from version
           VERSION=$(echo "${{ github.ref }}" | sed -e 's/[\/-]/_/g')
-
-          # tag
           TAG=$IMAGE_ID:$VERSION
-
           # Change all uppercase to lowercase
           TAG=$(echo $TAG | tr '[A-Z]' '[a-z]')
-
           echo TAG=$TAG
 
-          # Build the Docker image
-          docker build . -f telegram_bot.dockerfile -t $TAG
-
-          # Docker Push
+          docker build . -f ${{ matrix.image }}.dockerfile -t $TAG
           docker push $TAG
+
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine deployment folder
+        run: |
+          if [ "${{ github.event_name }}" == "push" ]; then
+            export DEPLOYMENT_FOLDER="Production/kopatych_psy/prod"
+          else
+            export DEPLOYMENT_FOLDER="Production/kopatych_psy/stage"
+          fi
+      - name: Connect to host and execute command
+        uses: appleboy/ssh-action@v1
+        with:
+          username: ${{ vars.PRODUCTION_SSH_USERNAME }}
+          host: ${{ vars.PRODUCTION_SSH_HOST }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          script: cd ~/${DEPLOYMENT_FOLDER} && docker compose down; docker compose up -d
