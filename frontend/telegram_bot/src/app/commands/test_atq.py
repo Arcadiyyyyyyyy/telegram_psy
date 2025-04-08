@@ -63,10 +63,11 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
                     test_step=current_step,
                     furthest_answered_question=max(
                         [
-                            int(x[10:])
-                            for x in context.user_data.get("test_results", {})
+                            int(key[10:])
+                            for key, value in context.user_data.get("test_results", {})
                             .get("atq", {})
-                            .keys()
+                            .items()
+                            if value != ""
                         ]
                         + [0]
                     ),
