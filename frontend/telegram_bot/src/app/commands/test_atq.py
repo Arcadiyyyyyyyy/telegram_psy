@@ -146,7 +146,6 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             misc_info=misc_info,
             context=context,
         )
-        logger.warning(context.user_data.get("test_results"))
 
         return misc_info.current_step
 

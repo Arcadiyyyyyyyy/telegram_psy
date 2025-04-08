@@ -642,13 +642,11 @@ class Conversation(frontend.telegram_bot.src.app.questionary.Conversation):
             misc_info.current_step in self.commands_distributes_by_phases[2].keys()
         )
 
-        # logger.warning(context.user_data.get("test_results"))
         if not is_test_step:
             self._save_question_answer(
                 misc_info=misc_info,
                 context=context,
                 is_2_phase_step=is_2_phase_step,
             )
-        logger.warning(context.user_data.get("test_results"))
 
         return misc_info.current_step

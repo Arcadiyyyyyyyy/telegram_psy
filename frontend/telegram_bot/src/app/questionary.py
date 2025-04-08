@@ -33,8 +33,11 @@ class ConversationUtils:
         buttons_for_moving_in_between_tests: list[InlineKeyboardButton] = []
         if used_answers is None:
             used_answers = [""]
+        real_used_answers: list[str] = []
+        for answer in used_answers.copy():
+            real_used_answers.append(answer.rstrip(" ✅"))
+        used_answers = real_used_answers.copy()
 
-        logger.warning(f"Used answers: {used_answers}")
 
         if test_name == "atq":
             if test_step == 1:

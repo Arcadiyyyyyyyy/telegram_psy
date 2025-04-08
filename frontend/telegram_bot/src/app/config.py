@@ -11,7 +11,6 @@ from telegram.ext import (
 )
 
 import frontend.shared.src.config
-import frontend.shared.src.db
 import frontend.shared.src.errors
 import frontend.shared.src.middleware
 import frontend.shared.src.utils
