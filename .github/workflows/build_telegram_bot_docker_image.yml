@@ -58,4 +58,5 @@ jobs:
           username: ${{ vars.PRODUCTION_SSH_USERNAME }}
           host: ${{ vars.PRODUCTION_SSH_HOST }}
           key: ${{ secrets.PRODUCTION_SSH_KEY }}
-          script: cd ~/${DEPLOYMENT_FOLDER} && docker compose down; docker compose up -d
+          script: |
+            cd ~/${DEPLOYMENT_FOLDER} && docker compose down; docker compose up -d
