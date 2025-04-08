@@ -49,12 +49,10 @@ jobs:
       - name: Determine deployment folder
         run: |
           if [ "${{ github.event_name }}" == "push" ]; then
-            DEPLOYMENT_FOLDER="Production/kopatych_psy/prod"
+            echo "folder=Production/kopatych_psy/prod" >> $GITHUB_ENV
           else
-            DEPLOYMENT_FOLDER="Production/kopatych_psy/stage"
+            echo "folder=Production/kopatych_psy/stage" >> $GITHUB_ENV
           fi
-      - name: debug_test
-        run: echo ~/$DEPLOYMENT_FOLDER
       - name: Connect to host and execute command
         uses: appleboy/ssh-action@master
         with:
@@ -62,4 +60,5 @@ jobs:
           host: ${{ vars.PRODUCTION_SSH_HOST }}
           key: ${{ secrets.PRODUCTION_SSH_KEY }}
           script: |
-            cd ~/$DEPLOYMENT_FOLDER && docker compose down; docker compose up -d
+            echo ~/${{ env.folder }}
+            cd ~/${{ env.folder }} && docker compose down; docker compose up -d
