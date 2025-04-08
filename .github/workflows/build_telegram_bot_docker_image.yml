@@ -53,6 +53,8 @@ jobs:
           else
             DEPLOYMENT_FOLDER="Production/kopatych_psy/stage"
           fi
+      - name: debug_test
+        run: echo ~/$DEPLOYMENT_FOLDER
       - name: Connect to host and execute command
         uses: appleboy/ssh-action@master
         with:
