@@ -2,7 +2,6 @@ import types
 from copy import deepcopy
 from typing import Any, Callable, Generator
 
-from loguru import logger
 from telegram import Update
 from telegram.ext import ContextTypes, ConversationHandler
 
