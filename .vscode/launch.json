@@ -16,5 +16,13 @@
       "request": "launch",
       "module": "frontend.admin_bot.src"
     }
+  ],
+  "compounds": [
+    {
+      "name": "Admin and user",
+      "configurations": ["User facing bot", "Admin bot"],
+      "preLaunchTask": "${defaultBuildTask}",
+      "stopAll": true
+    }
   ]
 }

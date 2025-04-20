@@ -30,6 +30,6 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if user is None:
             user = {}
 
-        text += f"{user['first_name']} | {user['username']} | {user['chat_id']}\n"
+        text += f"{user['first_name']} | @{user['username']} | {user['chat_id']}\n"
 
     await context.bot.send_message(_chat_id, text)

@@ -21,7 +21,7 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     user_data = [
         (
-            f"{user['first_name']} | {user['username']} | {user['chat_id']}",
+            f"{user['first_name']} | @{user['username']} | {user['chat_id']}",
             user["chat_id"],
         )
         for user in frontend.shared.src.db.UsersCollection().read({}, {"created_at": 1})

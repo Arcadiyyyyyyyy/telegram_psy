@@ -58,9 +58,26 @@ async def handle_confirmation(update: Update, context: ContextTypes.DEFAULT_TYPE
     )
 
     request_collection = frontend.shared.src.db.ResultRequestsCollection()
+    users_collection = frontend.shared.src.db.UsersCollection()
 
     if request_collection.read_one({"chat_id": chat_id}) is None:
         request_collection.insert_one({"chat_id": chat_id})
+        user = users_collection.read_one({"chat_id": chat_id})
+        if not user:
+            raise ValueError
+
+        for _chat_id in list(users_collection.read({"admin": True})):
+            text = (
+                f"Пользователь {user.get('first_name', 'error')} "
+                f"@{user.get('username', 'error')} {user.get('chat_id', 'error')} "
+                " запросил результаты тестов"
+            )
+            try:
+                await context.bot.send_message(
+                    _chat_id["chat_id"], text, disable_web_page_preview=True
+                )
+            except Exception:
+                pass
 
     message = await context.bot.send_message(
         chat_id,
