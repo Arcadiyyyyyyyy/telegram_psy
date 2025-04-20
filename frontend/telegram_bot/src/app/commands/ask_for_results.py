@@ -70,7 +70,7 @@ async def handle_confirmation(update: Update, context: ContextTypes.DEFAULT_TYPE
             text = (
                 f"Пользователь {user.get('first_name', 'error')} "
                 f"@{user.get('username', 'error')} {user.get('chat_id', 'error')} "
-                " запросил результаты тестов"
+                "запросил результаты тестов"
             )
             try:
                 await context.bot.send_message(

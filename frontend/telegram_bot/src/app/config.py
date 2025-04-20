@@ -11,6 +11,7 @@ from telegram.ext import (
 )
 
 import frontend.shared.src.config
+import frontend.shared.src.db
 import frontend.shared.src.errors
 import frontend.shared.src.middleware
 import frontend.shared.src.utils
@@ -181,6 +182,26 @@ async def set_up_commands(
         await bot.bot.send_message(431691892, "Started")
     except Exception:
         pass
+
+    request_collection = frontend.shared.src.db.ResultRequestsCollection()
+    users_collection = frontend.shared.src.db.UsersCollection()
+
+    for _chat_id in list(users_collection.read({"admin": True})):
+        for request in request_collection.read({}):
+            user = users_collection.read_one({"chat_id": request["chat_id"]})
+            if user is None:
+                raise ValueError
+            text = (
+                f"Пользователь {user.get('first_name', 'error')} "
+                f"@{user.get('username', 'error')} {user.get('chat_id', 'error')} "
+                "запросил результаты тестов"
+            )
+            try:
+                await bot.bot.send_message(
+                    _chat_id["chat_id"], text, disable_web_page_preview=True
+                )
+            except Exception:
+                pass
 
 
 def bot_setup(
