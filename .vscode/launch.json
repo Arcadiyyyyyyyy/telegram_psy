@@ -15,6 +15,12 @@
       "type": "debugpy",
       "request": "launch",
       "module": "frontend.admin_bot.src"
+    },
+    {
+      "name": "Send results",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "frontend.telegram_bot.src.send_results"
     }
   ],
   "compounds": [
