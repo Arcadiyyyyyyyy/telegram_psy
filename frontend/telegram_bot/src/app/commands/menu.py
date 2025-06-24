@@ -41,7 +41,10 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         431691892,
     }:
         for i in range(30):
-            await context.bot.delete_message(user_id, update.message.id - i)
+            try:
+                await context.bot.delete_message(user_id, update.message.id - i)
+            except Exception:
+                pass
 
     await frontend.shared.src.utils.remove_all_messages(
         update.effective_chat.id, context
