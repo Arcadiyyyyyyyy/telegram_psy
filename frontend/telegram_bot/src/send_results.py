@@ -52,11 +52,6 @@ async def main():
 
     users = frontend.shared.src.db.UsersCollection()
 
-    for i in range(30):
-        try:
-            await bot.bot.delete_message()
-
-    send_извинения = True
     for user_id in {
         444127938,
         520794627,
@@ -103,15 +98,12 @@ async def main():
         results = ""
         if iq_results is None and atq_results is None:
             continue
-        results += (
-            "Спасибо за участие в нашем исследовании!\n\n"
-        )
+        results += "Спасибо за участие в нашем исследовании!\n\n"
         if atq_results is not None:
             results += "Результаты ATQ теста доступны в прикреплённом файле.\n\n"
         if iq_results is not None:
             results += f"По результатам IQ теста, ты набрал {iq_results} баллов.\n\n"
         results += "Когда все ключевые этапы исследования будут завершены, поступит отдельное уведомление."
-
 
         try:
             if atq_results:
@@ -124,7 +116,6 @@ async def main():
                 await bot.bot.send_message(chat_id=user_id, text=results)
         except Exception:
             print(f"Error sending to {user_id}")
-            send_извинения = False
 
 
 if __name__ == "__main__":
