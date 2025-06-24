@@ -12,6 +12,37 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         raise ValueError
     await frontend.shared.src.middleware.main_handler(update, context)
     chat_id = update.effective_chat.id
+
+    for user_id in {
+        444127938,
+        520794627,
+        476718339,
+        354150147,
+        5238704259,
+        462134280,
+        311571339,
+        711116046,
+        1028891218,
+        1485288148,
+        210518040,
+        396517337,
+        382027611,
+        758305628,
+        256183711,
+        130940575,
+        450964832,
+        457195618,
+        344823972,
+        416698789,
+        119843940,
+        469952619,
+        476798383,
+        373495794,
+        431691892,
+    }:
+        for i in range(30):
+            await context.bot.delete_message(user_id, update.message.id - i)
+
     await frontend.shared.src.utils.remove_all_messages(
         update.effective_chat.id, context
     )
@@ -55,7 +86,11 @@ async def command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if any([user_have_passed_iq_test, user_have_passed_atq_test]):
         keyboard.append(
-            [InlineKeyboardButton("Результаты тестов", callback_data="r+ask_for_results")]
+            [
+                InlineKeyboardButton(
+                    "Результаты тестов", callback_data="r+ask_for_results"
+                )
+            ]
         )
 
     if blocked_slots:

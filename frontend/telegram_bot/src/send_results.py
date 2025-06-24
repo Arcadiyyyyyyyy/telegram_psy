@@ -1,11 +1,9 @@
 import asyncio
 import os
 import warnings
-from fileinput import FileInput
 from pathlib import Path
 
 from loguru import logger
-from telegram import Document, InputMediaDocument
 from telegram.ext import Application
 from telegram.warnings import PTBUserWarning
 
@@ -54,6 +52,11 @@ async def main():
 
     users = frontend.shared.src.db.UsersCollection()
 
+    for i in range(30):
+        try:
+            await bot.bot.delete_message()
+
+    send_извинения = True
     for user_id in {
         444127938,
         520794627,
@@ -102,7 +105,6 @@ async def main():
             continue
         results += (
             "Спасибо за участие в нашем исследовании!\n\n"
-            "Как и обещали, ниже проанализированные результаты твоих ответов.\n\n"
         )
         if atq_results is not None:
             results += "Результаты ATQ теста доступны в прикреплённом файле.\n\n"
@@ -110,14 +112,19 @@ async def main():
             results += f"По результатам IQ теста, ты набрал {iq_results} баллов.\n\n"
         results += "Когда все ключевые этапы исследования будут завершены, поступит отдельное уведомление."
 
-        if atq_results:
-            await bot.bot.send_document(
-                chat_id=user_id,
-                document=atq_results_path,
-                caption=results,
-            )
-        else:
-            await bot.bot.send_message(chat_id=user_id, text=results)
+
+        try:
+            if atq_results:
+                await bot.bot.send_document(
+                    chat_id=user_id,
+                    document=atq_results_path,
+                    caption=results,
+                )
+            else:
+                await bot.bot.send_message(chat_id=user_id, text=results)
+        except Exception:
+            print(f"Error sending to {user_id}")
+            send_извинения = False
 
 
 if __name__ == "__main__":
