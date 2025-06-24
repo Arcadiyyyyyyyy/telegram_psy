@@ -5,6 +5,7 @@ from fileinput import FileInput
 from pathlib import Path
 
 from loguru import logger
+from telegram import Document, InputMediaDocument
 from telegram.ext import Application
 from telegram.warnings import PTBUserWarning
 
@@ -54,30 +55,30 @@ async def main():
     users = frontend.shared.src.db.UsersCollection()
 
     for user_id in {
-        # 444127938,
-        # 520794627,
-        # 476718339,
-        # 354150147,
-        # 5238704259,
-        # 462134280,
-        # 311571339,
-        # 711116046,
-        # 1028891218,
-        # 1485288148,
-        # 210518040,
-        # 396517337,
-        # 382027611,
-        # 758305628,
-        # 256183711,
-        # 130940575,
-        # 450964832,
-        # 457195618,
-        # 344823972,
-        # 416698789,
-        # 119843940,
-        # 469952619,
-        # 476798383,
-        # 373495794,
+        444127938,
+        520794627,
+        476718339,
+        354150147,
+        5238704259,
+        462134280,
+        311571339,
+        711116046,
+        1028891218,
+        1485288148,
+        210518040,
+        396517337,
+        382027611,
+        758305628,
+        256183711,
+        130940575,
+        450964832,
+        457195618,
+        344823972,
+        416698789,
+        119843940,
+        469952619,
+        476798383,
+        373495794,
         431691892,
     }:
         user = users.read_one({"chat_id": user_id})
@@ -97,20 +98,23 @@ async def main():
                 atq_results = file.read()
 
         results = ""
-        if iq_results is not None and atq_results is not None:
+        if iq_results is None and atq_results is None:
             continue
         results += (
-            "Спасибо за прохождение нашего исследования!\n"
+            "Спасибо за участие в нашем исследовании!\n\n"
             "Как и обещали, ниже проанализированные результаты твоих ответов.\n\n"
         )
-        if iq_results is not None:
-            results += f"По результатам IQ теста, ты набрал {iq_results} баллов.\n"
         if atq_results is not None:
-            results += "Результаты ATQ теста доступны в прикреплённом файле."
+            results += "Результаты ATQ теста доступны в прикреплённом файле.\n\n"
+        if iq_results is not None:
+            results += f"По результатам IQ теста, ты набрал {iq_results} баллов.\n\n"
+        results += "Когда все ключевые этапы исследования будут завершены, поступит отдельное уведомление."
 
         if atq_results:
             await bot.bot.send_document(
-                chat_id=user_id, document=FileInput(atq_results), caption=results
+                chat_id=user_id,
+                document=atq_results_path,
+                caption=results,
             )
         else:
             await bot.bot.send_message(chat_id=user_id, text=results)
